@@ -1,0 +1,73 @@
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Synonms.RestEasy.Abstractions.Attributes;
+using Synonms.RestEasy.Abstractions.Routing;
+
+namespace Synonms.RestEasy.IoC;
+
+public class RestEasyControllerModelConvention : IControllerModelConvention
+{
+    private readonly IRouteNameProvider _routeNameProvider;
+
+    public RestEasyControllerModelConvention(IRouteNameProvider routeNameProvider)
+    {
+        _routeNameProvider = routeNameProvider;
+    }
+    
+    public void Apply(ControllerModel controllerModel)
+    {
+        if (controllerModel.ControllerType.IsGenericType)
+        {
+            Type aggregateRootType = controllerModel.ControllerType.GenericTypeArguments[0];
+            RestEasyResourceAttribute? resourceAttribute = aggregateRootType.GetCustomAttribute<RestEasyResourceAttribute>();
+
+            if (resourceAttribute is null)
+            {
+                return;
+            }
+            
+            AddControllerRoute(controllerModel, resourceAttribute);
+            AddActionRoutes(controllerModel, aggregateRootType);
+        }
+    }
+
+    private void AddActionRoutes(ControllerModel controllerModel, Type aggregateRootType)
+    {
+        foreach (ActionModel action in controllerModel.Actions)
+        {
+            RouteAttribute routeAttribute = action.ActionName switch
+            {
+                "GetById" => new RouteAttribute("{id}")
+                {
+                    Name = _routeNameProvider.GetById(aggregateRootType)
+                },
+                "GetAll" => new RouteAttribute("")
+                {
+                    Name = _routeNameProvider.GetAll(aggregateRootType)
+                },
+                _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
+            };
+
+            Console.WriteLine("Adding route name [{0}].", routeAttribute.Name);
+
+            action.Selectors.Add(new SelectorModel
+            {
+                AttributeRouteModel = new AttributeRouteModel(routeAttribute)
+            });
+        }
+    }
+
+    private static void AddControllerRoute(ControllerModel controllerModel, RestEasyResourceAttribute resourceAttribute)
+    {
+        if (string.IsNullOrWhiteSpace(resourceAttribute.CollectionPath) is false)
+        {
+            Console.WriteLine("Registering endpoint route [{0}].", resourceAttribute.CollectionPath);
+
+            controllerModel.Selectors.Add(new SelectorModel
+            {
+                AttributeRouteModel = new AttributeRouteModel(new RouteAttribute(resourceAttribute.CollectionPath)),
+            });
+        }
+    }
+}

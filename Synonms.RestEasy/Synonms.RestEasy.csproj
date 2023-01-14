@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Synonms.RestEasy.Abstractions\Synonms.RestEasy.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MediatR" Version="11.1.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
+      <PackageReference Include="Synonms.Functional" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Hypermedia" />
+    </ItemGroup>
+
+</Project>
