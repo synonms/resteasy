@@ -3,11 +3,16 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Synonms.RestEasy.Abstractions.Application;
+using Synonms.RestEasy.Abstractions.Domain;
+using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Routing;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.Hypermedia.Ion;
+using Synonms.RestEasy.Mediation.Commands;
 using Synonms.RestEasy.Mediation.Queries;
 using Synonms.RestEasy.Routing;
+using Synonms.RestEasy.Schema.Documents;
 
 namespace Synonms.RestEasy.IoC;
 
@@ -22,7 +27,14 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton(routeNameProvider);
 
         serviceCollection.AddSingleton<IRouteGenerator, RouteGenerator>();
+        serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
         serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(ICreateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IReadRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IUpdateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IDeleteRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 
         foreach ((string _, IResourceDirectory.AggregateLayout aggregateLayout) in resourceDirectory.GetAll())
         { 
@@ -74,6 +86,15 @@ public static class ServiceCollectionExtensions
         Console.WriteLine("Registering service [{0}] -> [{1}]", readResourceCollectionRequestHandlerInterfaceType.Name, readResourceCollectionRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
+        
+        Type createResourceRequestType = typeof(CreateResourceRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type createResourceResponseType = typeof(CreateResourceResponse<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type createResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(createResourceRequestType, createResourceResponseType);
+        Type createResourceRequestHandlerImplementationType = typeof(CreateResourceRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+
+        Console.WriteLine("Registering service [{0}] -> [{1}]", createResourceRequestHandlerInterfaceType.Name, createResourceRequestHandlerImplementationType.Name);
+        
+        serviceCollection.AddTransient(createResourceRequestHandlerInterfaceType, createResourceRequestHandlerImplementationType);
     }
 
     public static IServiceCollection RegisterAllImplementationsOf(this IServiceCollection serviceCollection, Type interfaceType, Func<Type, Type, IServiceCollection> registrationFunc, params Assembly[] assemblies)

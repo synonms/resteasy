@@ -18,4 +18,25 @@ public class RouteNameProvider : IRouteNameProvider
 
     public string GetAll(Type aggregateRootType) =>
         aggregateRootType.Name + nameof(GetAll);
+    
+    public string Post<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
+            Post(typeof(TAggregateRoot));
+        
+    public string Post(Type aggregateRootType) =>
+        aggregateRootType.Name + nameof(Post);
+    
+    public string Put<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
+        Post(typeof(TAggregateRoot));
+        
+    public string Put(Type aggregateRootType) =>
+        aggregateRootType.Name + nameof(Put);
+    
+    public string Delete<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot> =>
+        Post(typeof(TAggregateRoot));
+        
+    public string Delete(Type aggregateRootType) =>
+        aggregateRootType.Name + nameof(Delete);
 }

@@ -22,7 +22,7 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     private readonly IRouteGenerator _routeGenerator;
     private readonly IErrorCollectionDocumentFactory _errorCollectionDocumentFactory;
 
-    protected PostEndpoint(IMediator mediator, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
+    public PostEndpoint(IMediator mediator, IRouteGenerator routeGenerator, IErrorCollectionDocumentFactory errorCollectionDocumentFactory)
     {
         _mediator = mediator;
         _routeGenerator = routeGenerator;
@@ -31,7 +31,7 @@ public class PostEndpoint<TAggregateRoot, TResource> : ControllerBase
     
     [HttpPost]
     [Route("")]
-    public async Task<IActionResult> HandleAsync([FromBody] TResource resource)
+    public async Task<IActionResult> PostAsync([FromBody] TResource resource)
     {
         // TODO: Support parameters
         CreateResourceRequest<TAggregateRoot, TResource> request = new(resource);

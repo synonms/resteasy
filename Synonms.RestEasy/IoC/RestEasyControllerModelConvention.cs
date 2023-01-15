@@ -46,6 +46,18 @@ public class RestEasyControllerModelConvention : IControllerModelConvention
                 {
                     Name = _routeNameProvider.GetAll(aggregateRootType)
                 },
+                "Post" => new RouteAttribute("")
+                {
+                    Name = _routeNameProvider.Post(aggregateRootType)
+                },
+                "Put" => new RouteAttribute("")
+                {
+                    Name = _routeNameProvider.Put(aggregateRootType)
+                },
+                "Delete" => new RouteAttribute("")
+                {
+                    Name = _routeNameProvider.Delete(aggregateRootType)
+                },
                 _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
             };
 

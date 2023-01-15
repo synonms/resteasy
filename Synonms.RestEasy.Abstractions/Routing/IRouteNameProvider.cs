@@ -13,4 +13,19 @@ public interface IRouteNameProvider
         where TAggregateRoot : AggregateRoot<TAggregateRoot>;
         
     string GetAll(Type aggregateRootType);
+    
+    string Post<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+        
+    string Post(Type aggregateRootType);
+    
+    string Put<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+        
+    string Put(Type aggregateRootType);
+    
+    string Delete<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+        
+    string Delete(Type aggregateRootType);
 }

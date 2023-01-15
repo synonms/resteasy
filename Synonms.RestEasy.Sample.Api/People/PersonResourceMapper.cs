@@ -18,14 +18,13 @@ public class PersonResourceMapper : IResourceMapper<Person, PersonResource>
         Uri selfUri = _routeGenerator.Item(httpContext, aggregateRoot.Id);
         Link selfLink = Link.SelfLink(selfUri);
         
-        PersonResource resource = new (
-            aggregateRoot.Id, 
-            selfLink,
-            aggregateRoot.Forename,
-            aggregateRoot.Surname,
-            aggregateRoot.DateOfBirth,
-            aggregateRoot.HomeAddressId
-        );
+        PersonResource resource = new (aggregateRoot.Id, selfLink)
+        {
+            Forename = aggregateRoot.Forename,
+            Surname = aggregateRoot.Surname,
+            DateOfBirth = aggregateRoot.DateOfBirth,
+            HomeAddressId = aggregateRoot.HomeAddressId
+        };
 
         Uri homeAddressUri = _routeGenerator.Item(httpContext, aggregateRoot.HomeAddressId);
         Link homeAddressLink = Link.RelationLink(homeAddressUri);

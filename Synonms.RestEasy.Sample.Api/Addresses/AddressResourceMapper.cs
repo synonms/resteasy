@@ -18,12 +18,11 @@ public class AddressResourceMapper : IResourceMapper<Address, AddressResource>
         Uri selfUri = _routeGenerator.Item(httpContext, aggregateRoot.Id);
         Link selfLink = Link.SelfLink(selfUri);
         
-        return new AddressResource(
-            aggregateRoot.Id, 
-            selfLink,
-            aggregateRoot.Line1,
-            aggregateRoot.Line2,
-            aggregateRoot.PostCode
-        );
+        return new AddressResource(aggregateRoot.Id, selfLink)
+        {
+            Line1 = aggregateRoot.Line1,
+            Line2 = aggregateRoot.Line2,
+            PostCode = aggregateRoot.PostCode
+        };
     }
 }

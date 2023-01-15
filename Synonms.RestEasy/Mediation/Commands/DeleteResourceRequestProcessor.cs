@@ -6,7 +6,7 @@ using Synonms.RestEasy.Domain.Faults;
 
 namespace Synonms.RestEasy.Mediation.Commands;
 
-public abstract class DeleteResourceRequestProcessor<TAggregateRoot> : IRequestHandler<DeleteResourceRequest<TAggregateRoot>, DeleteResourceResponse>
+public class DeleteResourceRequestProcessor<TAggregateRoot> : IRequestHandler<DeleteResourceRequest<TAggregateRoot>, DeleteResourceResponse>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
     private readonly IReadRepository<TAggregateRoot> _readRepository;

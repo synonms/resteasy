@@ -8,7 +8,7 @@ using Synonms.RestEasy.Domain.Faults;
 
 namespace Synonms.RestEasy.Mediation.Commands;
 
-public abstract class UpdateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<UpdateResourceRequest<TAggregateRoot, TResource>, UpdateResourceResponse<TAggregateRoot>>
+public class UpdateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<UpdateResourceRequest<TAggregateRoot, TResource>, UpdateResourceResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource<TAggregateRoot>
 {

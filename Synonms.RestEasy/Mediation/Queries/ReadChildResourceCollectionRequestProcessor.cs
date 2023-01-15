@@ -7,7 +7,7 @@ using Synonms.RestEasy.SharedKernel.Collections;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
-public abstract class ReadChildResourceCollectionRequestProcessor<TParentEntity, TAggregateRoot, TResource> : IRequestHandler<ReadChildResourceCollectionRequest<TParentEntity, TAggregateRoot, TResource>, ReadChildResourceCollectionResponse<TParentEntity, TAggregateRoot, TResource>>
+public class ReadChildResourceCollectionRequestProcessor<TParentEntity, TAggregateRoot, TResource> : IRequestHandler<ReadChildResourceCollectionRequest<TParentEntity, TAggregateRoot, TResource>, ReadChildResourceCollectionResponse<TParentEntity, TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TParentEntity : Entity<TParentEntity>
     where TResource : Resource<TAggregateRoot>

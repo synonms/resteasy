@@ -6,7 +6,7 @@ using Synonms.RestEasy.Abstractions.Schema;
 
 namespace Synonms.RestEasy.Mediation.Commands;
 
-public abstract class CreateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<CreateResourceRequest<TAggregateRoot, TResource>, CreateResourceResponse<TAggregateRoot>>
+public class CreateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<CreateResourceRequest<TAggregateRoot, TResource>, CreateResourceResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource<TAggregateRoot>
 {

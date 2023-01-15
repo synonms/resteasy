@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using Synonms.RestEasy.Abstractions.Constants;
+using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.Serialisation.Ion;
 using Synonms.RestEasy.SharedKernel.Serialisation;
 
@@ -19,7 +20,7 @@ public class IonInputFormatter : TextInputFormatter
     }
 
     protected override bool CanReadType(Type type) => 
-        false; // TODO: Is ResourceTemplate?
+        type.IsResource();
     
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
     {

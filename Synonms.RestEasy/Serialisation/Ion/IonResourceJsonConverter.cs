@@ -10,11 +10,37 @@ namespace Synonms.RestEasy.Serialisation.Ion;
 
 public class IonResourceJsonConverter<TAggregateRoot, TResource> : JsonConverter<TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>
+    where TResource : Resource<TAggregateRoot>, new()
 {
     public override TResource Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        throw new NotSupportedException();
+        if (!JsonDocument.TryParseValue(ref reader, out JsonDocument? doc))
+        {
+            throw new JsonException("Failed to parse JsonDocument");
+        }
+
+        using JsonDocument jsonDocument = doc;
+
+        TResource resourceTemplate = new();
+
+        foreach (JsonProperty jsonProperty in jsonDocument.RootElement.EnumerateObject())
+        {
+            PropertyInfo? propertyInfo = typeof(TResource).GetProperty(jsonProperty.Name.ToPascalCase(), BindingFlags.Instance | BindingFlags.Public);
+
+            if (propertyInfo is null || propertyInfo.CanWrite is false)
+            {
+                continue;
+            }
+
+            object? value = jsonProperty.Value.Deserialize(propertyInfo.PropertyType, options);
+
+            if (value is not null && value.GetType().IsAssignableTo(propertyInfo.PropertyType))
+            {
+                propertyInfo.SetValue(resourceTemplate, value);
+            }
+        }
+            
+        return resourceTemplate;
     }
 
     public override void Write(Utf8JsonWriter writer, TResource value, JsonSerializerOptions options)

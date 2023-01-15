@@ -21,6 +21,7 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
         {
             AddGetById(feature, aggregateLayout);
             AddGetAll(feature, aggregateLayout);
+            AddPost(feature, aggregateLayout);
         }
     }
 
@@ -40,5 +41,14 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
         Console.WriteLine("Registering endpoint [{0}].", getAllEndpointType.Name);
 
         feature.Controllers.Add(getAllEndpointType.GetTypeInfo());
+    }
+    
+    private static void AddPost(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type postEndpointType = typeof(PostEndpoint<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+                
+        Console.WriteLine("Registering endpoint [{0}].", postEndpointType.Name);
+
+        feature.Controllers.Add(postEndpointType.GetTypeInfo());
     }
 }
