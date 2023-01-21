@@ -7,6 +7,7 @@ using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Application;
 using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.Hypermedia.Ion;
 using Synonms.RestEasy.Mediation.Commands;
@@ -28,7 +29,6 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddSingleton<IRouteGenerator, RouteGenerator>();
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
-        serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(ICreateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IReadRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IUpdateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
@@ -38,7 +38,9 @@ public static class ServiceCollectionExtensions
 
         foreach ((string _, IResourceDirectory.AggregateLayout aggregateLayout) in resourceDirectory.GetAll())
         { 
-            serviceCollection.RegisterRequestHandlers(aggregateLayout);
+            serviceCollection
+                .RegisterRequestHandlers(aggregateLayout)
+                .RegisterResourceMappers(aggregateLayout);
         }
 
         serviceCollection.AddControllers(mvcOptions =>
@@ -62,10 +64,13 @@ public static class ServiceCollectionExtensions
         serviceCollection.TryAdd(new ServiceDescriptor(typeof(ISender), sp => sp.GetRequiredService<IMediator>(), ServiceLifetime.Transient));
         serviceCollection.TryAdd(new ServiceDescriptor(typeof(IPublisher), sp => sp.GetRequiredService<IMediator>(), ServiceLifetime.Transient));
 
+        // Replace default mappers where an explicit one is provided
+        serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, aggregateAssemblies);
+
         return new RestEasyServiceBuilder(serviceCollection);
     }
     
-    private static void RegisterRequestHandlers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateLayout aggregateLayout)
+    private static IServiceCollection RegisterRequestHandlers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateLayout aggregateLayout)
     {
         Console.WriteLine("Processing AggregateRoot [{0}]...", aggregateLayout.AggregateType.Name);
         
@@ -95,9 +100,21 @@ public static class ServiceCollectionExtensions
         Console.WriteLine("Registering service [{0}] -> [{1}]", createResourceRequestHandlerInterfaceType.Name, createResourceRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(createResourceRequestHandlerInterfaceType, createResourceRequestHandlerImplementationType);
+        
+        return serviceCollection;
     }
 
-    public static IServiceCollection RegisterAllImplementationsOf(this IServiceCollection serviceCollection, Type interfaceType, Func<Type, Type, IServiceCollection> registrationFunc, params Assembly[] assemblies)
+    private static IServiceCollection RegisterResourceMappers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type resourceMapperInterfaceType = typeof(IResourceMapper<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type resourceMapperImplementationType = typeof(DefaultResourceMapper<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+
+        serviceCollection.AddSingleton(resourceMapperInterfaceType, resourceMapperImplementationType);
+
+        return serviceCollection;
+    }
+    
+    private static IServiceCollection RegisterAllImplementationsOf(this IServiceCollection serviceCollection, Type interfaceType, Func<Type, Type, IServiceCollection> registrationFunc, params Assembly[] assemblies)
     {
         if (interfaceType.IsGenericType)
         {
