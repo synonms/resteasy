@@ -27,6 +27,7 @@ public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] EntityId<TAggregateRoot> id)
     {
+        // TODO: Support parameters
         FindResourceRequest<TAggregateRoot, TResource> request = new(HttpContext, id);
         FindResourceResponse<TAggregateRoot, TResource> response = await _mediator.Send(request);
     

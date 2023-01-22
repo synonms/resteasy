@@ -101,6 +101,24 @@ public static class ServiceCollectionExtensions
         
         serviceCollection.AddTransient(createResourceRequestHandlerInterfaceType, createResourceRequestHandlerImplementationType);
         
+        Type updateResourceRequestType = typeof(UpdateResourceRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type updateResourceResponseType = typeof(UpdateResourceResponse<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type updateResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(updateResourceRequestType, updateResourceResponseType);
+        Type updateResourceRequestHandlerImplementationType = typeof(UpdateResourceRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+
+        Console.WriteLine("Registering service [{0}] -> [{1}]", updateResourceRequestHandlerInterfaceType.Name, updateResourceRequestHandlerImplementationType.Name);
+        
+        serviceCollection.AddTransient(updateResourceRequestHandlerInterfaceType, updateResourceRequestHandlerImplementationType);
+
+        Type deleteResourceRequestType = typeof(DeleteResourceRequest<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type deleteResourceResponseType = typeof(DeleteResourceResponse);
+        Type deleteResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(deleteResourceRequestType, deleteResourceResponseType);
+        Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceRequestProcessor<>).MakeGenericType(aggregateLayout.AggregateType);
+
+        Console.WriteLine("Registering service [{0}] -> [{1}]", deleteResourceRequestHandlerInterfaceType.Name, deleteResourceRequestHandlerImplementationType.Name);
+        
+        serviceCollection.AddTransient(deleteResourceRequestHandlerInterfaceType, deleteResourceRequestHandlerImplementationType);
+
         return serviceCollection;
     }
 

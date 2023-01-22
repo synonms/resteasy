@@ -29,6 +29,56 @@
 					"response": []
 				},
 				{
+					"name": "People.Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7235/people/21ac9b7e-5f37-4cb8-85a7-4bb313adfb7a",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7235",
+							"path": [
+								"people",
+								"21ac9b7e-5f37-4cb8-85a7-4bb313adfb7a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "People.Put",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/ion+json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"forename\": \"Donald\",\r\n    \"surname\": \"Bonald\",\r\n    \"dateOfBirth\": \"1975-05-05\",\r\n    \"homeAddressId\": \"8399b9a6-c85b-4626-8f21-4bb313ad9f3f\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7235/people/21ac9b7e-5f37-4cb8-85a7-4bb313adfb7a",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7235",
+							"path": [
+								"people",
+								"21ac9b7e-5f37-4cb8-85a7-4bb313adfb7a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "People.GetAll",
 					"request": {
 						"method": "GET",
@@ -60,7 +110,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"forename\": \"David\",\r\n    \"surname\": \"Bowie\",\r\n    \"dateOfBirth\": \"1964-05-05\",\r\n    \"homeAddressId\": \"4f710d09-1f89-43c9-be89-4bac08e54018\"\r\n}",
+							"raw": "{\r\n    \"forename\": \"David\",\r\n    \"surname\": \"Bowie\",\r\n    \"dateOfBirth\": \"1964-05-05\",\r\n    \"homeAddressId\": \"8399b9a6-c85b-4626-8f21-4bb313ad9f3f\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -120,6 +170,70 @@
 							"path": [
 								"addresses",
 								"00000000-0000-0000-0001-000000000001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Addresses.Put",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/ion+json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"line1\": \"Amended Street\",\r\n    \"line2\": \"Amendheim\",\r\n    \"postCode\": \"AM3 3ND\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7235/addresses/8399b9a6-c85b-4626-8f21-4bb313ad9f3f",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7235",
+							"path": [
+								"addresses",
+								"8399b9a6-c85b-4626-8f21-4bb313ad9f3f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Addresses.Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"line1\": \"Amended Street\",\r\n    \"line2\": \"Amendheim\",\r\n    \"postCode\": \"AM3 3ND\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7235/addresses/8399b9a6-c85b-4626-8f21-4bb313ad9f3f",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7235",
+							"path": [
+								"addresses",
+								"8399b9a6-c85b-4626-8f21-4bb313ad9f3f"
 							]
 						}
 					},

@@ -19,10 +19,21 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         foreach ((string _, IResourceDirectory.AggregateLayout aggregateLayout) in _resourceDirectory.GetAll())
         {
+            AddDelete(feature, aggregateLayout);
             AddGetById(feature, aggregateLayout);
             AddGetAll(feature, aggregateLayout);
             AddPost(feature, aggregateLayout);
+            AddPut(feature, aggregateLayout);
         }
+    }
+
+    private static void AddDelete(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type deleteEndpointType = typeof(DeleteEndpoint<>).MakeGenericType(aggregateLayout.AggregateType);
+                
+        Console.WriteLine("Registering endpoint [{0}].", deleteEndpointType.Name);
+
+        feature.Controllers.Add(deleteEndpointType.GetTypeInfo());
     }
 
     private static void AddGetById(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
@@ -50,5 +61,14 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
         Console.WriteLine("Registering endpoint [{0}].", postEndpointType.Name);
 
         feature.Controllers.Add(postEndpointType.GetTypeInfo());
+    }
+    
+    private static void AddPut(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type putEndpointType = typeof(PutEndpoint<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+                
+        Console.WriteLine("Registering endpoint [{0}].", putEndpointType.Name);
+
+        feature.Controllers.Add(putEndpointType.GetTypeInfo());
     }
 }
