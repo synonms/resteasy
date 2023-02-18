@@ -1,9 +1,9 @@
-namespace Juniper.Catalyst.Rest.Abstractions.Attributes;
+namespace Synonms.RestEasy.Abstractions.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-public class CatalystOptionAttribute : Attribute
+public class RestEasyOptionAttribute : Attribute
 {
-    public CatalystOptionAttribute(object id, string? label, bool isEnabled = true)
+    public RestEasyOptionAttribute(object id, string? label, bool isEnabled = true)
     {
         Id = id;
         Label = label;

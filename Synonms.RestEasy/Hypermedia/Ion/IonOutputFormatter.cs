@@ -35,7 +35,9 @@ public class IonOutputFormatter : TextOutputFormatter
                 new TimeOnlyJsonConverter(),
                 new OptionalTimeOnlyJsonConverter(),
                 new IonCustomJsonConverterFactory(),
-                new IonLinkJsonConverter()
+                new IonLinkJsonConverter(),
+                new IonFormDocumentJsonConverter(),
+                new IonFormFieldJsonConverter()
             }
         };
 

@@ -14,10 +14,14 @@ public interface IRouteGenerator
         where TAggregateRoot : AggregateRoot<TAggregateRoot>;
     
     Uri Collection(Type aggregateRootType, HttpContext httpContext, int offset = 0);
-
-    Uri ChildCollection<TAggregateRoot, TParentEntity>(HttpContext httpContext, EntityId<TParentEntity> parentId, int offset = 0)
-        where TAggregateRoot : AggregateRoot<TAggregateRoot>
-        where TParentEntity : Entity<TParentEntity>;
-
-    Uri ChildCollection(Type aggregateRootType, HttpContext httpContext, Guid parentId, int offset = 0);
+    
+    Uri CreateForm<TAggregateRoot>(HttpContext httpContext)
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+    
+    Uri CreateForm(Type aggregateRootType, HttpContext httpContext);
+    
+    Uri EditForm<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id)
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+    
+    Uri EditForm(Type aggregateRootType, HttpContext httpContext, Guid id);
 }

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Synonms.RestEasy.Abstractions.Application;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
@@ -16,13 +16,11 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TResource : Resource<TAggregateRoot>
 {
     private readonly IMediator _mediator;
-    private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
     private readonly IRouteGenerator _routeGenerator;
 
-    public GetAllEndpoint(IMediator mediator, IResourceMapper<TAggregateRoot, TResource> resourceMapper, IRouteGenerator routeGenerator)
+    public GetAllEndpoint(IMediator mediator, IRouteGenerator routeGenerator)
     {
         _mediator = mediator;
-        _resourceMapper = resourceMapper;
         _routeGenerator = routeGenerator;
     }
 
@@ -34,13 +32,18 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
         ReadResourceCollectionRequest<TAggregateRoot, TResource> request = new(HttpContext, offset, 25);
         ReadResourceCollectionResponse<TAggregateRoot, TResource> response = await _mediator.Send(request);
 
+        // TODO: Append query String as it may contain parentId filters
         Uri selfUri = _routeGenerator.Collection<TAggregateRoot>(HttpContext, offset);
         Link selfLink = Link.SelfLink(selfUri);
+        Uri createFormUri = _routeGenerator.CreateForm<TAggregateRoot>(HttpContext);
+        Link createFormLink = Link.CreateFormLink(createFormUri);
         
         Pagination pagination = response.ResourceCollection.GeneratePagination(o => _routeGenerator.Collection<TAggregateRoot>(HttpContext, o));
 
         ResourceCollectionDocument<TAggregateRoot, TResource> document = new(selfLink, response.ResourceCollection, pagination);
 
+        document.WithLink(IanaLinkRelations.Forms.Create, createFormLink);
+            
         return Ok(document);
     }
 }

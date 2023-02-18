@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Application;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
@@ -24,6 +25,9 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
     {
         Uri selfUri = _routeGenerator.Item(httpContext, aggregateRoot.Id);
         Link selfLink = Link.SelfLink(selfUri);
+        Uri editFormUri = _routeGenerator.EditForm(httpContext, aggregateRoot.Id);
+        Link editFormLink = Link.EditFormLink(editFormUri);
+        Link deleteSelfLink = Link.DeleteSelfLink(selfUri);
 
         TResource resource = new()
         {
@@ -31,6 +35,9 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             SelfLink = selfLink
         };
 
+        resource.Links.Add(IanaLinkRelations.Forms.Edit, editFormLink);
+        resource.Links.Add(IanaHttpMethods.Delete.ToLowerInvariant(), deleteSelfLink);
+        
         foreach (PropertyInfo resourcePropertyInfo in typeof(TResource).GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
             if (resourcePropertyInfo.Name.Equals("Id") || resourcePropertyInfo.Name.Equals("SelfLink") || resourcePropertyInfo.Name.Equals("Links"))

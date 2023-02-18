@@ -24,6 +24,8 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
             AddGetAll(feature, aggregateLayout);
             AddPost(feature, aggregateLayout);
             AddPut(feature, aggregateLayout);
+            AddCreateForm(feature, aggregateLayout);
+            AddEditForm(feature, aggregateLayout);
         }
     }
 
@@ -53,7 +55,7 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
 
         feature.Controllers.Add(getAllEndpointType.GetTypeInfo());
     }
-    
+
     private static void AddPost(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
     {
         Type postEndpointType = typeof(PostEndpoint<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
@@ -70,5 +72,23 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
         Console.WriteLine("Registering endpoint [{0}].", putEndpointType.Name);
 
         feature.Controllers.Add(putEndpointType.GetTypeInfo());
+    }
+    
+    private static void AddCreateForm(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type createFormEndpointType = typeof(CreateFormEndpoint<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+                
+        Console.WriteLine("Registering endpoint [{0}].", createFormEndpointType.Name);
+
+        feature.Controllers.Add(createFormEndpointType.GetTypeInfo());
+    }
+    
+    private static void AddEditForm(ControllerFeature feature, IResourceDirectory.AggregateLayout aggregateLayout)
+    {
+        Type editFormEndpointType = typeof(EditFormEndpoint<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+                
+        Console.WriteLine("Registering endpoint [{0}].", editFormEndpointType.Name);
+
+        feature.Controllers.Add(editFormEndpointType.GetTypeInfo());
     }
 }

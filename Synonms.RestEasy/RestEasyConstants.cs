@@ -25,7 +25,7 @@ public static class RestEasyConstants
 
     public static class HttpHeaders
     {
-        public const string ApiVersion = "X-Catalyst-ApiVersion";
+        public const string ApiVersion = "X-RestEasy-ApiVersion";
         public const string CorrelationId = "X-Correlation-ID";
         public const string RequestId = "X-Request-ID";
     }

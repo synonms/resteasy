@@ -40,6 +40,9 @@ public class Link
     public static Link ItemLink(Uri uri) =>
         new (uri, IanaLinkRelations.Item, IanaHttpMethods.Get);
 
+    public static Link DeleteSelfLink(Uri uri) =>
+        new (uri, IanaLinkRelations.Self, IanaHttpMethods.Delete);
+
     public static Link PageLink(Uri uri) =>
         new (uri, IanaLinkRelations.Collection, IanaHttpMethods.Get);
     

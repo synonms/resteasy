@@ -28,4 +28,14 @@ public interface IRouteNameProvider
         where TAggregateRoot : AggregateRoot<TAggregateRoot>;
         
     string Delete(Type aggregateRootType);
+    
+    string CreateForm<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+        
+    string CreateForm(Type aggregateRootType);
+    
+    string EditForm<TAggregateRoot>()
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>;
+        
+    string EditForm(Type aggregateRootType);
 }

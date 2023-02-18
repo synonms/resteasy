@@ -1,33 +1,33 @@
-namespace Juniper.Catalyst.Rest.Abstractions.Attributes;
+namespace Synonms.RestEasy.Abstractions.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public sealed class CatalystMinValueAttribute : Attribute
+public sealed class RestEasyMinValueAttribute : Attribute
 {
-    public CatalystMinValueAttribute(int minimum)
+    public RestEasyMinValueAttribute(int minimum)
     {
         DataType = typeof(int);
         Minimum = minimum;
     }
 
-    public CatalystMinValueAttribute(long minimum)
+    public RestEasyMinValueAttribute(long minimum)
     {
         DataType = typeof(long);
         Minimum = minimum;
     }
 
-    public CatalystMinValueAttribute(float minimum)
+    public RestEasyMinValueAttribute(float minimum)
     {
         DataType = typeof(float);
         Minimum = minimum;
     }
 
-    public CatalystMinValueAttribute(double minimum)
+    public RestEasyMinValueAttribute(double minimum)
     {
         DataType = typeof(double);
         Minimum = minimum;
     }
 
-    public CatalystMinValueAttribute(decimal minimum)
+    public RestEasyMinValueAttribute(decimal minimum)
     {
         DataType = typeof(decimal);
         Minimum = minimum;

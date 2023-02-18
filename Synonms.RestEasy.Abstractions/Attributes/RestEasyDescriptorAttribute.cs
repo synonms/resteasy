@@ -1,9 +1,9 @@
-namespace Juniper.Catalyst.Rest.Abstractions.Attributes;
+namespace Synonms.RestEasy.Abstractions.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public sealed class CatalystDescriptorAttribute : Attribute
+public sealed class RestEasyDescriptorAttribute : Attribute
 {
-    public CatalystDescriptorAttribute(string? label = null, string? placeholder = null, string? description = null, string? name = null)
+    public RestEasyDescriptorAttribute(string? label = null, string? placeholder = null, string? description = null, string? name = null)
     {
         Label = label;
         Placeholder = placeholder;

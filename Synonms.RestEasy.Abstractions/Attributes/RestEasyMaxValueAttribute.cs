@@ -1,33 +1,33 @@
-namespace Juniper.Catalyst.Rest.Abstractions.Attributes;
+namespace Synonms.RestEasy.Abstractions.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public sealed class CatalystMaxValueAttribute : Attribute
+public sealed class RestEasyMaxValueAttribute : Attribute
 {
-    public CatalystMaxValueAttribute(int maximum)
+    public RestEasyMaxValueAttribute(int maximum)
     {
         DataType = typeof(int);
         Maximum = maximum;
     }
 
-    public CatalystMaxValueAttribute(long maximum)
+    public RestEasyMaxValueAttribute(long maximum)
     {
         DataType = typeof(long);
         Maximum = maximum;
     }
 
-    public CatalystMaxValueAttribute(float maximum)
+    public RestEasyMaxValueAttribute(float maximum)
     {
         DataType = typeof(float);
         Maximum = maximum;
     }
 
-    public CatalystMaxValueAttribute(double maximum)
+    public RestEasyMaxValueAttribute(double maximum)
     {
         DataType = typeof(double);
         Maximum = maximum;
     }
 
-    public CatalystMaxValueAttribute(decimal maximum)
+    public RestEasyMaxValueAttribute(decimal maximum)
     {
         DataType = typeof(decimal);
         Maximum = maximum;

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Synonms.RestEasy.Abstractions.Attributes;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Routing;
 
 namespace Synonms.RestEasy.IoC;
@@ -57,6 +58,14 @@ public class RestEasyControllerModelConvention : IControllerModelConvention
                 "Delete" => new RouteAttribute("")
                 {
                     Name = _routeNameProvider.Delete(aggregateRootType)
+                },
+                "CreateForm" => new RouteAttribute(IanaLinkRelations.Forms.Create)
+                {
+                    Name = _routeNameProvider.CreateForm(aggregateRootType)
+                },
+                "EditForm" => new RouteAttribute("{id}/" + IanaLinkRelations.Forms.Edit)
+                {
+                    Name = _routeNameProvider.EditForm(aggregateRootType)
                 },
                 _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
             };

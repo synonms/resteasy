@@ -1,9 +1,9 @@
-namespace Juniper.Catalyst.Rest.Abstractions.Attributes;
+namespace Synonms.RestEasy.Abstractions.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public class CatalystLookupAttribute : Attribute
+public class RestEasyLookupAttribute : Attribute
 {
-    public CatalystLookupAttribute(string discriminator)
+    public RestEasyLookupAttribute(string discriminator)
     {
         Discriminator = discriminator;
     }

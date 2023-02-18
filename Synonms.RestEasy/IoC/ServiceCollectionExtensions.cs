@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
-using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Application;
@@ -14,6 +13,7 @@ using Synonms.RestEasy.Mediation.Commands;
 using Synonms.RestEasy.Mediation.Queries;
 using Synonms.RestEasy.Routing;
 using Synonms.RestEasy.Schema.Documents;
+using Synonms.RestEasy.SharedKernel.Extensions;
 
 namespace Synonms.RestEasy.IoC;
 
@@ -28,11 +28,9 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton(routeNameProvider);
 
         serviceCollection.AddSingleton<IRouteGenerator, RouteGenerator>();
+        serviceCollection.AddSingleton(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
+        serviceCollection.AddSingleton(typeof(IEditFormDocumentFactory<,>), typeof(EditFormDocumentFactory<,>));
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
-        serviceCollection.RegisterAllImplementationsOf(typeof(ICreateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IReadRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IUpdateRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IDeleteRepository<>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 
@@ -128,40 +126,6 @@ public static class ServiceCollectionExtensions
         Type resourceMapperImplementationType = typeof(DefaultResourceMapper<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
 
         serviceCollection.AddSingleton(resourceMapperInterfaceType, resourceMapperImplementationType);
-
-        return serviceCollection;
-    }
-    
-    private static IServiceCollection RegisterAllImplementationsOf(this IServiceCollection serviceCollection, Type interfaceType, Func<Type, Type, IServiceCollection> registrationFunc, params Assembly[] assemblies)
-    {
-        if (interfaceType.IsGenericType)
-        {
-            assemblies
-                .SelectMany(assembly => assembly.GetImplementationsOfGenericInterface(interfaceType))
-                .ToList()
-                .ForEach(implementationType =>
-                {
-                    List<Type> implementedInterfaces = implementationType.GetInterfaces().ToList();
-                    implementedInterfaces.ForEach(implementedInterface =>
-                    {
-                        registrationFunc(implementedInterface, implementationType);
-                    });
-                });
-        }
-        else
-        {
-            assemblies
-                .SelectMany(assembly => assembly.GetImplementationsOfNonGenericInterface(interfaceType))
-                .ToList()
-                .ForEach(implementationType =>
-                {
-                    List<Type> implementedInterfaces = implementationType.GetInterfaces().ToList();
-                    implementedInterfaces.ForEach(implementedInterface =>
-                    {
-                        registrationFunc(implementedInterface, implementationType);
-                    });
-                });
-        }
 
         return serviceCollection;
     }

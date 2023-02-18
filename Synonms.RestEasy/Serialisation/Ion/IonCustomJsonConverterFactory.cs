@@ -10,7 +10,8 @@ namespace Synonms.RestEasy.Serialisation.Ion
     {
         private readonly Dictionary<Type, Type> _supportedTypes = new ()
         {
-            { typeof(ResourceDocument<,>), typeof(IonResourceDocumentJsonConverter<,>) }
+            { typeof(ResourceDocument<,>), typeof(IonResourceDocumentJsonConverter<,>) },
+            { typeof(ResourceCollectionDocument<,>), typeof(IonResourceCollectionDocumentJsonConverter<,>) }
         };
         
         public override bool CanConvert(Type typeToConvert)

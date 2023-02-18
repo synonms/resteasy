@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Documents;
@@ -15,12 +14,10 @@ public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TResource : Resource<TAggregateRoot>
 {
     private readonly IMediator _mediator;
-    private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;
 
-    public GetByIdEndpoint(IMediator mediator, IResourceMapper<TAggregateRoot, TResource> resourceMapper)
+    public GetByIdEndpoint(IMediator mediator)
     {
         _mediator = mediator;
-        _resourceMapper = resourceMapper;
     }
 
     [HttpGet]

@@ -52,22 +52,36 @@ public class RouteGenerator : IRouteGenerator
         return new Uri(uriString);
     }
     
-    public Uri ChildCollection<TAggregateRoot, TParentEntity>(HttpContext httpContext, EntityId<TParentEntity> parentId, int offset = 0) 
+    public Uri CreateForm<TAggregateRoot>(HttpContext httpContext)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
-        where TParentEntity : Entity<TParentEntity>
     {
-        object values = offset > 0 ? new { parentId = parentId.Value, offset } : new { parentId = parentId.Value };
-        string routeName = _routeNameProvider.GetAll<TAggregateRoot>(); // TODO: Add ForParent
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, values, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string routeName = _routeNameProvider.CreateForm<TAggregateRoot>();
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
         
         return new Uri(uriString);
     }
 
-    public Uri ChildCollection(Type aggregateRootType, HttpContext httpContext, Guid parentId, int offset = 0)
+    public Uri CreateForm(Type aggregateRootType, HttpContext httpContext)
     {
-        object? values = offset > 0 ? new { parentId, offset } : new { parentId };
-        string routeName = _routeNameProvider.GetAll(aggregateRootType); // TODO: Add ForParent
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, values, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string routeName = _routeNameProvider.CreateForm(aggregateRootType);
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        
+        return new Uri(uriString);
+    }
+
+    public Uri EditForm<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id)
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>
+    {
+        string routeName = _routeNameProvider.EditForm<TAggregateRoot>();
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        
+        return new Uri(uriString);
+    }
+
+    public Uri EditForm(Type aggregateRootType, HttpContext httpContext, Guid id)
+    {
+        string routeName = _routeNameProvider.EditForm(aggregateRootType);
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
         
         return new Uri(uriString);
     }

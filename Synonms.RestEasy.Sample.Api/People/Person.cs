@@ -37,6 +37,8 @@ public class Person : AggregateRoot<Person>
     
     public EntityId<Address> HomeAddressId { get; private set; }
 
+    // TODO: Present Pets as a link (without a navigation property?)
+    
     public static Result<Person> Create(PersonResource resource) =>
         AggregateRules.CreateBuilder()
             .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
