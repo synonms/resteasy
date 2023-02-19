@@ -28,7 +28,7 @@ public class InMemoryRepository<TAggregateRoot> : IReadRepository<TAggregateRoot
         Task.FromResult(_aggregateRoots.Where(predicate.Compile()).AsQueryable());
 
     public Task<PaginatedList<TAggregateRoot>> ReadAsync(int offset, int limit) =>
-        Task.FromResult(PaginatedList<TAggregateRoot>.Create(_aggregateRoots, offset, limit, 20));
+        Task.FromResult(PaginatedList<TAggregateRoot>.Create(_aggregateRoots.AsQueryable(), offset, limit));
 
     public Task<EntityId<TAggregateRoot>> CreateAsync(TAggregateRoot aggregateRoot)
     {

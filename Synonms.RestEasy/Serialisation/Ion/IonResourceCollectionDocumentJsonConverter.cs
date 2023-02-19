@@ -28,6 +28,8 @@ public class IonResourceCollectionDocumentJsonConverter<TAggregateRoot, TResourc
             JsonSerializer.Serialize(writer, (object)link, options);
         }
 
+        JsonSerializer.Serialize(writer, value.Pagination, options);
+
         writer.WriteEndObject();
     }
 }

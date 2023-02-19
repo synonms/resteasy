@@ -29,7 +29,8 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     public async Task<IActionResult> GetAllAsync([FromQuery] int offset = 0)
     {
         // TODO: Customisable parameters
-        ReadResourceCollectionRequest<TAggregateRoot, TResource> request = new(HttpContext, offset, 25);
+        // TODO: Customisable page limit
+        ReadResourceCollectionRequest<TAggregateRoot, TResource> request = new(HttpContext, offset, 5);
         ReadResourceCollectionResponse<TAggregateRoot, TResource> response = await _mediator.Send(request);
 
         // TODO: Append query String as it may contain parentId filters

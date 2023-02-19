@@ -23,20 +23,22 @@ You focus on your business domain and the framework takes care of the API endpoi
 [RestEasyResource("people")]
 public class Person : AggregateRoot<Person>
 {
-    private const int ForenameMaxLength = 30;
-    private const int SurnameMaxLength = 30;
+    public const int ForenameMaxLength = 30;
+    public const int SurnameMaxLength = 30;
+    public const int ColourMaxLength = 10;
     
-    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, EntityId<Address> homeAddressId)
-        : this(forename, surname, dateOfBirth, homeAddressId)
+    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId)
+        : this(forename, surname, dateOfBirth, favouriteColour, homeAddressId)
     {
         Id = id;
     }
     
-    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, EntityId<Address> homeAddressId)
+    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId)
     {
         Forename = forename;
         Surname = surname;
         DateOfBirth = dateOfBirth;
+        FavouriteColour = favouriteColour;
         HomeAddressId = homeAddressId;
     }
     
@@ -46,24 +48,30 @@ public class Person : AggregateRoot<Person>
     
     public EventDate DateOfBirth { get; private set; }
     
+    public Colour? FavouriteColour { get; private set; }
+    
     public EntityId<Address> HomeAddressId { get; private set; }
 
+    // TODO: Present Pets as a link (without a navigation property?)
+    
     public static Result<Person> Create(PersonResource resource) =>
         AggregateRules.CreateBuilder()
             .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
             .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
             .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
             .WithDomainRules(
                 RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
                 )
             .Build()
-            .ToResult(new Person(forenameValueObject, surnameValueObject, dateOfBirthValueObject, resource.HomeAddressId));
+            .ToResult(new Person(forenameValueObject, surnameValueObject, dateOfBirthValueObject, favouriteColourValueObject, resource.HomeAddressId));
 
     public Maybe<Fault> Update(PersonResource resource) =>
         AggregateRules.CreateBuilder()
             .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
             .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
             .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
             .WithDomainRules(
                 RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
             )
@@ -73,6 +81,7 @@ public class Person : AggregateRoot<Person>
                 Forename = forenameValueObject;
                 Surname = surnameValueObject;
                 DateOfBirth = dateOfBirthValueObject;
+                FavouriteColour = favouriteColourValueObject;
                 HomeAddressId = resource.HomeAddressId;
 
                 return Maybe<Fault>.None;
@@ -95,12 +104,25 @@ public class PersonResource : Resource<Person>
     {
     }
 
+    [RestEasyRequired]
+    [RestEasyMaxLength(Person.ForenameMaxLength)]
     public string Forename { get; set; } = string.Empty;
     
+    [RestEasyRequired]
+    [RestEasyMaxLength(Person.SurnameMaxLength)]
     public string Surname { get; set; } = string.Empty;
-    
+
+    [RestEasyRequired]
+    [RestEasyPattern(RegularExpressions.DateOnly)]
+    [RestEasyDescriptor(placeholder: Placeholders.DateOnly)]
     public DateOnly DateOfBirth { get; set; } = DateOnly.MinValue;
+
+    [RestEasyLookup("Colour")]
+    public string? FavouriteColour { get; set; }
     
+    [RestEasyRequired]
+    [RestEasyPattern(RegularExpressions.Guid)]
+    [RestEasyDescriptor(placeholder: Placeholders.Guid)]
     public EntityId<Address> HomeAddressId { get; set; } = EntityId<Address>.Uninitialised;
 }
 ```
@@ -114,98 +136,193 @@ Here is an example GET response for a Person resource as defined above:
 ```json
 {
   "value": {
-    "id": "00000000-0000-0000-0000-000000000001",
-    "forename": "Kendrick",
-    "surname": "Lamar",
-    "dateOfBirth": "1984-05-05",
-    "homeAddressId": "00000000-0000-0000-0001-000000000001",
+    "id": "00000000-0000-0000-0000-000000000002",
+    "forename": "Michael",
+    "surname": "Archer",
+    "dateOfBirth": "1984-06-06",
+    "favouriteColour": "Brown",
+    "homeAddressId": "00000000-0000-0000-0001-000000000002",
     "self": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
+      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
       "rel": "self",
       "method": "GET"
     },
     "edit-form": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
+      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002/edit-form",
       "rel": "edit-form",
       "method": "GET"
     },
     "delete": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
+      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
       "rel": "self",
       "method": "DELETE"
     },
     "homeAddress": {
-      "href": "https://localhost:7235/addresses/00000000-0000-0000-0001-000000000001",
+      "href": "https://localhost:7235/addresses/00000000-0000-0000-0001-000000000002",
       "rel": "related",
       "method": "GET"
     }
   },
   "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
     "rel": "self",
     "method": "GET"
   }
 }
 ```
 
-All of the links in the above example have been automatically constructed by the framework.  Hypermedia is great because it enables client UIs to be link driven rather than having to hardcode URLs in to the application.
+All of the links in the above example have been automatically constructed by the framework.  One of the advantages of this RESTful approach over "vanilla" JSON over HTTP is that it enables client UIs to be link driven rather than having to hardcode URLs in to the application.
 
 ### Forms
 
 Create and Update requests are facilitated via *Forms*.  Resource collections have an associated `create-form` link, while existing resources have an `edit-form` link.
 
-Forms provide an array of all of the fields available for submission, with information around data types, validation rules etc.  Resource models can be decorated with custom attributes to provide additional information (*TODO: Examples*).  A target URI is also presented so clients know where to POST or PUT the completed form.
+Forms provide an array of all of the fields available for submission, with information around data types, validation rules etc.  Resource models can be decorated with custom attributes to provide the additional information where required, for example `RestEasyMaxLength` attribute generates the `maxlength` property on the form.  A target URI is also presented so clients know where to POST or PUT the completed form.
 
 ```json
 {
-  "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
+  "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
   "rel": "edit-form",
   "method": "PUT",
   "value": [
     {
       "name": "forename",
       "type": "string",
-      "required": false,
-      "value": "Kendrick"
+      "required": true,
+      "maxlength": 30,
+      "value": "Michael"
     },
     {
       "name": "surname",
       "type": "string",
-      "required": false,
-      "value": "Lamar"
+      "required": true,
+      "maxlength": 30,
+      "value": "Archer"
     },
     {
       "name": "dateOfBirth",
       "type": "date",
+      "required": true,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "placeholder": "yyyy-MM-dd",
+      "value": "1984-06-06"
+    },
+    {
+      "name": "favouriteColour",
+      "type": "string",
       "required": false,
-      "value": "1984-05-05"
+      "value": "Brown",
+      "options": {
+        "value": [
+          {
+            "isEnabled": true,
+            "value": "Black"
+          },
+          {
+            "isEnabled": true,
+            "value": "Blue"
+          },
+          {
+            "isEnabled": true,
+            "value": "Brown"
+          },
+          {
+            "isEnabled": true,
+            "value": "Green"
+          },
+          {
+            "isEnabled": true,
+            "value": "Purple"
+          },
+          {
+            "isEnabled": true,
+            "value": "Orange"
+          },
+          {
+            "isEnabled": true,
+            "value": "Red"
+          },
+          {
+            "isEnabled": true,
+            "value": "White"
+          },
+          {
+            "isEnabled": true,
+            "value": "Yellow"
+          }
+        ]
+      }
     },
     {
       "name": "homeAddressId",
       "type": "string",
-      "required": false,
-      "value": "00000000-0000-0000-0001-000000000001"
+      "required": true,
+      "pattern": "^[0-9a-fA-F]{8}[-]([0-9a-fA-F]{4}[-]){3}[0-9a-fA-F]{12}$",
+      "placeholder": "00000000-0000-0000-0000-000000000000",
+      "value": "00000000-0000-0000-0001-000000000002"
     },
     {
       "name": "id",
       "type": "string",
       "required": false,
-      "value": "00000000-0000-0000-0000-000000000001"
+      "value": "00000000-0000-0000-0000-000000000002"
     }
   ],
   "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002/edit-form",
     "rel": "edit-form",
     "method": "GET"
   }
 }
 ```
 
-Nested forms are supported in situations where a resource has child resources, including resource collections.  Lookups will also be available soon where you can provide an array of key/value pairs for clients to constrain acceptable values and populate dropdown lists etc.
+Nested forms are supported in situations where a resource has child resources, including resource collections.  Lookups are also available where you can provide an array of options for clients to constrain acceptable values and populate dropdown lists etc.  Provide an implementation of the `ILookupOptionsProvider` to get the data from your database or wherever you hold it.
+
+## Pagination
+
+Collections are paginated out of the box too:
+
+```csharp
+{
+  "value": [
+    // ...One page of 5 resources...
+  ],
+  "self": {
+    "href": "https://localhost:7235/people",
+    "rel": "self",
+    "method": "GET"
+  },
+  "create-form": {
+    "href": "https://localhost:7235/people/create-form",
+    "rel": "create-form",
+    "method": "GET"
+  }
+  "offset": 0,
+  "limit": 5,
+  "size": 9,
+  "first": {
+    "href": "https://localhost:7235/people",
+    "rel": "collection",
+    "method": "GET"
+  },
+  "last": {
+    "href": "https://localhost:7235/people?offset=5",
+    "rel": "collection",
+    "method": "GET"
+  },
+  "next": {
+    "href": "https://localhost:7235/people?offset=5",
+    "rel": "collection",
+    "method": "GET"
+  }
+}
+```
+
+In this example there are 9 resources in total (`size`), of which we are presenting the first 5 (`limit`, or page size), that is with an `offset` (the number of resources to skip) of 0.  Links to the `previous` and `next` page of results are dynamic and only presented if there is another page to navigate to.  This makes paging controls on the UI easier as they can be entirely link driven.
+
 
 ## TODO...
 
-- Lookups for forms
 - Nested child resource example
 - Nested child resource collection example
 - Related resource collection example

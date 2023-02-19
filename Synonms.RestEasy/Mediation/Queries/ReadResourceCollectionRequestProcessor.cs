@@ -25,7 +25,7 @@ public class ReadResourceCollectionRequestProcessor<TAggregateRoot, TResource> :
         PaginatedList<TAggregateRoot> paginatedAggregateRoots = await _readRepository.ReadAsync(request.Offset, request.Limit);
         
         List<TResource> resources = paginatedAggregateRoots.Select(x => _resourceMapper.Map(request.HttpContext, x)).ToList();
-        PaginatedList<TResource> paginatedResources = PaginatedList<TResource>.Create(resources, request.Offset, request.Limit, resources.Count);
+        PaginatedList<TResource> paginatedResources = PaginatedList<TResource>.Create(resources, request.Offset, request.Limit, paginatedAggregateRoots.Size);
 
         ReadResourceCollectionResponse<TAggregateRoot, TResource> response = new(paginatedResources);
 

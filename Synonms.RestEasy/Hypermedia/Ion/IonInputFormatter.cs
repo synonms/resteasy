@@ -36,7 +36,8 @@ public class IonInputFormatter : TextInputFormatter
                 new IonCustomJsonConverterFactory(),
                 new IonLinkJsonConverter(),
                 new IonFormDocumentJsonConverter(),
-                new IonFormFieldJsonConverter()
+                new IonFormFieldJsonConverter(),
+                new IonPaginationJsonConverter()
             }
         };
 
