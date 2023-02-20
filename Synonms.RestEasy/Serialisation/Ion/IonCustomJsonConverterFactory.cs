@@ -25,7 +25,12 @@ namespace Synonms.RestEasy.Serialisation.Ion
             {
                 return true;
             }
-            
+
+            if (typeToConvert.IsChildResource())
+            {
+                return true;
+            }
+
             if (typeToConvert.IsGenericType is false)
             {
                 return false;
@@ -53,6 +58,11 @@ namespace Synonms.RestEasy.Serialisation.Ion
                 return CreateResourceConverter(typeToConvert, options);
             }
 
+            if (typeToConvert.IsChildResource())
+            {
+                return CreateChildResourceConverter(typeToConvert, options);
+            }
+
             Type genericType = typeToConvert.GetGenericTypeDefinition();
             Type aggregateRootType = typeToConvert.GetGenericArguments().First();
             Type resourceType = typeToConvert.GetGenericArguments().Last();
@@ -70,11 +80,25 @@ namespace Synonms.RestEasy.Serialisation.Ion
                 throw new InvalidOperationException($"Type '{resourceType}' is considered a derivative of Resource<> but the TAggregateRoot generic type parameter cannot be determined.");
             }
             
-            Type converterType =  typeof(IonResourceJsonConverter<,>).MakeGenericType(aggregateRootType, resourceType);
+            Type converterType = typeof(IonResourceJsonConverter<,>).MakeGenericType(aggregateRootType, resourceType);
                 
             return (JsonConverter?)Activator.CreateInstance(converterType);
         }
-        
+
+        private static JsonConverter? CreateChildResourceConverter(Type childResourceType, JsonSerializerOptions options)
+        {
+            Type? aggregateMemberType = childResourceType.BaseType?.GetGenericArguments().First();
+
+            if (aggregateMemberType is null)
+            {
+                throw new InvalidOperationException($"Type '{childResourceType}' is considered a derivative of ChildResource<> but the TAggregateMember generic type parameter cannot be determined.");
+            }
+            
+            Type converterType = typeof(IonChildResourceJsonConverter<,>).MakeGenericType(aggregateMemberType, childResourceType);
+                
+            return (JsonConverter?)Activator.CreateInstance(converterType);
+        }
+
         private static JsonConverter? CreateEntityIdConverter(Type entityIdType, JsonSerializerOptions options)
         {
             Type? entityType = entityIdType.GetGenericArguments().First();
@@ -84,7 +108,7 @@ namespace Synonms.RestEasy.Serialisation.Ion
                 throw new InvalidOperationException($"Type '{entityIdType}' is considered an EntityId<> but the TEntity generic type parameter cannot be determined.");
             }
             
-            Type converterType =  typeof(IonEntityIdJsonConverter<>).MakeGenericType(entityType);
+            Type converterType = typeof(IonEntityIdJsonConverter<>).MakeGenericType(entityType);
                 
             return (JsonConverter?)Activator.CreateInstance(converterType);
         }

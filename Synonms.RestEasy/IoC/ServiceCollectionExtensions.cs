@@ -34,11 +34,17 @@ public static class ServiceCollectionExtensions
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 
-        foreach ((string _, IResourceDirectory.AggregateLayout aggregateLayout) in resourceDirectory.GetAll())
+        foreach ((string _, IResourceDirectory.AggregateRootLayout aggregateRootLayout) in resourceDirectory.GetAllRoots())
         { 
             serviceCollection
-                .RegisterRequestHandlers(aggregateLayout)
-                .RegisterResourceMappers(aggregateLayout);
+                .RegisterRequestHandlers(aggregateRootLayout)
+                .RegisterResourceMappers(aggregateRootLayout);
+        }
+
+        foreach (IResourceDirectory.AggregateMemberLayout aggregateMemberLayout in resourceDirectory.GetAllMembers())
+        { 
+            serviceCollection
+                .RegisterChildResourceMappers(aggregateMemberLayout);
         }
 
         serviceCollection.AddControllers(mvcOptions =>
@@ -65,53 +71,55 @@ public static class ServiceCollectionExtensions
         // Replace default mappers where an explicit one is provided
         serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 
+        serviceCollection.AddSingleton<IChildResourceMapperFactory, ChildResourceMapperFactory>();
+        
         return new RestEasyServiceBuilder(serviceCollection);
     }
     
-    private static IServiceCollection RegisterRequestHandlers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateLayout aggregateLayout)
+    private static IServiceCollection RegisterRequestHandlers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
-        Console.WriteLine("Processing AggregateRoot [{0}]...", aggregateLayout.AggregateType.Name);
+        Console.WriteLine("Processing AggregateRoot [{0}]...", aggregateRootLayout.AggregateRootType.Name);
         
-        Type findResourceRequestType = typeof(FindResourceRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
-        Type findResourceResponseType = typeof(FindResourceResponse<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type findResourceRequestType = typeof(FindResourceRequest<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type findResourceResponseType = typeof(FindResourceResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
         Type findResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(findResourceRequestType, findResourceResponseType);
-        Type findResourceRequestHandlerImplementationType = typeof(FindResourceRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type findResourceRequestHandlerImplementationType = typeof(FindResourceRequestProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         Console.WriteLine("Registering service [{0}] -> [{1}]", findResourceRequestHandlerInterfaceType.Name, findResourceRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(findResourceRequestHandlerInterfaceType, findResourceRequestHandlerImplementationType);
         
-        Type readResourceCollectionRequestType = typeof(ReadResourceCollectionRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
-        Type readResourceCollectionResponseType = typeof(ReadResourceCollectionResponse<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type readResourceCollectionRequestType = typeof(ReadResourceCollectionRequest<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type readResourceCollectionResponseType = typeof(ReadResourceCollectionResponse<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
         Type readResourceCollectionRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(readResourceCollectionRequestType, readResourceCollectionResponseType);
-        Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type readResourceCollectionRequestHandlerImplementationType = typeof(ReadResourceCollectionRequestProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         Console.WriteLine("Registering service [{0}] -> [{1}]", readResourceCollectionRequestHandlerInterfaceType.Name, readResourceCollectionRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(readResourceCollectionRequestHandlerInterfaceType, readResourceCollectionRequestHandlerImplementationType);
         
-        Type createResourceRequestType = typeof(CreateResourceRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
-        Type createResourceResponseType = typeof(CreateResourceResponse<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type createResourceRequestType = typeof(CreateResourceRequest<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type createResourceResponseType = typeof(CreateResourceResponse<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
         Type createResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(createResourceRequestType, createResourceResponseType);
-        Type createResourceRequestHandlerImplementationType = typeof(CreateResourceRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type createResourceRequestHandlerImplementationType = typeof(CreateResourceRequestProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         Console.WriteLine("Registering service [{0}] -> [{1}]", createResourceRequestHandlerInterfaceType.Name, createResourceRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(createResourceRequestHandlerInterfaceType, createResourceRequestHandlerImplementationType);
         
-        Type updateResourceRequestType = typeof(UpdateResourceRequest<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
-        Type updateResourceResponseType = typeof(UpdateResourceResponse<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type updateResourceRequestType = typeof(UpdateResourceRequest<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type updateResourceResponseType = typeof(UpdateResourceResponse<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
         Type updateResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(updateResourceRequestType, updateResourceResponseType);
-        Type updateResourceRequestHandlerImplementationType = typeof(UpdateResourceRequestProcessor<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type updateResourceRequestHandlerImplementationType = typeof(UpdateResourceRequestProcessor<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         Console.WriteLine("Registering service [{0}] -> [{1}]", updateResourceRequestHandlerInterfaceType.Name, updateResourceRequestHandlerImplementationType.Name);
         
         serviceCollection.AddTransient(updateResourceRequestHandlerInterfaceType, updateResourceRequestHandlerImplementationType);
 
-        Type deleteResourceRequestType = typeof(DeleteResourceRequest<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type deleteResourceRequestType = typeof(DeleteResourceRequest<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
         Type deleteResourceResponseType = typeof(DeleteResourceResponse);
         Type deleteResourceRequestHandlerInterfaceType = typeof(IRequestHandler<,>).MakeGenericType(deleteResourceRequestType, deleteResourceResponseType);
-        Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceRequestProcessor<>).MakeGenericType(aggregateLayout.AggregateType);
+        Type deleteResourceRequestHandlerImplementationType = typeof(DeleteResourceRequestProcessor<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
 
         Console.WriteLine("Registering service [{0}] -> [{1}]", deleteResourceRequestHandlerInterfaceType.Name, deleteResourceRequestHandlerImplementationType.Name);
         
@@ -120,12 +128,23 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
 
-    private static IServiceCollection RegisterResourceMappers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateLayout aggregateLayout)
+    private static IServiceCollection RegisterResourceMappers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateRootLayout aggregateRootLayout)
     {
-        Type resourceMapperInterfaceType = typeof(IResourceMapper<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
-        Type resourceMapperImplementationType = typeof(DefaultResourceMapper<,>).MakeGenericType(aggregateLayout.AggregateType, aggregateLayout.ResourceType);
+        Type resourceMapperInterfaceType = typeof(IResourceMapper<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
+        Type resourceMapperImplementationType = typeof(DefaultResourceMapper<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         serviceCollection.AddSingleton(resourceMapperInterfaceType, resourceMapperImplementationType);
+
+        return serviceCollection;
+    }
+    
+    private static IServiceCollection RegisterChildResourceMappers(this IServiceCollection serviceCollection, IResourceDirectory.AggregateMemberLayout aggregateMemberLayout)
+    {
+        Type childResourceMapperInterfaceType = typeof(IChildResourceMapper<,>).MakeGenericType(aggregateMemberLayout.AggregateMemberType, aggregateMemberLayout.ChildResourceType);
+        Type childResourceMapperImplementationType = typeof(DefaultChildResourceMapper<,>).MakeGenericType(aggregateMemberLayout.AggregateMemberType, aggregateMemberLayout.ChildResourceType);
+
+        serviceCollection.AddSingleton(childResourceMapperInterfaceType, childResourceMapperImplementationType);
+        serviceCollection.AddSingleton(typeof(IChildResourceMapper), childResourceMapperImplementationType);
 
         return serviceCollection;
     }

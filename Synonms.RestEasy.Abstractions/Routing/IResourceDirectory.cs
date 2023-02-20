@@ -2,18 +2,33 @@
 
 public interface IResourceDirectory
 {
-    public class AggregateLayout
+    public class AggregateRootLayout
     {
-        public AggregateLayout(Type aggregateType, Type resourceType)
+        public AggregateRootLayout(Type aggregateRootType, Type resourceType)
         {
-            AggregateType = aggregateType;
+            AggregateRootType = aggregateRootType;
             ResourceType = resourceType;
         }
         
-        public Type AggregateType { get; set; }
+        public Type AggregateRootType { get; set; }
         
         public Type ResourceType { get; set; }
     }
 
-    IReadOnlyDictionary<string, AggregateLayout> GetAll();
+    public class AggregateMemberLayout
+    {
+        public AggregateMemberLayout(Type aggregateMemberType, Type childResourceType)
+        {
+            AggregateMemberType = aggregateMemberType;
+            ChildResourceType = childResourceType;
+        }
+        
+        public Type AggregateMemberType { get; set; }
+        
+        public Type ChildResourceType { get; set; }
+    }
+
+    IReadOnlyDictionary<string, AggregateRootLayout> GetAllRoots();
+    
+    IEnumerable<AggregateMemberLayout> GetAllMembers();
 }

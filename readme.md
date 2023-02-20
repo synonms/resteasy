@@ -18,6 +18,7 @@ You focus on your business domain and the framework takes care of the API endpoi
 ```csharp
 // The internal model.
 // This example goes for a DDD-Lite approach with ValueObjects and factory methods that prevent invalid state but you don't have to.
+// It's a contrived model for demonstration purposes and not necessarily greate aggregate design ;)
 // Oh, it also uses my Synonms.Functional library, but again you don't have to.
 
 [RestEasyResource("people")]
@@ -27,19 +28,21 @@ public class Person : AggregateRoot<Person>
     public const int SurnameMaxLength = 30;
     public const int ColourMaxLength = 10;
     
-    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId)
-        : this(forename, surname, dateOfBirth, favouriteColour, homeAddressId)
+    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
+        : this(forename, surname, dateOfBirth, favouriteColour, homeAddressId, greatestAchievement, achievements)
     {
         Id = id;
     }
     
-    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId)
+    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
     {
         Forename = forename;
         Surname = surname;
         DateOfBirth = dateOfBirth;
         FavouriteColour = favouriteColour;
         HomeAddressId = homeAddressId;
+        GreatestAchievement = greatestAchievement;
+        Achievements = achievements;
     }
     
     public Moniker Forename { get; private set; }
@@ -49,43 +52,68 @@ public class Person : AggregateRoot<Person>
     public EventDate DateOfBirth { get; private set; }
     
     public Colour? FavouriteColour { get; private set; }
-    
+
+    // Related resource (presents as a link)
     public EntityId<Address> HomeAddressId { get; private set; }
 
-    // TODO: Present Pets as a link (without a navigation property?)
-    
+    // Nested resource (presents as a populated child resource object)
+    public PersonalAchievement GreatestAchievement { get; private set; }
+
+    // Nested resource collection (presents as a populated array of child resources)
+    public ICollection<PersonalAchievement> Achievements { get; private set; }
+
     public static Result<Person> Create(PersonResource resource) =>
-        AggregateRules.CreateBuilder()
-            .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-            .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
-            .WithDomainRules(
-                RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
-                )
-            .Build()
-            .ToResult(new Person(forenameValueObject, surnameValueObject, dateOfBirthValueObject, favouriteColourValueObject, resource.HomeAddressId));
+        resource.Achievements
+            .Select(PersonalAchievement.Create)
+            .Reduce(achievements => achievements)
+            .Bind(
+                achievements =>
+                    PersonalAchievement.Create(resource.GreatestAchievement)
+                        .Bind(greatestAchievement =>
+                            AggregateRules.CreateBuilder()
+                                .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
+                                .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
+                                .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+                                .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
+                                .WithDomainRules(
+                                    RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
+                                    )
+                                .Build()
+                                .ToResult(new Person(forenameValueObject, surnameValueObject, dateOfBirthValueObject, favouriteColourValueObject, resource.HomeAddressId, greatestAchievement, achievements.ToList()))));
 
     public Maybe<Fault> Update(PersonResource resource) =>
-        AggregateRules.CreateBuilder()
-            .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-            .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
-            .WithDomainRules(
-                RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
-            )
-            .Build()
-            .BiBind(() =>
-            {
-                Forename = forenameValueObject;
-                Surname = surnameValueObject;
-                DateOfBirth = dateOfBirthValueObject;
-                FavouriteColour = favouriteColourValueObject;
-                HomeAddressId = resource.HomeAddressId;
+        MergeAchievements(resource)
+            .BiBind(() => 
+                PersonalAchievement.Create(resource.GreatestAchievement)
+                    .Bind(greatestAchievement =>
+                        AggregateRules.CreateBuilder()
+                            .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
+                            .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
+                            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+                            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
+                            .WithDomainRules(
+                                RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
+                            )
+                            .Build()
+                            .BiBind(() =>
+                            {
+                                Forename = forenameValueObject;
+                                Surname = surnameValueObject;
+                                DateOfBirth = dateOfBirthValueObject;
+                                FavouriteColour = favouriteColourValueObject;
+                                HomeAddressId = resource.HomeAddressId;
+                                GreatestAchievement = greatestAchievement;
 
-                return Maybe<Fault>.None;
-            });
+                                return Maybe<Fault>.None;
+                            })));
+    
+    private Maybe<Fault> MergeAchievements(PersonResource resource) =>
+        Achievements
+            .Merge<PersonalAchievement, PersonalAchievementResource>(
+                resource.Achievements,
+                (am, r) => am.Id == r.Id,
+                PersonalAchievement.Create,
+                (am, r) => am.Update(r));
 }
 ```
 
@@ -124,6 +152,10 @@ public class PersonResource : Resource<Person>
     [RestEasyPattern(RegularExpressions.Guid)]
     [RestEasyDescriptor(placeholder: Placeholders.Guid)]
     public EntityId<Address> HomeAddressId { get; set; } = EntityId<Address>.Uninitialised;
+    
+    public PersonalAchievementResource GreatestAchievement { get; set; }
+
+    public IEnumerable<PersonalAchievementResource> Achievements { get; set; } = Enumerable.Empty<PersonalAchievementResource>();
 }
 ```
 
@@ -135,43 +167,65 @@ Here is an example GET response for a Person resource as defined above:
 
 ```json
 {
-  "value": {
-    "id": "00000000-0000-0000-0000-000000000002",
-    "forename": "Michael",
-    "surname": "Archer",
-    "dateOfBirth": "1984-06-06",
-    "favouriteColour": "Brown",
-    "homeAddressId": "00000000-0000-0000-0001-000000000002",
-    "self": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
-      "rel": "self",
-      "method": "GET"
-    },
-    "edit-form": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002/edit-form",
-      "rel": "edit-form",
-      "method": "GET"
-    },
-    "delete": {
-      "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
-      "rel": "self",
-      "method": "DELETE"
-    },
-    "homeAddress": {
-      "href": "https://localhost:7235/addresses/00000000-0000-0000-0001-000000000002",
-      "rel": "related",
-      "method": "GET"
-    }
+  "id": "00000000-0000-0000-0000-000000000001",
+  "forename": "Kendrick",
+  "surname": "Lamar",
+  "dateOfBirth": "1994-05-05",
+  "favouriteColour": null,
+  "homeAddressId": "00000000-0000-0000-0001-000000000001",
+  "greatestAchievement": {
+    "id": "cda40291-a83a-4317-aea5-4bd0407d9541",
+    "description": "To Pimp A Butterfly",
+    "dateOfAchievement": "2015-03-16"
   },
+  "achievements": [
+    {
+      "id": "9b1cc13a-8f26-4200-b1a8-4bd0407d9543",
+      "description": "Section.80",
+      "dateOfAchievement": "2011-07-02"
+    },
+    {
+      "id": "c426e8b4-29ab-4fd3-9d5c-4bd0407d9543",
+      "description": "Good Kid, M.A.A.D City",
+      "dateOfAchievement": "2012-10-22"
+    },
+    {
+      "id": "b03de7dd-d57c-4781-9152-4bd0407d9543",
+      "description": "DAMN",
+      "dateOfAchievement": "2017-04-14"
+    },
+    {
+      "id": "2b625df3-286d-4a69-bcc3-4bd0407d9543",
+      "description": "Mr Morale & the Big Steppers",
+      "dateOfAchievement": "2022-05-13"
+    }
+  ],
   "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
     "rel": "self",
+    "method": "GET"
+  },
+  "edit-form": {
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
+    "rel": "edit-form",
+    "method": "GET"
+  },
+  "delete": {
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
+    "rel": "self",
+    "method": "DELETE"
+  },
+  "homeAddress": {
+    "href": "https://localhost:7235/addresses/00000000-0000-0000-0001-000000000001",
+    "rel": "related",
     "method": "GET"
   }
 }
 ```
 
 All of the links in the above example have been automatically constructed by the framework.  One of the advantages of this RESTful approach over "vanilla" JSON over HTTP is that it enables client UIs to be link driven rather than having to hardcode URLs in to the application.
+
+Note also how the aggregate members (achievements) have been presented inline as child resources, whereas the related aggregate root (homeAddress) has been presented as a link.
 
 ### Forms
 
@@ -181,7 +235,7 @@ Forms provide an array of all of the fields available for submission, with infor
 
 ```json
 {
-  "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002",
+  "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
   "rel": "edit-form",
   "method": "PUT",
   "value": [
@@ -190,14 +244,14 @@ Forms provide an array of all of the fields available for submission, with infor
       "type": "string",
       "required": true,
       "maxlength": 30,
-      "value": "Michael"
+      "value": "Kendrick"
     },
     {
       "name": "surname",
       "type": "string",
       "required": true,
       "maxlength": 30,
-      "value": "Archer"
+      "value": "Lamar"
     },
     {
       "name": "dateOfBirth",
@@ -205,13 +259,12 @@ Forms provide an array of all of the fields available for submission, with infor
       "required": true,
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "placeholder": "yyyy-MM-dd",
-      "value": "1984-06-06"
+      "value": "1994-05-05"
     },
     {
       "name": "favouriteColour",
       "type": "string",
       "required": false,
-      "value": "Brown",
       "options": {
         "value": [
           {
@@ -259,24 +312,112 @@ Forms provide an array of all of the fields available for submission, with infor
       "required": true,
       "pattern": "^[0-9a-fA-F]{8}[-]([0-9a-fA-F]{4}[-]){3}[0-9a-fA-F]{12}$",
       "placeholder": "00000000-0000-0000-0000-000000000000",
-      "value": "00000000-0000-0000-0001-000000000002"
+      "value": "00000000-0000-0000-0001-000000000001"
+    },
+    {
+      "name": "greatestAchievement",
+      "type": "object",
+      "form": {
+        "value": [
+          {
+            "name": "description",
+            "type": "string",
+            "required": true,
+            "maxlength": 250,
+            "value": "To Pimp A Butterfly"
+          },
+          {
+            "name": "dateOfAchievement",
+            "type": "date",
+            "required": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "placeholder": "yyyy-MM-dd",
+            "value": "2015-03-16"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "required": false,
+            "value": "fd5a022b-2b85-4fad-8b20-4bd04080e58c"
+          }
+        ]
+      },
+      "required": false,
+      "value": {
+        "id": "fd5a022b-2b85-4fad-8b20-4bd04080e58c",
+        "description": "To Pimp A Butterfly",
+        "dateOfAchievement": "2015-03-16"
+      }
+    },
+    {
+      "name": "achievements",
+      "type": "array",
+      "etype": "object",
+      "eform": {
+        "value": [
+          {
+            "name": "description",
+            "type": "string",
+            "required": true,
+            "maxlength": 250,
+            "value": ""
+          },
+          {
+            "name": "dateOfAchievement",
+            "type": "date",
+            "required": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "placeholder": "yyyy-MM-dd",
+            "value": "0001-01-01"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "required": false,
+            "value": "00000000-0000-0000-0000-000000000000"
+          }
+        ]
+      },
+      "required": false,
+      "value": [
+        {
+          "id": "2abf46ef-8d9a-4ce8-8d31-4bd04080e58e",
+          "description": "Section.80",
+          "dateOfAchievement": "2011-07-02"
+        },
+        {
+          "id": "ef0b307c-7e2f-4cf7-a270-4bd04080e58e",
+          "description": "Good Kid, M.A.A.D City",
+          "dateOfAchievement": "2012-10-22"
+        },
+        {
+          "id": "8bc4c648-9ac9-4079-adb0-4bd04080e58e",
+          "description": "DAMN",
+          "dateOfAchievement": "2017-04-14"
+        },
+        {
+          "id": "f24fe6fa-8447-4269-a9f3-4bd04080e58e",
+          "description": "Mr Morale & the Big Steppers",
+          "dateOfAchievement": "2022-05-13"
+        }
+      ]
     },
     {
       "name": "id",
       "type": "string",
       "required": false,
-      "value": "00000000-0000-0000-0000-000000000002"
+      "value": "00000000-0000-0000-0000-000000000001"
     }
   ],
   "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000002/edit-form",
+    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
     "rel": "edit-form",
     "method": "GET"
   }
 }
 ```
 
-Nested forms are supported in situations where a resource has child resources, including resource collections.  Lookups are also available where you can provide an array of options for clients to constrain acceptable values and populate dropdown lists etc.  Provide an implementation of the `ILookupOptionsProvider` to get the data from your database or wherever you hold it.
+Nested forms are supported in situations where a resource has child resources, including resource collections (`greatestAchievement` and `achievements` properties in this example).  Lookups are also available where you can provide an array of options for clients to constrain acceptable values and populate dropdown lists etc. (see `favouriteColour`).  Provide an implementation of the `ILookupOptionsProvider` to get the data from your database or wherever you hold it.
 
 ## Pagination
 
@@ -323,8 +464,6 @@ In this example there are 9 resources in total (`size`), of which we are present
 
 ## TODO...
 
-- Nested child resource example
-- Nested child resource collection example
 - Related resource collection example
 - Query parameters in all requests (filtering, sorting...)
 - Entry point endpoint (service discovery - present all top level uris)

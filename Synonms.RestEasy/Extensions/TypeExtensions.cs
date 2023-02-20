@@ -1,4 +1,5 @@
-﻿using Synonms.RestEasy.Abstractions.Constants;
+﻿using System.Collections;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
 
@@ -72,13 +73,20 @@ public static class TypeExtensions
         && type.BaseType is not null
         && type.BaseType.IsGenericType
         && type.BaseType.GetGenericTypeDefinition() == (typeof(Resource<>));
-    
+
+    public static bool IsChildResource(this Type type) =>
+        !type.IsInterface
+        && !type.IsAbstract
+        && type.BaseType is not null
+        && type.BaseType.IsGenericType
+        && type.BaseType.GetGenericTypeDefinition() == (typeof(ChildResource<>));
+
     public static bool IsArrayOrEnumerable(this Type type) =>
         type.IsArray || type.IsEnumerable();
 
     public static bool IsEnumerable(this Type type) =>
-        type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-    
+        type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+
     public static Type? GetArrayOrEnumerableElementType(this Type type)
     {
         if (type.IsArray)

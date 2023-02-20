@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Application;
@@ -14,10 +15,12 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource<TAggregateRoot>, new() 
 {
+    private readonly IChildResourceMapperFactory _childResourceMapperFactory;
     private readonly IRouteGenerator _routeGenerator;
     
-    public DefaultResourceMapper(IRouteGenerator routeGenerator)
+    public DefaultResourceMapper(IChildResourceMapperFactory childResourceMapperFactory, IRouteGenerator routeGenerator)
     {
+        _childResourceMapperFactory = childResourceMapperFactory;
         _routeGenerator = routeGenerator;
     }
     
@@ -74,20 +77,64 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
                 continue;
             }
-
-            if (aggregateRootPropertyInfo.PropertyType.IsResource())
+            
+            if (aggregateRootPropertyInfo.PropertyType.IsAggregateMember())
             {
-                // TODO
+                Type aggregateMemberType = aggregateRootPropertyInfo.PropertyType;
+                Type childResourceType = resourcePropertyInfo.PropertyType;
+
+                object? childResource = MapAggregateMember(aggregateMemberType, childResourceType, httpContext, propertyValue);
+
+                resourcePropertyInfo.SetValue(resource, childResource);
                 
                 continue;
             }
 
+            if (aggregateRootPropertyInfo.PropertyType.IsArrayOrEnumerable())
+            {
+                Type? aggregateMemberType = aggregateRootPropertyInfo.PropertyType.GetArrayOrEnumerableElementType();
+
+                if (aggregateMemberType is null || aggregateMemberType.IsAggregateMember() is false)
+                {
+                    continue;
+                }
+
+                Type? childResourceType = resourcePropertyInfo.PropertyType.GetArrayOrEnumerableElementType();
+
+                if (childResourceType is null || childResourceType.IsChildResource() is false)
+                {
+                    continue;
+                }
+
+                Type childResourceCollectionType = typeof(List<>).MakeGenericType(childResourceType);
+
+                IList childResources = (IList)Activator.CreateInstance(childResourceCollectionType);
+                
+                if (propertyValue is IEnumerable enumerablePropertyValue)
+                {
+                    foreach (object item in enumerablePropertyValue)
+                    {
+                        var childResource = MapAggregateMember(aggregateMemberType, childResourceType, httpContext, item);
+//                        var childResource = Convert.ChangeType(mappedObject, childResourceType);
+                        
+                        if (childResource is not null)
+                        {
+                            childResources?.Add(childResource);
+                        }
+                    }
+                }
+
+                resourcePropertyInfo.SetValue(resource, childResources);
+
+                continue;
+            }
+            
             if (aggregateRootPropertyInfo.PropertyType.IsEntityId())
             {
                 Type relatedEntityIdType = aggregateRootPropertyInfo.PropertyType;
-                Type relatedAggregateRootType = relatedEntityIdType.GetGenericArguments().Single();
+                Type relatedEntityType = relatedEntityIdType.GetGenericArguments().Single();
                 
-                Uri relationUri = _routeGenerator.Item(relatedAggregateRootType, httpContext, Guid.Parse(propertyValue?.ToString() ?? string.Empty));
+                Uri relationUri = _routeGenerator.Item(relatedEntityType, httpContext, Guid.Parse(propertyValue?.ToString() ?? string.Empty));
                 Link relationLink = Link.RelationLink(relationUri);
 
                 resource.Links.Add(resourcePropertyInfo.Name.Replace("Id", string.Empty).ToCamelCase(), relationLink);
@@ -97,5 +144,22 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
         }
 
         return resource;
+    }
+
+    private object? MapAggregateMember(Type aggregateMemberType, Type childResourceType, HttpContext httpContext, object? aggregateMemberValue)
+    {
+        if (aggregateMemberValue is null)
+        {
+            return null;
+        }
+        
+        if (childResourceType.IsChildResource() is false)
+        {
+            return null;
+        }
+
+        IChildResourceMapper? childResourceMapper = _childResourceMapperFactory.Create(aggregateMemberType, childResourceType);
+
+        return childResourceMapper?.Map(httpContext, aggregateMemberValue);
     }
 }

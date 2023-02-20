@@ -21,7 +21,7 @@ public class IonResourceJsonConverter<TAggregateRoot, TResource> : JsonConverter
 
         using JsonDocument jsonDocument = doc;
 
-        TResource resourceTemplate = new();
+        TResource resource = new();
 
         foreach (JsonProperty jsonProperty in jsonDocument.RootElement.EnumerateObject())
         {
@@ -36,11 +36,11 @@ public class IonResourceJsonConverter<TAggregateRoot, TResource> : JsonConverter
 
             if (value is not null && value.GetType().IsAssignableTo(propertyInfo.PropertyType))
             {
-                propertyInfo.SetValue(resourceTemplate, value);
+                propertyInfo.SetValue(resource, value);
             }
         }
             
-        return resourceTemplate;
+        return resource;
     }
 
     public override void Write(Utf8JsonWriter writer, TResource value, JsonSerializerOptions options)
