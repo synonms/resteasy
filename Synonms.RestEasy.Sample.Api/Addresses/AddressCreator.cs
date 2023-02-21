@@ -5,6 +5,6 @@ namespace Synonms.RestEasy.Sample.Api.Addresses;
 
 public class AddressCreator : IAggregateCreator<Address, AddressResource>
 {
-    public Result<Address> Create(AddressResource resource) =>
-        Address.Create(resource);
+    public Task<Result<Address>> CreateAsync(AddressResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(Address.Create(resource));
 }

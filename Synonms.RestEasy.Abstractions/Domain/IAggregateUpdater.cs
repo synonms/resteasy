@@ -7,5 +7,5 @@ public interface IAggregateUpdater<in TAggregateRoot, in TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource<TAggregateRoot>
 {
-    Maybe<Fault> Update(TAggregateRoot aggregateRoot, TResource resource);
+    Task<Maybe<Fault>> UpdateAsync(TAggregateRoot aggregateRoot, TResource resource, CancellationToken cancellationToken);
 }

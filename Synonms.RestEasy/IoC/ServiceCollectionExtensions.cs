@@ -7,6 +7,7 @@ using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Application;
+using Synonms.RestEasy.Domain;
 using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.Hypermedia.Ion;
 using Synonms.RestEasy.Mediation.Commands;
@@ -31,6 +32,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
         serviceCollection.AddSingleton(typeof(IEditFormDocumentFactory<,>), typeof(EditFormDocumentFactory<,>));
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
+        serviceCollection.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddSingleton, aggregateAssemblies);
         serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 

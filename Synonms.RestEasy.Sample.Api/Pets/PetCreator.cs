@@ -5,6 +5,6 @@ namespace Synonms.RestEasy.Sample.Api.Pets;
 
 public class PetCreator : IAggregateCreator<Pet, PetResource>
 {
-    public Result<Pet> Create(PetResource resource) =>
-        Pet.Create(resource);
+    public Task<Result<Pet>> CreateAsync(PetResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(Pet.Create(resource));
 }

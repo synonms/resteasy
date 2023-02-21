@@ -5,6 +5,6 @@ namespace Synonms.RestEasy.Sample.Api.Pets;
 
 public class PetUpdater : IAggregateUpdater<Pet, PetResource>
 {
-    public Maybe<Fault> Update(Pet aggregateRoot, PetResource resource) =>
-        aggregateRoot.Update(resource);
+    public Task<Maybe<Fault>> UpdateAsync(Pet aggregateRoot, PetResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(aggregateRoot.Update(resource));
 }

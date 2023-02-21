@@ -37,8 +37,8 @@ public class PersonResource : Resource<Person>
     [RestEasyPattern(RegularExpressions.Guid)]
     [RestEasyDescriptor(placeholder: Placeholders.Guid)]
     public EntityId<Address> HomeAddressId { get; set; } = EntityId<Address>.Uninitialised;
-    
-    public PersonalAchievementResource GreatestAchievement { get; set; }
+
+    public PersonalAchievementResource GreatestAchievement { get; set; } = new();
 
     public IEnumerable<PersonalAchievementResource> Achievements { get; set; } = Enumerable.Empty<PersonalAchievementResource>();
 }

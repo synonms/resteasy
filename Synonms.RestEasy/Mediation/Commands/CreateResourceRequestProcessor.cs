@@ -22,7 +22,7 @@ public class CreateResourceRequestProcessor<TAggregateRoot, TResource> : IReques
     public async Task<CreateResourceResponse<TAggregateRoot>> Handle(CreateResourceRequest<TAggregateRoot, TResource> request, CancellationToken cancellationToken)
     {
         // TODO: Validation
-        Result<TAggregateRoot> createOutcome = _aggregateCreator.Create(request.Resource);
+        Result<TAggregateRoot> createOutcome = await _aggregateCreator.CreateAsync(request.Resource, cancellationToken);
         
         Result<TAggregateRoot> persistOutcome = await createOutcome
             .MatchAsync(

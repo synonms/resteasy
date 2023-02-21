@@ -17,13 +17,13 @@ public class Person : AggregateRoot<Person>
     public const int SurnameMaxLength = 30;
     public const int ColourMaxLength = 10;
     
-    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
+    private Person(EntityId<Person> id, RestEasyMoniker forename, RestEasyMoniker surname, RestEasyEventDate dateOfBirth, RestEasyColour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
         : this(forename, surname, dateOfBirth, favouriteColour, homeAddressId, greatestAchievement, achievements)
     {
         Id = id;
     }
     
-    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
+    private Person(RestEasyMoniker forename, RestEasyMoniker surname, RestEasyEventDate dateOfBirth, RestEasyColour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
     {
         Forename = forename;
         Surname = surname;
@@ -34,13 +34,13 @@ public class Person : AggregateRoot<Person>
         Achievements = achievements;
     }
     
-    public Moniker Forename { get; private set; }
+    public RestEasyMoniker Forename { get; private set; }
     
-    public Moniker Surname { get; private set; }
+    public RestEasyMoniker Surname { get; private set; }
     
-    public EventDate DateOfBirth { get; private set; }
+    public RestEasyEventDate DateOfBirth { get; private set; }
     
-    public Colour? FavouriteColour { get; private set; }
+    public RestEasyColour? FavouriteColour { get; private set; }
 
     // Related resource (presents as a link)
     public EntityId<Address> HomeAddressId { get; private set; }
@@ -60,10 +60,10 @@ public class Person : AggregateRoot<Person>
                     PersonalAchievement.Create(resource.GreatestAchievement)
                         .Bind(greatestAchievement =>
                             AggregateRules.CreateBuilder()
-                                .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-                                .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-                                .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-                                .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
+                                .WithMandatoryValueObject(resource.Forename, x => RestEasyMoniker.CreateMandatory(x, ForenameMaxLength), out RestEasyMoniker forenameValueObject)
+                                .WithMandatoryValueObject(resource.Surname, x => RestEasyMoniker.CreateMandatory(x, SurnameMaxLength), out RestEasyMoniker surnameValueObject)
+                                .WithMandatoryValueObject(resource.DateOfBirth, RestEasyEventDate.CreateMandatory, out RestEasyEventDate dateOfBirthValueObject)
+                                .WithOptionalValueObject(resource.FavouriteColour, x => RestEasyColour.CreateOptional(x, ColourMaxLength), out RestEasyColour? favouriteColourValueObject)
                                 .WithDomainRules(
                                     RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
                                     )
@@ -76,10 +76,10 @@ public class Person : AggregateRoot<Person>
                 PersonalAchievement.Create(resource.GreatestAchievement)
                     .Bind(greatestAchievement =>
                         AggregateRules.CreateBuilder()
-                            .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-                            .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-                            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-                            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
+                            .WithMandatoryValueObject(resource.Forename, x => RestEasyMoniker.CreateMandatory(x, ForenameMaxLength), out RestEasyMoniker forenameValueObject)
+                            .WithMandatoryValueObject(resource.Surname, x => RestEasyMoniker.CreateMandatory(x, SurnameMaxLength), out RestEasyMoniker surnameValueObject)
+                            .WithMandatoryValueObject(resource.DateOfBirth, RestEasyEventDate.CreateMandatory, out RestEasyEventDate dateOfBirthValueObject)
+                            .WithOptionalValueObject(resource.FavouriteColour, x => RestEasyColour.CreateOptional(x, ColourMaxLength), out RestEasyColour? favouriteColourValueObject)
                             .WithDomainRules(
                                 RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
                             )

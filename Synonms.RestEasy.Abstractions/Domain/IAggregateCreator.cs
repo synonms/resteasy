@@ -7,5 +7,5 @@ public interface IAggregateCreator<TAggregateRoot, in TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource<TAggregateRoot>
 {
-    Result<TAggregateRoot> Create(TResource resource);
+    Task<Result<TAggregateRoot>> CreateAsync(TResource resource, CancellationToken cancellationToken);
 }

@@ -53,8 +53,8 @@ public class UpdateResourceRequestProcessor<TAggregateRoot, TResource> : IReques
                 return Result<TAggregateRoot>.Failure(fault);
             });
             
-        Result<TAggregateRoot> editOutcome = filterOutcome
-            .Bind(aggregateRoot => _aggregateUpdater.Update(aggregateRoot, request.Resource).ToResult(() => aggregateRoot));
+        Result<TAggregateRoot> editOutcome = await filterOutcome
+            .BindAsync(async aggregateRoot => (await _aggregateUpdater.UpdateAsync(aggregateRoot, request.Resource, cancellationToken)).ToResult(() => aggregateRoot));
 
         Result<TAggregateRoot> persistOutcome = await editOutcome
             .BindAsync(async aggregateRoot =>

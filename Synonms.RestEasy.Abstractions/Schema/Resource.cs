@@ -16,7 +16,7 @@ public abstract class Resource<TAggregateRoot>
         Id = id;
         SelfLink = selfLink;
     }
-    
+
     public EntityId<TAggregateRoot> Id { get; init; }
     
     public Link SelfLink { get; init; }

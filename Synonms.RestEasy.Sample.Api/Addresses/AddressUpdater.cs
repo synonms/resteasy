@@ -5,6 +5,6 @@ namespace Synonms.RestEasy.Sample.Api.Addresses;
 
 public class AddressUpdater : IAggregateUpdater<Address, AddressResource>
 {
-    public Maybe<Fault> Update(Address aggregateRoot, AddressResource resource) =>
-        aggregateRoot.Update(resource);
+    public Task<Maybe<Fault>> UpdateAsync(Address aggregateRoot, AddressResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(aggregateRoot.Update(resource));
 }

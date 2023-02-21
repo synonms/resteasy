@@ -14,13 +14,13 @@ public class Pet : AggregateRoot<Pet>
 {
     private const int NameMaxLength = 30;
     
-    private Pet(EntityId<Pet> id, EntityId<Person> ownerId, Moniker name, EventDate dateOfBirth)
+    private Pet(EntityId<Pet> id, EntityId<Person> ownerId, RestEasyMoniker name, RestEasyEventDate dateOfBirth)
         : this(ownerId, name, dateOfBirth)
     {
         Id = id;
     }
     
-    private Pet(EntityId<Person> ownerId, Moniker name, EventDate dateOfBirth)
+    private Pet(EntityId<Person> ownerId, RestEasyMoniker name, RestEasyEventDate dateOfBirth)
     {
         OwnerId = ownerId;
         Name = name;
@@ -29,14 +29,14 @@ public class Pet : AggregateRoot<Pet>
     
     public EntityId<Person> OwnerId { get; private set; }
     
-    public Moniker Name { get; private set; }
+    public RestEasyMoniker Name { get; private set; }
     
-    public EventDate DateOfBirth { get; private set; }
+    public RestEasyEventDate DateOfBirth { get; private set; }
     
     public static Result<Pet> Create(PetResource resource) =>
         AggregateRules.CreateBuilder()
-            .WithMandatoryValueObject(resource.Name, x => Moniker.CreateMandatory(x, NameMaxLength), out Moniker nameValueObject)
-            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+            .WithMandatoryValueObject(resource.Name, x => RestEasyMoniker.CreateMandatory(x, NameMaxLength), out RestEasyMoniker nameValueObject)
+            .WithMandatoryValueObject(resource.DateOfBirth, RestEasyEventDate.CreateMandatory, out RestEasyEventDate dateOfBirthValueObject)
             .WithDomainRules(
                 RelatedEntityIdRules<Person>.Create(nameof(OwnerId), resource.OwnerId)
                 )
@@ -45,8 +45,8 @@ public class Pet : AggregateRoot<Pet>
 
     public Maybe<Fault> Update(PetResource resource) =>
         AggregateRules.CreateBuilder()
-            .WithMandatoryValueObject(resource.Name, x => Moniker.CreateMandatory(x, NameMaxLength), out Moniker nameValueObject)
-            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
+            .WithMandatoryValueObject(resource.Name, x => RestEasyMoniker.CreateMandatory(x, NameMaxLength), out RestEasyMoniker nameValueObject)
+            .WithMandatoryValueObject(resource.DateOfBirth, RestEasyEventDate.CreateMandatory, out RestEasyEventDate dateOfBirthValueObject)
             .WithDomainRules(
                 RelatedEntityIdRules<Person>.Create(nameof(OwnerId), resource.OwnerId)
             )
