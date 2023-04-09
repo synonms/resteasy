@@ -4,8 +4,15 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <PackageVersion>0.0.1</PackageVersion>
+        <Title>Synonms RestEasy (Blazor)</Title>
+        <Authors>Synonms</Authors>
+        <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain.</Description>
+        <Copyright>2023 Synonms</Copyright>
+        <RepositoryUrl>https://github.com/synonms/resteasy</RepositoryUrl>
+        <RepositoryType>GitHub</RepositoryType>
+        <PackageTags>REST;RESTful;API;Web Api;Blazor</PackageTags>
     </PropertyGroup>
-
 
     <ItemGroup>
         <SupportedPlatform Include="browser" />
