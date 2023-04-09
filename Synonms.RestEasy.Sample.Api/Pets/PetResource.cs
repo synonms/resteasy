@@ -1,10 +1,11 @@
 ﻿using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Sample.Api.People;
 
 namespace Synonms.RestEasy.Sample.Api.Pets;
 
-public class PetResource : Resource<Pet>
+public class PetResource : ServerResource<Pet>
 {
     public PetResource()
     {

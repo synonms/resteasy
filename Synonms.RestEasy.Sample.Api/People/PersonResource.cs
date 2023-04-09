@@ -1,12 +1,13 @@
 ﻿using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Constants;
 using Synonms.RestEasy.Sample.Api.Addresses;
 
 namespace Synonms.RestEasy.Sample.Api.People;
 
-public class PersonResource : Resource<Person>
+public class PersonResource : ServerResource<Person>
 {
     public PersonResource()
     {

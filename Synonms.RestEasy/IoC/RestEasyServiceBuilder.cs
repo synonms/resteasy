@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.SharedKernel.Extensions;
@@ -15,6 +17,15 @@ public class RestEasyServiceBuilder
         _serviceCollection = serviceCollection;
     }
 
+    public RestEasyServiceBuilder WithCorsPolicy(Action<CorsPolicyBuilder> configurePolicy)
+    {
+        _serviceCollection.AddCors(corsOptions =>
+        {
+            corsOptions.AddPolicy(Cors.PolicyName, configurePolicy);
+        });
+
+        return this;
+    }
     public RestEasyServiceBuilder WithRepositoriesFrom(params Assembly[] assemblies)
     {
         _serviceCollection.RegisterAllImplementationsOf(typeof(ICreateRepository<>), _serviceCollection.AddSingleton, assemblies);

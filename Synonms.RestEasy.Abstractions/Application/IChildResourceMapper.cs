@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Abstractions.Application;
 
@@ -11,7 +12,7 @@ public interface IChildResourceMapper
 
 public interface IChildResourceMapper<in TAggregateMember, out TChildResource> : IChildResourceMapper
     where TAggregateMember : AggregateMember<TAggregateMember>
-    where TChildResource : ChildResource<TAggregateMember>
+    where TChildResource : ServerChildResource<TAggregateMember>
 {
     TChildResource? Map(HttpContext httpContext, TAggregateMember aggregateMember);
 }

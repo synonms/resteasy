@@ -4,12 +4,13 @@ using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
 public class FindResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<FindResourceRequest<TAggregateRoot, TResource>, FindResourceResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>
+    where TResource : ServerResource<TAggregateRoot>
 {
     private readonly IReadRepository<TAggregateRoot> _readRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;

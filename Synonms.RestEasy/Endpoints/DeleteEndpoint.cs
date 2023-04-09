@@ -1,12 +1,15 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Mediation.Commands;
 
 namespace Synonms.RestEasy.Endpoints;
 
 [ApiController]
+[EnableCors(Cors.PolicyName)]
 public class DeleteEndpoint<TAggregateRoot> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {

@@ -1,0 +1,22 @@
+﻿@using Synonms.RestEasy.Abstractions.Schema
+@typeparam TModel
+
+@if (FormInputDefinition.HtmlSelectOptions?.Any() ?? false)
+{
+    <select class="form-input">
+        @foreach (FormFieldOption formFieldOption in FormInputDefinition.HtmlSelectOptions)
+        {
+            <option value="@formFieldOption.Value" selected="@(formFieldOption.Value.ToString() == FormInputDefinition.Value)">@(formFieldOption.Label ?? formFieldOption.Value)</option>
+        }
+    </select>    
+}
+else
+{
+    <input class="form-input" type="@FormInputDefinition.HtmlInputType" id="@FormInputDefinition.HtmlInputId" name="@FormInputDefinition.HtmlInputId" @bind="@FormInputDefinition.Value" @bind:event="oninput" placeholder="@FormInputDefinition.HtmlInputPlaceholder" disabled="@FormInputDefinition.HtmlInputIsDisabled" readonly="@FormInputDefinition.HtmlInputIsReadOnly">
+}
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public RestEasyFormInputDefinition<TModel> FormInputDefinition { get; set; } = null!;
+}

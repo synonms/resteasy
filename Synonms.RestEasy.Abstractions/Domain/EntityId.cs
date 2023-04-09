@@ -7,7 +7,7 @@ namespace Synonms.RestEasy.Abstractions.Domain;
 public record EntityId<TEntity>(Guid Value) : IComparable, IComparable<EntityId<TEntity>>
     where TEntity : Entity<TEntity>
 {
-    protected EntityId() : this(Guid.Empty)
+    private EntityId() : this(Guid.Empty)
     {
     }
 

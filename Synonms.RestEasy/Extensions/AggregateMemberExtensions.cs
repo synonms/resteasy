@@ -2,6 +2,7 @@
 using Synonms.Functional.Extensions;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Infrastructure;
 
 namespace Synonms.RestEasy.Extensions;
@@ -14,7 +15,7 @@ public static class AggregateMemberExtensions
         Func<TChildResource, Result<TAggregateMember>> createFunc,
         Func<TAggregateMember, TChildResource, Maybe<Fault>> editFunc)
         where TAggregateMember : AggregateMember<TAggregateMember>
-        where TChildResource : ChildResource<TAggregateMember>
+        where TChildResource : ServerChildResource<TAggregateMember>
     {
         List<TChildResource> materialisedResources = childResources.ToList();
         

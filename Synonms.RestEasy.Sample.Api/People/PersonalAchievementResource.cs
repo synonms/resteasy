@@ -1,10 +1,11 @@
 ﻿using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Constants;
 
 namespace Synonms.RestEasy.Sample.Api.People;
 
-public class PersonalAchievementResource : ChildResource<PersonalAchievement>
+public class PersonalAchievementResource : ServerChildResource<PersonalAchievement>
 {
     [RestEasyRequired]
     [RestEasyMaxLength(PersonalAchievement.DescriptionMaxLength)]

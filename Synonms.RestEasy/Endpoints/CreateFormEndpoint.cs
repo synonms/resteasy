@@ -1,16 +1,18 @@
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Endpoints;
 
 [ApiController]
+[EnableCors(Cors.PolicyName)]
 public class CreateFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>, new()
+    where TResource : ServerResource<TAggregateRoot>, new()
 {
     private readonly IRouteGenerator _routeGenerator;
     private readonly ICreateFormDocumentFactory<TAggregateRoot, TResource> _documentFactory;

@@ -1,12 +1,13 @@
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.SharedKernel.Collections;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
 public class ReadResourceCollectionResponse<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>
+    where TResource : ServerResource<TAggregateRoot>
 {
     public ReadResourceCollectionResponse(PaginatedList<TResource> resourceCollection)
     {

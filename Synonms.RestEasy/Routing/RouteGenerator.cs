@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
+using Synonms.RestEasy.SharedKernel.Extensions;
 
 namespace Synonms.RestEasy.Routing;
 
@@ -16,73 +18,79 @@ public class RouteGenerator : IRouteGenerator
         _routeNameProvider = routeNameProvider;
     }
 
-    public Uri Item<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id) 
+    public Uri Item<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id, IQueryCollection? query = null) 
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
         string routeName = _routeNameProvider.GetById<TAggregateRoot>();
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id = id.Value }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 
-    public Uri Item(Type aggregateRootType, HttpContext httpContext, Guid id)
+    public Uri Item(Type aggregateRootType, HttpContext httpContext, Guid id, IQueryCollection? query = null)
     {
         string routeName = _routeNameProvider.GetById(aggregateRootType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
-    }
-    
-    public Uri Collection<TAggregateRoot>(HttpContext httpContext, int offset = 0) 
-        where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    {
-        object? values = offset > 0 ? new { offset } : null;
-        string routeName = _routeNameProvider.GetAll<TAggregateRoot>();
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, values, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
-        
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 
-    public Uri Collection(Type aggregateRootType, HttpContext httpContext, int offset = 0)
+    public Uri Collection<TAggregateRoot>(HttpContext httpContext, IQueryCollection? query = null) 
+        where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
-        object? values = offset > 0 ? new { offset } : null;
-        string routeName = _routeNameProvider.GetAll(aggregateRootType);
-        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, values, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string routeName = _routeNameProvider.GetAll<TAggregateRoot>();
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
+    }
+
+    public Uri Collection(Type aggregateRootType, HttpContext httpContext, IQueryCollection? query = null)
+    {
+        string routeName = _routeNameProvider.GetAll(aggregateRootType);
+        string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
+        
+        return new Uri(uriString + queryString);
     }
     
-    public Uri CreateForm<TAggregateRoot>(HttpContext httpContext)
+    public Uri CreateForm<TAggregateRoot>(HttpContext httpContext, IQueryCollection? query = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
         string routeName = _routeNameProvider.CreateForm<TAggregateRoot>();
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 
-    public Uri CreateForm(Type aggregateRootType, HttpContext httpContext)
+    public Uri CreateForm(Type aggregateRootType, HttpContext httpContext, IQueryCollection? query = null)
     {
         string routeName = _routeNameProvider.CreateForm(aggregateRootType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, null, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 
-    public Uri EditForm<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id)
+    public Uri EditForm<TAggregateRoot>(HttpContext httpContext, EntityId<TAggregateRoot> id, IQueryCollection? query = null)
         where TAggregateRoot : AggregateRoot<TAggregateRoot>
     {
         string routeName = _routeNameProvider.EditForm<TAggregateRoot>();
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 
-    public Uri EditForm(Type aggregateRootType, HttpContext httpContext, Guid id)
+    public Uri EditForm(Type aggregateRootType, HttpContext httpContext, Guid id, IQueryCollection? query = null)
     {
         string routeName = _routeNameProvider.EditForm(aggregateRootType);
         string uriString = _linkGenerator.GetUriByRouteValues(httpContext, routeName, new { id }, options: RoutingConstants.DefaultLinkOptions) ?? string.Empty;
+        string queryString = query is null ? string.Empty : "?" + string.Join('&', query.Select(x => x.Key + "=" + x.Value));
         
-        return new Uri(uriString);
+        return new Uri(uriString + queryString);
     }
 }

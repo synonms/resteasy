@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Application.Faults;
 using Synonms.RestEasy.Domain.Faults;
 using Synonms.RestEasy.Mediation.Commands;
@@ -13,9 +14,10 @@ using Synonms.RestEasy.Mediation.Commands;
 namespace Synonms.RestEasy.Endpoints;
 
 [ApiController]
+[EnableCors(Cors.PolicyName)]
 public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>
+    where TResource : ServerResource<TAggregateRoot>
 {
     private readonly IMediator _mediator;
     private readonly IRouteGenerator _routeGenerator;

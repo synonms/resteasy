@@ -4,13 +4,14 @@ using Synonms.Functional.Extensions;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Domain.Faults;
 
 namespace Synonms.RestEasy.Mediation.Commands;
 
 public class UpdateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<UpdateResourceRequest<TAggregateRoot, TResource>, UpdateResourceResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : Resource<TAggregateRoot>
+    where TResource : ServerResource<TAggregateRoot>
 {
     private readonly IReadRepository<TAggregateRoot> _readRepository;
     private readonly IUpdateRepository<TAggregateRoot> _updateRepository;

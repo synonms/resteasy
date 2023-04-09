@@ -2,6 +2,7 @@
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Extensions;
 
@@ -45,21 +46,24 @@ public static class TypeExtensions
         && !type.IsAbstract
         && type.BaseType is not null
         && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(AggregateRoot<>));
+        && (type.BaseType.GetGenericTypeDefinition() == typeof(AggregateRoot<>) 
+            || type.BaseType.BaseType is not null && type.BaseType.BaseType.IsGenericType && type.BaseType.BaseType.GetGenericTypeDefinition() == typeof(AggregateRoot<>));
 
     public static bool IsAggregateMember(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
         && type.BaseType is not null
         && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(AggregateMember<>));
+        && (type.BaseType.GetGenericTypeDefinition() == typeof(AggregateMember<>)
+            || type.BaseType.BaseType is not null && type.BaseType.BaseType.IsGenericType && type.BaseType.BaseType.GetGenericTypeDefinition() == typeof(AggregateMember<>));
+
 
     public static bool IsValueObject(this Type type) =>
         !type.IsInterface
             && !type.IsAbstract
             && type.BaseType is not null
             && type.BaseType.IsGenericType
-            && type.BaseType.GetGenericTypeDefinition() == (typeof(ValueObject<>));
+            && type.BaseType.GetGenericTypeDefinition() == typeof(ValueObject<>);
 
     public static bool IsEntityId(this Type type) =>
         !type.IsInterface
@@ -72,31 +76,15 @@ public static class TypeExtensions
         && !type.IsAbstract
         && type.BaseType is not null
         && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(Resource<>));
+        && type.BaseType.GetGenericTypeDefinition() == typeof(ServerResource<>);
 
     public static bool IsChildResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
         && type.BaseType is not null
         && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(ChildResource<>));
+        && type.BaseType.GetGenericTypeDefinition() == typeof(ServerChildResource<>);
 
-    public static bool IsArrayOrEnumerable(this Type type) =>
-        type.IsArray || type.IsEnumerable();
-
-    public static bool IsEnumerable(this Type type) =>
-        type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(IEnumerable));
-
-    public static Type? GetArrayOrEnumerableElementType(this Type type)
-    {
-        if (type.IsArray)
-        {
-            return type.GetElementType();
-        }
-
-        return type.IsEnumerable() ? type.GetGenericArguments().FirstOrDefault() : null;
-    }
-    
     public static string GetResourcePropertyType(this Type type)
     {
         if (ResourcePropertyTypes.ContainsKey(type))

@@ -1,9 +1,10 @@
 ﻿using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 
-public class AddressResource : Resource<Address>
+public class AddressResource : ServerResource<Address>
 {
     public AddressResource()
     {

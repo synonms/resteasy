@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
-using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Application;
 using Synonms.RestEasy.Domain;
 using Synonms.RestEasy.Extensions;
-using Synonms.RestEasy.Hypermedia.Ion;
 using Synonms.RestEasy.Mediation.Commands;
 using Synonms.RestEasy.Mediation.Queries;
 using Synonms.RestEasy.Routing;
@@ -20,7 +21,10 @@ namespace Synonms.RestEasy.IoC;
 
 public static class ServiceCollectionExtensions
 {
-    public static RestEasyServiceBuilder AddRestEasy(this IServiceCollection serviceCollection, params Assembly[] aggregateAssemblies)
+    public static RestEasyServiceBuilder AddRestEasy(this IServiceCollection serviceCollection, params Assembly[] aggregateAssemblies) =>
+        serviceCollection.AddRestEasy(_ => {}, aggregateAssemblies);
+
+    public static RestEasyServiceBuilder AddRestEasy(this IServiceCollection serviceCollection, Action<MvcOptions> mvcOptionsConfiguration, params Assembly[] aggregateAssemblies)
     {
         IResourceDirectory resourceDirectory = new ResourceDirectory(aggregateAssemblies);
         serviceCollection.AddSingleton(resourceDirectory);
@@ -53,7 +57,10 @@ public static class ServiceCollectionExtensions
             {
                 mvcOptions.Conventions.Add(new RestEasyControllerModelConvention(routeNameProvider));
 
-                mvcOptions.ConfigureForRestEasy().WithIon();
+                mvcOptions.ConfigureForRestEasy();
+                
+                mvcOptionsConfiguration?.Invoke(mvcOptions);
+                
                 // AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
                 //     .RequireAuthenticatedUser()
                 //     .Build();

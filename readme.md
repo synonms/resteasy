@@ -2,7 +2,7 @@
 
 *_Work In Progress_*
 
-RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain.
+RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain.  As a bonus it also provides some experimental client side (Blazor) components to simplify UI development (for automatic forms and the like). 
 
 When building a simple API you write a bit of boilerplate stuff and it's no big deal but as you add more capabilities to your API you end up having to write more and more boilerplate stuff and before you know it adding a simple domain model and some associated CRUD endpoints becomes a tedious nightmare. 
 

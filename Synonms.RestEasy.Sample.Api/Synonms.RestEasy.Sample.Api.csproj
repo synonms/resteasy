@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Synonms.RestEasy.Serialisation\Synonms.RestEasy.Serialisation.csproj" />
       <ProjectReference Include="..\Synonms.RestEasy\Synonms.RestEasy.csproj" />
     </ItemGroup>
 
