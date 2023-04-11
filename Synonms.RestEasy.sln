@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.RestEasy.Serialisat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.RestEasy.Blazor", "Synonms.RestEasy.Blazor\Synonms.RestEasy.Blazor.csproj", "{8EE4B515-7ABB-46FD-92D5-0F43C9421243}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7CDB6090-C439-4CD4-8726-53FC6BC27AAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.RestEasy.Tests.Unit", "Synonms.RestEasy.Tests.Unit\Synonms.RestEasy.Tests.Unit.csproj", "{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,5 +51,12 @@ Global
 		{8EE4B515-7ABB-46FD-92D5-0F43C9421243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EE4B515-7ABB-46FD-92D5-0F43C9421243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EE4B515-7ABB-46FD-92D5-0F43C9421243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334} = {7CDB6090-C439-4CD4-8726-53FC6BC27AAF}
 	EndGlobalSection
 EndGlobal

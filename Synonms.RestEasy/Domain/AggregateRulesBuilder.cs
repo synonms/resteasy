@@ -23,6 +23,22 @@ public class AggregateRulesBuilder
     }
 
     public AggregateRulesBuilder WithOptionalValueObject<TValue, TValueObject>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObject>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObject? valueObject)
+        where TValue : struct
+        where TValueObject : ValueObject<TValue>
+    {
+        TValueObject? output = null;
+
+        createFunc.Invoke(value).Match(
+            maybeValueObject => output = maybeValueObject.Match(valueObject => valueObject, () => null as TValueObject),
+            faults => _faults.AddRange(faults));
+
+        valueObject = output;
+
+        return this;
+    }
+
+    public AggregateRulesBuilder WithOptionalValueObject<TValue, TValueObject>(TValue? value, Func<TValue?, OneOf<Maybe<TValueObject>, IEnumerable<DomainRuleFault>>> createFunc, out TValueObject? valueObject)
+        where TValue : class
         where TValueObject : ValueObject<TValue>
     {
         TValueObject? output = null;
