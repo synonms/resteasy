@@ -1,6 +1,6 @@
 ﻿namespace Synonms.RestEasy.Abstractions.Schema.Client;
 
-public class ClientResource
+public abstract class ClientResource
 {
     protected ClientResource()
     {

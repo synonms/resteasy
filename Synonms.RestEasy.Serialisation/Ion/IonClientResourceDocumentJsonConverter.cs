@@ -4,6 +4,7 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Client;
 using Synonms.RestEasy.Serialisation.Ion.Constants;
+using Synonms.RestEasy.Serialisation.Ion.Extensions;
 
 namespace Synonms.RestEasy.Serialisation.Ion;
 
@@ -37,10 +38,10 @@ public class IonClientResourceDocumentJsonConverter<TResource> : JsonConverter<C
             throw new JsonException($"Unable to extract [{IanaLinkRelations.Self}] link from document.");
         }
 
-        // TODO: Other links
-
         ClientResourceDocument<TResource> resourceDocument = new(selfLink, clientResource);
-
+        
+        jsonDocument.RootElement.ForEachLinkProperty((linkName, link) => resourceDocument.WithLink(linkName, link), options);
+        
         return resourceDocument;
     }
 

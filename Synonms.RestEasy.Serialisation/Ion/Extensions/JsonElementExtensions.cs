@@ -1,10 +1,51 @@
 ﻿using System.Text.Json;
+using Synonms.RestEasy.Abstractions.Constants;
+using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Serialisation.Ion.Constants;
 
 namespace Synonms.RestEasy.Serialisation.Ion.Extensions;
 
 public static class JsonElementExtensions
 {
+    public static void ForEachLinkProperty(this JsonElement jsonElement, Action<string, Link> action, JsonSerializerOptions options)
+    {
+        foreach (JsonProperty jsonProperty in jsonElement.EnumerateObject())
+        {
+            if (jsonProperty.NameEquals(IonPropertyNames.Value))
+            {
+                continue;
+            }
+
+            if (jsonProperty.NameEquals(IanaLinkRelations.Self))
+            {
+                continue;
+            }
+
+            if (jsonProperty.NameEquals(IanaLinkRelations.Pagination.First)
+                || jsonProperty.NameEquals(IanaLinkRelations.Pagination.Last)
+                || jsonProperty.NameEquals(IanaLinkRelations.Pagination.Next)
+                || jsonProperty.NameEquals(IanaLinkRelations.Pagination.Previous))
+            {
+                continue;
+            }
+
+            if (jsonProperty.Value.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+            
+            if (jsonProperty.Value.TryGetProperty(IonPropertyNames.Links.Uri, out JsonElement _))
+            {
+                Link? link = JsonSerializer.Deserialize<Link>(jsonProperty.Value.ToString(), options);
+
+                if (link is not null)
+                {
+                    action.Invoke(jsonProperty.Name, link);
+                }
+            }
+        }
+    }
+
     public static bool? GetOptionalBool(this JsonElement jsonElement, string propertyName) =>
         jsonElement.TryGetProperty(propertyName, out JsonElement propertyElement) ? propertyElement.GetBoolean() : null;
 

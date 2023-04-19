@@ -36,7 +36,7 @@ public class IonClientChildResourceJsonConverter<TChildResource> : JsonConverter
                 propertyInfo.SetValue(childResource, value);
             }
         }
-            
+
         return childResource;
     }
 

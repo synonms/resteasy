@@ -1,0 +1,21 @@
+﻿<a class="@CssClass" href="@Href">
+    <span class="icon"><i class="bx @IconClass"></i></span>
+    <span class="text">@Label</span>
+</a>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public string Href { get; set; } = string.Empty;
+    
+    [Parameter]
+    [EditorRequired]
+    public string IconClass { get; set; } = string.Empty;
+
+    [Parameter]
+    [EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+}

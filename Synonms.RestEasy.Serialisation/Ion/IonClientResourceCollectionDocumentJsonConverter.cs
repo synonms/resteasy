@@ -4,6 +4,7 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Client;
 using Synonms.RestEasy.Serialisation.Ion.Constants;
+using Synonms.RestEasy.Serialisation.Ion.Extensions;
 
 namespace Synonms.RestEasy.Serialisation.Ion;
 
@@ -49,11 +50,11 @@ public class IonClientResourceCollectionDocumentJsonConverter<TResource> : JsonC
             throw new JsonException($"Unable to extract [{IanaLinkRelations.Self}] link from document.");
         }
 
-        // TODO: Other links
-
         Pagination pagination = GetPagination(jsonDocument.RootElement);
             
         ClientResourceCollectionDocument<TResource> resourceDocument = new(selfLink, clientResources, pagination);
+
+        jsonDocument.RootElement.ForEachLinkProperty((linkName, link) => resourceDocument.WithLink(linkName, link), options);
 
         return resourceDocument;
     }

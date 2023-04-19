@@ -23,7 +23,24 @@ public class IonServerResourceJsonConverter<TAggregateRoot, TResource> : JsonCon
 
         using JsonDocument jsonDocument = doc;
 
-        TResource resource = new();
+        Guid id = jsonDocument.RootElement.GetProperty("id").GetGuid();
+        Link selfLink = Link.EmptyLink();
+
+        if (jsonDocument.RootElement.TryGetProperty(IanaLinkRelations.Self, out JsonElement selfElement))
+        {
+            Link? link = JsonSerializer.Deserialize<Link>(selfElement.ToString(), options);
+
+            if (link is not null)
+            {
+                selfLink = link;
+            }
+        }
+
+        TResource resource = new()
+        {
+            Id = new EntityId<TAggregateRoot>(id),
+            SelfLink = selfLink
+        };
 
         foreach (JsonProperty jsonProperty in jsonDocument.RootElement.EnumerateObject())
         {
@@ -42,6 +59,8 @@ public class IonServerResourceJsonConverter<TAggregateRoot, TResource> : JsonCon
             }
         }
             
+        jsonDocument.RootElement.ForEachLinkProperty((linkName, link) => resource.Links.Add(linkName, link), options);
+        
         return resource;
     }
 

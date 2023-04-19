@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Client;
+using Synonms.RestEasy.Serialisation.Ion.Extensions;
 using Synonms.RestEasy.SharedKernel.Extensions;
 
 namespace Synonms.RestEasy.Serialisation.Ion;
@@ -20,7 +21,24 @@ public class IonClientResourceJsonConverter<TResource> : JsonConverter<TResource
 
         using JsonDocument jsonDocument = doc;
 
-        TResource resource = new();
+        Guid id = jsonDocument.RootElement.GetProperty("id").GetGuid();
+        Link selfLink = Link.EmptyLink();
+
+        if (jsonDocument.RootElement.TryGetProperty(IanaLinkRelations.Self, out JsonElement selfElement))
+        {
+            Link? link = JsonSerializer.Deserialize<Link>(selfElement.ToString(), options);
+
+            if (link is not null)
+            {
+                selfLink = link;
+            }
+        }
+
+        TResource resource = new()
+        {
+            Id = id,
+            SelfLink = selfLink
+        };
 
         foreach (JsonProperty jsonProperty in jsonDocument.RootElement.EnumerateObject())
         {
@@ -39,6 +57,8 @@ public class IonClientResourceJsonConverter<TResource> : JsonConverter<TResource
             }
         }
             
+        jsonDocument.RootElement.ForEachLinkProperty((linkName, link) => resource.Links.Add(linkName, link), options);
+
         return resource;
     }
 
