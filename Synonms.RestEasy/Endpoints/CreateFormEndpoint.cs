@@ -4,7 +4,8 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 
 namespace Synonms.RestEasy.Endpoints;
 
@@ -12,7 +13,7 @@ namespace Synonms.RestEasy.Endpoints;
 [EnableCors(Cors.PolicyName)]
 public class CreateFormEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>, new()
+    where TResource : Resource, new()
 {
     private readonly IRouteGenerator _routeGenerator;
     private readonly ICreateFormDocumentFactory<TAggregateRoot, TResource> _documentFactory;

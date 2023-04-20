@@ -3,14 +3,14 @@ using MediatR;
 using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.SharedKernel.Collections;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
 public class ReadResourceCollectionRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<ReadResourceCollectionRequest<TAggregateRoot, TResource>, ReadResourceCollectionResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     private readonly IReadRepository<TAggregateRoot> _readRepository;
     private readonly IResourceMapper<TAggregateRoot, TResource> _resourceMapper;

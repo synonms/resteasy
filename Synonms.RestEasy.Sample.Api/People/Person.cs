@@ -1,4 +1,5 @@
-﻿using Synonms.Functional;
+﻿using System.Security.AccessControl;
+using Synonms.Functional;
 using Synonms.Functional.Extensions;
 using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Domain;
@@ -10,7 +11,7 @@ using Synonms.RestEasy.Sample.Api.Addresses;
 
 namespace Synonms.RestEasy.Sample.Api.People;
 
-[RestEasyResource("people")]
+[RestEasyResource(typeof(PersonResource), "people")]
 public class Person : AggregateRoot<Person>
 {
     public const int ForenameMaxLength = 30;
@@ -98,9 +99,9 @@ public class Person : AggregateRoot<Person>
     
     private Maybe<Fault> MergeAchievements(PersonResource resource) =>
         Achievements
-            .Merge<PersonalAchievement, PersonalAchievementResource>(
+            .Merge(
                 resource.Achievements,
-                (am, r) => am.Id == r.Id,
+                (am, r) => am.Id.Value == r.Id,
                 PersonalAchievement.Create,
                 (am, r) => am.Update(r));
 }

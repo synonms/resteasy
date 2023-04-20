@@ -6,7 +6,8 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Errors;
 using Synonms.RestEasy.Application.Faults;
 using Synonms.RestEasy.Domain.Faults;
 using Synonms.RestEasy.Mediation.Commands;
@@ -17,7 +18,7 @@ namespace Synonms.RestEasy.Endpoints;
 [EnableCors(Cors.PolicyName)]
 public class PutEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     private readonly IMediator _mediator;
     private readonly IRouteGenerator _routeGenerator;

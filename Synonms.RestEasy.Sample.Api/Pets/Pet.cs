@@ -9,7 +9,7 @@ using Synonms.RestEasy.Sample.Api.People;
 
 namespace Synonms.RestEasy.Sample.Api.Pets;
 
-[RestEasyResource("pets")]
+[RestEasyResource(typeof(PetResource), "pets")]
 public class Pet : AggregateRoot<Pet>
 {
     private const int NameMaxLength = 30;

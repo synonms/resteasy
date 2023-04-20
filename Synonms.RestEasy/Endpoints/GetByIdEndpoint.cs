@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Mediation.Queries;
 
 namespace Synonms.RestEasy.Endpoints;
@@ -14,7 +14,7 @@ namespace Synonms.RestEasy.Endpoints;
 [EnableCors(Cors.PolicyName)]
 public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     private readonly IMediator _mediator;
 
@@ -34,7 +34,7 @@ public class GetByIdEndpoint<TAggregateRoot, TResource> : ControllerBase
         return response.Outcome
             .Match<IActionResult>(resource =>
                 {
-                    ServerResourceDocument<TAggregateRoot, TResource> document = new(resource.SelfLink, resource);
+                    ResourceDocument<TResource> document = new(resource.SelfLink, resource);
 
                     return Ok(document);
                 },

@@ -1,11 +1,13 @@
 ﻿using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Domain;
 using Synonms.RestEasy.Domain.ValueObjects;
 
 namespace Synonms.RestEasy.Sample.Api.People;
 
+[RestEasyChildResource(typeof(PersonalAchievementResource))]
 public class PersonalAchievement : AggregateMember<PersonalAchievement>
 {
     public const int DescriptionMaxLength = 250;

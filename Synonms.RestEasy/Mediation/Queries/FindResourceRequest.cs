@@ -2,13 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
 public class FindResourceRequest<TAggregateRoot, TResource> : IRequest<FindResourceResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     public FindResourceRequest(HttpContext httpContext, EntityId<TAggregateRoot> id, Func<TAggregateRoot, bool>? filter = null)
     {

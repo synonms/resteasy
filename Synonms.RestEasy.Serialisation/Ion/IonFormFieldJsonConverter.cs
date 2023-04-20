@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 using Synonms.RestEasy.Serialisation.Ion.Constants;
 using Synonms.RestEasy.Serialisation.Ion.Extensions;
 

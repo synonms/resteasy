@@ -3,6 +3,7 @@ using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 using Synonms.RestEasy.SharedKernel.Extensions;
 
 namespace Synonms.RestEasy.Extensions;

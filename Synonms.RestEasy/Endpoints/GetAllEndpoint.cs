@@ -8,7 +8,7 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.Mediation.Queries;
 
@@ -18,7 +18,7 @@ namespace Synonms.RestEasy.Endpoints;
 [EnableCors(Cors.PolicyName)]
 public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     private readonly IMediator _mediator;
     private readonly IRouteGenerator _routeGenerator;
@@ -53,7 +53,7 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
             return _routeGenerator.Collection<TAggregateRoot>(HttpContext, queryCollection);
         });
 
-        ServerResourceCollectionDocument<TAggregateRoot, TResource> document = new(selfLink, response.ResourceCollection, pagination);
+        ResourceCollectionDocument<TResource> document = new(selfLink, response.ResourceCollection, pagination);
 
         document.WithLink(IanaLinkRelations.Forms.Create, createFormLink);
             

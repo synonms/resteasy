@@ -3,13 +3,12 @@ using Synonms.Functional;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Persistence;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Mediation.Commands;
 
 public class CreateResourceRequestProcessor<TAggregateRoot, TResource> : IRequestHandler<CreateResourceRequest<TAggregateRoot, TResource>, CreateResourceResponse<TAggregateRoot>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     private readonly ICreateRepository<TAggregateRoot> _createRepository;
     private readonly IAggregateCreator<TAggregateRoot, TResource> _aggregateCreator;

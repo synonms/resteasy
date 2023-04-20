@@ -1,19 +1,18 @@
 ﻿using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Constants;
 using Synonms.RestEasy.Sample.Api.Addresses;
 
 namespace Synonms.RestEasy.Sample.Api.People;
 
-public class PersonResource : ServerResource<Person>
+public class PersonResource : Resource
 {
     public PersonResource()
     {
     }
     
-    public PersonResource(EntityId<Person> id, Link selfLink) 
+    public PersonResource(Guid id, Link selfLink) 
         : base(id, selfLink)
     {
     }

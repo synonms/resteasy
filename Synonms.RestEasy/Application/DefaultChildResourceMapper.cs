@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Application;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Extensions;
 
 namespace Synonms.RestEasy.Application;
 
 public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChildResourceMapper<TAggregateMember, TChildResource>
     where TAggregateMember : AggregateMember<TAggregateMember>
-    where TChildResource : ServerChildResource<TAggregateMember>, new()
+    where TChildResource : ChildResource, new()
 {
     public object? Map(HttpContext httpContext, object value)
     {
@@ -26,7 +25,7 @@ public class DefaultChildResourceMapper<TAggregateMember, TChildResource> : IChi
     {
         TChildResource childResource = new()
         {
-            Id = aggregateMember.Id,
+            Id = aggregateMember.Id.Value,
         };
 
         foreach (PropertyInfo resourcePropertyInfo in typeof(TChildResource).GetProperties(BindingFlags.Instance | BindingFlags.Public))

@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using Synonms.RestEasy.Abstractions.Constants;
+﻿using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Extensions;
 
@@ -74,16 +72,12 @@ public static class TypeExtensions
     public static bool IsResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
-        && type.BaseType is not null
-        && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == typeof(ServerResource<>);
+        && type.BaseType == typeof(Resource);
 
     public static bool IsChildResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
-        && type.BaseType is not null
-        && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == typeof(ServerChildResource<>);
+        && type.BaseType == typeof(ChildResource);
 
     public static string GetResourcePropertyType(this Type type)
     {

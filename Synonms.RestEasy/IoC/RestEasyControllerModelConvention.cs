@@ -70,8 +70,6 @@ public class RestEasyControllerModelConvention : IControllerModelConvention
                 _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
             };
 
-            Console.WriteLine("Adding route name [{0}].", routeAttribute.Name);
-
             action.Selectors.Add(new SelectorModel
             {
                 AttributeRouteModel = new AttributeRouteModel(routeAttribute)
@@ -83,8 +81,6 @@ public class RestEasyControllerModelConvention : IControllerModelConvention
     {
         if (string.IsNullOrWhiteSpace(resourceAttribute.CollectionPath) is false)
         {
-            Console.WriteLine("Registering endpoint route [{0}].", resourceAttribute.CollectionPath);
-
             controllerModel.Selectors.Add(new SelectorModel
             {
                 AttributeRouteModel = new AttributeRouteModel(new RouteAttribute(resourceAttribute.CollectionPath)),

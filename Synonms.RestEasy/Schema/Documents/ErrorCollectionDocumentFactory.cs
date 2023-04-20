@@ -1,5 +1,7 @@
 using Synonms.Functional;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Errors;
 using Synonms.RestEasy.Application.Faults;
 using Synonms.RestEasy.Domain.Faults;
 

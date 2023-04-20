@@ -1,16 +1,14 @@
-﻿using Synonms.RestEasy.Abstractions.Domain;
-using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+﻿using Synonms.RestEasy.Abstractions.Schema;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 
-public class AddressResource : ServerResource<Address>
+public class AddressResource : Resource
 {
     public AddressResource()
     {
     }
     
-    public AddressResource(EntityId<Address> id, Link selfLink) 
+    public AddressResource(Guid id, Link selfLink) 
         : base(id, selfLink)
     {
     }

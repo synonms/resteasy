@@ -7,7 +7,7 @@ using Synonms.RestEasy.Domain.ValueObjects;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 
-[RestEasyResource("addresses")]
+[RestEasyResource(typeof(AddressResource), "addresses")]
 public class Address : AggregateRoot<Address>
 {
     public const int AddressLineMaxLength = 40;

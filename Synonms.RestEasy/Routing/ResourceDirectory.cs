@@ -8,7 +8,7 @@ namespace Synonms.RestEasy.Routing;
 public class ResourceDirectory : IResourceDirectory
 {
     private static readonly Dictionary<string, IResourceDirectory.AggregateRootLayout> ResourceCollectionPathToAggregateRootLayout = new();
-    private static List<IResourceDirectory.AggregateMemberLayout> _aggregateMemberLayouts = new();
+    private static readonly List<IResourceDirectory.AggregateMemberLayout> AggregateMemberLayouts = new();
     
     public ResourceDirectory(params Assembly[] assemblies)
     {
@@ -19,30 +19,31 @@ public class ResourceDirectory : IResourceDirectory
         ResourceCollectionPathToAggregateRootLayout;
 
     public IEnumerable<IResourceDirectory.AggregateMemberLayout> GetAllMembers() =>
-        _aggregateMemberLayouts;
+        AggregateMemberLayouts;
 
     private static void Construct(params Assembly[] assemblies)
     {
         ResourceCollectionPathToAggregateRootLayout.Clear();
+        AggregateMemberLayouts.Clear();
         
-        List<IResourceDirectory.AggregateRootLayout> aggregateRootLayouts = assemblies
-            .SelectMany(assembly => assembly.GetResources())
-            .Select(resourceType => new IResourceDirectory.AggregateRootLayout(resourceType.BaseType?.GetGenericArguments().FirstOrDefault() ?? typeof(object), resourceType))
-            .ToList();
-
-        foreach (IResourceDirectory.AggregateRootLayout aggregateRootLayout in aggregateRootLayouts)
+        foreach (Type aggregateRootType in assemblies.SelectMany(assembly => assembly.GetAggregateRoots()))
         {
-            RestEasyResourceAttribute? attribute = aggregateRootLayout.AggregateRootType.GetCustomAttribute<RestEasyResourceAttribute>();
+            RestEasyResourceAttribute? attribute = aggregateRootType.GetCustomAttribute<RestEasyResourceAttribute>();
 
             if (attribute is not null)
             {
-                ResourceCollectionPathToAggregateRootLayout[attribute.CollectionPath] = aggregateRootLayout;
+                ResourceCollectionPathToAggregateRootLayout[attribute.CollectionPath] = new IResourceDirectory.AggregateRootLayout(aggregateRootType, attribute.ResourceType);
             }
         }
-     
-        _aggregateMemberLayouts = assemblies
-            .SelectMany(assembly => assembly.GetChildResources())
-            .Select(childResourceType => new IResourceDirectory.AggregateMemberLayout(childResourceType.BaseType?.GetGenericArguments().FirstOrDefault() ?? typeof(object), childResourceType))
-            .ToList();
+
+        foreach (Type aggregateMemberType in assemblies.SelectMany(assembly => assembly.GetAggregateMembers()))
+        {
+            RestEasyChildResourceAttribute? attribute = aggregateMemberType.GetCustomAttribute<RestEasyChildResourceAttribute>();
+
+            if (attribute is not null)
+            {
+                AggregateMemberLayouts.Add(new IResourceDirectory.AggregateMemberLayout(aggregateMemberType, attribute.ChildResourceType));
+            }
+        }
     }
 }

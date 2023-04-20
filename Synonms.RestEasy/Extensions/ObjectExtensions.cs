@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 using Synonms.RestEasy.Serialisation.Ion.Extensions;
 
 namespace Synonms.RestEasy.Extensions;

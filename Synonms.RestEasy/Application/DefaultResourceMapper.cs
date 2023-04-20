@@ -7,7 +7,6 @@ using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Routing;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Extensions;
 using Synonms.RestEasy.SharedKernel.Extensions;
 
@@ -15,7 +14,7 @@ namespace Synonms.RestEasy.Application;
 
 public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<TAggregateRoot, TResource>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>, new() 
+    where TResource : Resource, new() 
 {
     private readonly IChildResourceMapperFactory _childResourceMapperFactory;
     private readonly IRouteGenerator _routeGenerator;
@@ -36,7 +35,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
         TResource resource = new()
         {
-            Id = aggregateRoot.Id,
+            Id = aggregateRoot.Id.Value,
             SelfLink = selfLink
         };
 

@@ -1,17 +1,16 @@
 ﻿using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.Sample.Api.People;
 
 namespace Synonms.RestEasy.Sample.Api.Pets;
 
-public class PetResource : ServerResource<Pet>
+public class PetResource : Resource
 {
     public PetResource()
     {
     }
     
-    public PetResource(EntityId<Pet> id, Link selfLink) 
+    public PetResource(Guid id, Link selfLink) 
         : base(id, selfLink)
     {
     }

@@ -1,4 +1,3 @@
-using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
 
 namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework;
@@ -9,7 +8,7 @@ public static class ResourceFactory
     public const int SomeInt = 123;
     public const string SomeString = "test";
 
-    public static TestServerResource Create(EntityId<TestAggregateRoot> id) => new (id, Link.SelfLink(new Uri($"http://localhost:5000/resources/{id.Value}")))
+    public static TestResource Create(Guid id) => new (id, Link.SelfLink(new Uri($"http://localhost:5000/resources/{id}")))
     {
         SomeBool = true, 
         SomeInt = 123, 
@@ -17,32 +16,24 @@ public static class ResourceFactory
         SomeOptionalString = null
     };
 
-    public static TestClientResource Create(Guid id) => new (id, Link.SelfLink(new Uri($"http://localhost:5000/resources/{id}")))
-    {
-        SomeBool = true, 
-        SomeInt = 123, 
-        SomeString = "test",
-        SomeOptionalString = null
-    };
-
-    public static string CreateJson(EntityId<TestAggregateRoot> id) =>
+    public static string CreateJson(Guid id) =>
         $@"{{
-                ""id"": ""{id.Value}"",
+                ""id"": ""{id}"",
                 ""someBool"": {SomeBool.ToString().ToLowerInvariant()},
                 ""someInt"": {SomeInt},
                 ""someString"": ""{SomeString}"",
                 ""self"": {{
-                    ""href"": ""http://localhost:5000/resources/{id.Value}"",
+                    ""href"": ""http://localhost:5000/resources/{id}"",
                     ""method"": ""GET"",
                     ""rel"": ""self""
                 }},
                 ""edit-form"": {{
-                    ""href"": ""http://localhost:5000/resources/{id.Value}/edit-form"",
+                    ""href"": ""http://localhost:5000/resources/{id}/edit-form"",
                     ""method"": ""GET"",
                     ""rel"": ""edit-form""
                 }},
                 ""delete"": {{
-                    ""href"": ""http://localhost:5000/resources/{id.Value}"",
+                    ""href"": ""http://localhost:5000/resources/{id}"",
                     ""method"": ""DELETE"",
                     ""rel"": ""self""
                 }}

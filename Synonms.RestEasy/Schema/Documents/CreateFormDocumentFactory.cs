@@ -1,13 +1,14 @@
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 using Synonms.RestEasy.Extensions;
 
 namespace Synonms.RestEasy.Schema.Documents;
 
 public class CreateFormDocumentFactory<TAggregateRoot, TResource> : ICreateFormDocumentFactory<TAggregateRoot, TResource> 
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>, new()
+    where TResource : Resource, new()
 {
     private readonly ILookupOptionsProvider _lookupOptionsProvider;
 

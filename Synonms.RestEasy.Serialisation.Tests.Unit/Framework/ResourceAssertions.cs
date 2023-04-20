@@ -13,31 +13,7 @@ public static class ResourceAssertions
         Assert.Equal(ResourceFactory.SomeString, resourceElement.GetProperty("someString").GetString());
     }
 
-    public static void Verify(TestServerResource resource, Guid expectedId)
-    {
-        Assert.Equal(expectedId, resource.Id.Value);
-        Assert.Equal(ResourceFactory.SomeBool, resource.SomeBool);
-        Assert.Equal(ResourceFactory.SomeInt, resource.SomeInt);
-        Assert.Equal(ResourceFactory.SomeString, resource.SomeString);
-
-        Assert.Equal("http://localhost:5000/resources/" + resource.Id.Value, resource.SelfLink.Uri.OriginalString);
-        Assert.Equal("GET", resource.SelfLink.Method);
-        Assert.Equal("self", resource.SelfLink.Relation);
-        
-        Assert.True(resource.Links.ContainsKey("edit-form"));
-        Link editFormLink = resource.Links["edit-form"];
-        Assert.Equal("http://localhost:5000/resources/" + resource.Id.Value + "/edit-form", editFormLink.Uri.OriginalString);
-        Assert.Equal("GET", editFormLink.Method);
-        Assert.Equal("edit-form", editFormLink.Relation);
-        
-        Assert.True(resource.Links.ContainsKey("delete"));
-        Link deleteLink = resource.Links["delete"];
-        Assert.Equal("http://localhost:5000/resources/" + resource.Id.Value, deleteLink.Uri.OriginalString);
-        Assert.Equal("DELETE", deleteLink.Method);
-        Assert.Equal("self", deleteLink.Relation);
-    }
-    
-    public static void Verify(TestClientResource resource, Guid expectedId)
+    public static void Verify(TestResource resource, Guid expectedId)
     {
         Assert.Equal(expectedId, resource.Id);
         Assert.Equal(ResourceFactory.SomeBool, resource.SomeBool);

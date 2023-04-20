@@ -33,8 +33,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type deleteEndpointType = typeof(DeleteEndpoint<>).MakeGenericType(aggregateRootLayout.AggregateRootType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", deleteEndpointType.Name);
-
         feature.Controllers.Add(deleteEndpointType.GetTypeInfo());
     }
 
@@ -42,8 +40,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type getByIdEndpointType = typeof(GetByIdEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", getByIdEndpointType.Name);
-
         feature.Controllers.Add(getByIdEndpointType.GetTypeInfo());
     }
     
@@ -51,8 +47,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type getAllEndpointType = typeof(GetAllEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", getAllEndpointType.Name);
-
         feature.Controllers.Add(getAllEndpointType.GetTypeInfo());
     }
 
@@ -60,8 +54,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type postEndpointType = typeof(PostEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", postEndpointType.Name);
-
         feature.Controllers.Add(postEndpointType.GetTypeInfo());
     }
     
@@ -69,8 +61,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type putEndpointType = typeof(PutEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", putEndpointType.Name);
-
         feature.Controllers.Add(putEndpointType.GetTypeInfo());
     }
     
@@ -78,8 +68,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type createFormEndpointType = typeof(CreateFormEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", createFormEndpointType.Name);
-
         feature.Controllers.Add(createFormEndpointType.GetTypeInfo());
     }
     
@@ -87,8 +75,6 @@ public class RestEasyControllerFeatureProvider : IApplicationFeatureProvider<Con
     {
         Type editFormEndpointType = typeof(EditFormEndpoint<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
                 
-        Console.WriteLine("Registering endpoint [{0}].", editFormEndpointType.Name);
-
         feature.Controllers.Add(editFormEndpointType.GetTypeInfo());
     }
 }

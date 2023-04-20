@@ -1,5 +1,6 @@
 ﻿using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Abstractions.Schema.Forms;
 
 namespace Synonms.RestEasy.Sample.Api.Hacks;
 

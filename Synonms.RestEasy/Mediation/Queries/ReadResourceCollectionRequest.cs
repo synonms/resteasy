@@ -2,13 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 
 namespace Synonms.RestEasy.Mediation.Queries;
 
 public class ReadResourceCollectionRequest<TAggregateRoot, TResource> : IRequest<ReadResourceCollectionResponse<TAggregateRoot, TResource>>
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
-    where TResource : ServerResource<TAggregateRoot>
+    where TResource : Resource
 {
     public ReadResourceCollectionRequest(HttpContext httpContext, int offset, int limit, IReadOnlyDictionary<string, object>? parameters = null)
     {

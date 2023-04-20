@@ -1,25 +1,19 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.RestEasy.Abstractions.Schema.Client;
-using Synonms.RestEasy.Abstractions.Schema.Server;
+using Synonms.RestEasy.Abstractions.Schema.Documents;
 using Synonms.RestEasy.Serialisation.Ion.Extensions;
 
 namespace Synonms.RestEasy.Serialisation.Ion
 {
     public class IonCustomJsonConverterFactory : JsonConverterFactory
     {
-        private readonly Dictionary<Type, Type> _supportedServerTypes = new ()
+        private readonly Dictionary<Type, Type> _supportedGenericConverterTypes = new ()
         {
-            { typeof(ServerResourceDocument<,>), typeof(IonServerResourceDocumentJsonConverter<,>) },
-            { typeof(ServerResourceCollectionDocument<,>), typeof(IonServerResourceCollectionDocumentJsonConverter<,>) }
-        };
-
-        private readonly Dictionary<Type, Type> _supportedClientTypes = new ()
-        {
-            { typeof(ClientResourceDocument<>), typeof(IonClientResourceDocumentJsonConverter<>) },
-            { typeof(ClientResourceCollectionDocument<>), typeof(IonClientResourceCollectionDocumentJsonConverter<>) },
-            { typeof(ClientResourceResponse<>), typeof(IonClientResourceResponseJsonConverter<>) },
-            { typeof(ClientResourceCollectionResponse<>), typeof(IonClientResourceCollectionResponseJsonConverter<>) }
+            { typeof(ResourceDocument<>), typeof(IonResourceDocumentJsonConverter<>) },
+            { typeof(ResourceCollectionDocument<>), typeof(IonResourceCollectionDocumentJsonConverter<>) },
+            { typeof(ResourceResponse<>), typeof(IonResourceResponseJsonConverter<>) },
+            { typeof(ResourceCollectionResponse<>), typeof(IonResourceCollectionResponseJsonConverter<>) }
         };
 
         public override bool CanConvert(Type typeToConvert)
@@ -29,22 +23,12 @@ namespace Synonms.RestEasy.Serialisation.Ion
                 return true;
             }
 
-            if (typeToConvert.IsSerialisableServerResource())
+            if (typeToConvert.IsSerialisableResource())
             {
                 return true;
             }
 
-            if (typeToConvert.IsSerialisableServerChildResource())
-            {
-                return true;
-            }
-
-            if (typeToConvert.IsSerialisableClientResource())
-            {
-                return true;
-            }
-
-            if (typeToConvert.IsSerialisableClientChildResource())
+            if (typeToConvert.IsSerialisableChildResource())
             {
                 return true;
             }
@@ -56,7 +40,7 @@ namespace Synonms.RestEasy.Serialisation.Ion
 
             Type genericType = typeToConvert.GetGenericTypeDefinition();
 
-            return _supportedServerTypes.ContainsKey(genericType) || _supportedClientTypes.ContainsKey(genericType);
+            return _supportedGenericConverterTypes.ContainsKey(genericType);
         }
 
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
@@ -71,80 +55,39 @@ namespace Synonms.RestEasy.Serialisation.Ion
                 return CreateEntityIdConverter(typeToConvert, options);
             }
 
-            if (typeToConvert.IsSerialisableServerResource())
+            if (typeToConvert.IsSerialisableResource())
             {
-                return CreateServerResourceConverter(typeToConvert, options);
+                return CreateResourceConverter(typeToConvert);
             }
 
-            if (typeToConvert.IsSerialisableServerChildResource())
+            if (typeToConvert.IsSerialisableChildResource())
             {
-                return CreateServerChildResourceConverter(typeToConvert, options);
-            }
-
-            if (typeToConvert.IsSerialisableClientResource())
-            {
-                return CreateClientResourceConverter(typeToConvert, options);
-            }
-
-            if (typeToConvert.IsSerialisableClientChildResource())
-            {
-                return CreateClientChildResourceConverter(typeToConvert, options);
+                return CreateChildResourceConverter(typeToConvert);
             }
 
             Type genericType = typeToConvert.GetGenericTypeDefinition();
             Type resourceType = typeToConvert.GetGenericArguments().Last();
 
-            if (_supportedServerTypes.ContainsKey(genericType))
+            if (_supportedGenericConverterTypes.ContainsKey(genericType))
             {
-                Type aggregateRootType = typeToConvert.GetGenericArguments().First();
-                Type serverConverterType = _supportedServerTypes[genericType].MakeGenericType(aggregateRootType, resourceType);
+                Type serverConverterType = _supportedGenericConverterTypes[genericType].MakeGenericType(resourceType);
 
                 return (JsonConverter?)Activator.CreateInstance(serverConverterType);
             }
-            
-            Type clientConverterType = _supportedClientTypes[genericType].MakeGenericType(resourceType);
 
-            return (JsonConverter?)Activator.CreateInstance(clientConverterType);
+            return null;
         }
 
-        private static JsonConverter? CreateServerResourceConverter(Type resourceType, JsonSerializerOptions options)
+        private static JsonConverter? CreateResourceConverter(Type resourceType)
         {
-            Type? aggregateRootType = resourceType.BaseType?.GetGenericArguments().First();
-
-            if (aggregateRootType is null)
-            {
-                throw new InvalidOperationException($"Type '{resourceType}' is considered a derivative of Resource<> but the TAggregateRoot generic type parameter cannot be determined.");
-            }
-            
-            Type converterType = typeof(IonServerResourceJsonConverter<,>).MakeGenericType(aggregateRootType, resourceType);
+            Type converterType = typeof(IonResourceJsonConverter<>).MakeGenericType(resourceType);
                 
             return (JsonConverter?)Activator.CreateInstance(converterType);
         }
 
-        private static JsonConverter? CreateServerChildResourceConverter(Type childResourceType, JsonSerializerOptions options)
+        private static JsonConverter? CreateChildResourceConverter(Type childResourceType)
         {
-            Type? aggregateMemberType = childResourceType.BaseType?.GetGenericArguments().First();
-
-            if (aggregateMemberType is null)
-            {
-                throw new InvalidOperationException($"Type '{childResourceType}' is considered a derivative of ChildResource<> but the TAggregateMember generic type parameter cannot be determined.");
-            }
-            
-            Type converterType = typeof(IonServerChildResourceJsonConverter<,>).MakeGenericType(aggregateMemberType, childResourceType);
-                
-            return (JsonConverter?)Activator.CreateInstance(converterType);
-        }
-
-        private static JsonConverter? CreateClientResourceConverter(Type resourceType, JsonSerializerOptions options)
-        {
-            Type converterType = typeof(IonClientResourceJsonConverter<>).MakeGenericType(resourceType);
-                
-            return (JsonConverter?)Activator.CreateInstance(converterType);
-        }
-
-        private static JsonConverter? CreateClientChildResourceConverter(Type childResourceType, JsonSerializerOptions options)
-        {
-            Type converterType = typeof(IonClientChildResourceJsonConverter<>).MakeGenericType(childResourceType);
+            Type converterType = typeof(IonChildResourceJsonConverter<>).MakeGenericType(childResourceType);
                 
             return (JsonConverter?)Activator.CreateInstance(converterType);
         }

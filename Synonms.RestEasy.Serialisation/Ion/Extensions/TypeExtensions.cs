@@ -1,6 +1,6 @@
 ﻿using Synonms.RestEasy.Abstractions.Domain;
+using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Client;
-using Synonms.RestEasy.Abstractions.Schema.Server;
 using Synonms.RestEasy.SharedKernel.Extensions;
 
 namespace Synonms.RestEasy.Serialisation.Ion.Extensions;
@@ -17,29 +17,15 @@ public static class TypeExtensions
         type.IsArrayOrEnumerable()
         && (type.GetArrayOrEnumerableElementType()?.IsEntityId() ?? false);
 
-    public static bool IsSerialisableServerResource(this Type type) =>
+    public static bool IsSerialisableResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
-        && type.BaseType is not null
-        && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(ServerResource<>));
+        && type.BaseType == (typeof(Resource));
 
-    public static bool IsSerialisableServerChildResource(this Type type) =>
+    public static bool IsSerialisableChildResource(this Type type) =>
         !type.IsInterface
         && !type.IsAbstract
-        && type.BaseType is not null
-        && type.BaseType.IsGenericType
-        && type.BaseType.GetGenericTypeDefinition() == (typeof(ServerChildResource<>));
-    
-    public static bool IsSerialisableClientResource(this Type type) =>
-        !type.IsInterface
-        && !type.IsAbstract
-        && type.IsAssignableTo(typeof(ClientResource));
-
-    public static bool IsSerialisableClientChildResource(this Type type) =>
-        !type.IsInterface
-        && !type.IsAbstract
-        && type.IsAssignableTo(typeof(ClientChildResource));
+        && type.BaseType == (typeof(ChildResource));
     
     private static bool IsEntityId(this Type type) =>
         !type.IsInterface
