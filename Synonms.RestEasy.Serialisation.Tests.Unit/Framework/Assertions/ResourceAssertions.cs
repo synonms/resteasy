@@ -1,7 +1,9 @@
 using System.Text.Json;
+using Synonms.RestEasy.Abstractions.Constants;
 using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.Serialisation.Ion.Constants;
 
-namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework;
+namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework.Assertions;
 
 public static class ResourceAssertions
 {
@@ -11,6 +13,21 @@ public static class ResourceAssertions
         Assert.Equal(ResourceFactory.SomeBool, resourceElement.GetProperty("someBool").GetBoolean());
         Assert.Equal(ResourceFactory.SomeInt, resourceElement.GetProperty("someInt").GetInt32());
         Assert.Equal(ResourceFactory.SomeString, resourceElement.GetProperty("someString").GetString());
+
+        JsonElement selfElement = resourceElement.GetProperty(IanaLinkRelations.Self);
+        Assert.Equal("http://localhost:5000/resources/" + expectedId, selfElement.GetProperty(IonPropertyNames.Links.Uri).GetString());
+        Assert.Equal("GET", selfElement.GetProperty(IonPropertyNames.Links.Method).GetString());
+        Assert.Equal("self", selfElement.GetProperty(IonPropertyNames.Links.Relation).GetString());
+
+        JsonElement editFormElement = resourceElement.GetProperty(IanaLinkRelations.Forms.Edit);
+        Assert.Equal("http://localhost:5000/resources/" + expectedId + "/edit-form", editFormElement.GetProperty(IonPropertyNames.Links.Uri).GetString());
+        Assert.Equal("GET", editFormElement.GetProperty(IonPropertyNames.Links.Method).GetString());
+        Assert.Equal("edit-form", editFormElement.GetProperty(IonPropertyNames.Links.Relation).GetString());
+
+        JsonElement deleteElement = resourceElement.GetProperty("delete");
+        Assert.Equal("http://localhost:5000/resources/" + expectedId, deleteElement.GetProperty(IonPropertyNames.Links.Uri).GetString());
+        Assert.Equal("DELETE", deleteElement.GetProperty(IonPropertyNames.Links.Method).GetString());
+        Assert.Equal("self", deleteElement.GetProperty(IonPropertyNames.Links.Relation).GetString());
     }
 
     public static void Verify(TestResource resource, Guid expectedId)

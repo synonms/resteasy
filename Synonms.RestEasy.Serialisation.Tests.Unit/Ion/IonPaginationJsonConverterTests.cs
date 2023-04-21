@@ -1,4 +1,5 @@
-using System.Text.Json;
+﻿using System.Text.Json;
+using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Abstractions.Schema.Errors;
 using Synonms.RestEasy.Abstractions.Schema.Forms;
 using Synonms.RestEasy.Serialisation.Ion;
@@ -7,11 +8,11 @@ using Synonms.RestEasy.Serialisation.Tests.Unit.Framework.Assertions;
 
 namespace Synonms.RestEasy.Serialisation.Tests.Unit.Ion;
 
-public class IonResourceJsonConverterTests
+public class IonPaginationJsonConverterTests
 {
     private readonly JsonSerializerOptions _jsonSerialiserOptions;
 
-    public IonResourceJsonConverterTests()
+    public IonPaginationJsonConverterTests()
     {
         _jsonSerialiserOptions = JsonSerializerOptionsFactory.CreateIon();
     }
@@ -19,9 +20,9 @@ public class IonResourceJsonConverterTests
     [Fact]
     public void CanConvert_IsSupported_ReturnsTrue()
     {
-        IonResourceJsonConverter<TestResource> jsonConverter = new();
+        IonPaginationJsonConverter jsonConverter = new();
         
-        Assert.True(jsonConverter.CanConvert(typeof(TestResource)));
+        Assert.True(jsonConverter.CanConvert(typeof(Pagination)));
     }
     
     [Theory]
@@ -31,7 +32,7 @@ public class IonResourceJsonConverterTests
     [InlineData(typeof(Error))]
     public void CanConvert_IsNotSupported_ReturnsFalse(Type typeToConvert)
     {
-        IonResourceJsonConverter<TestResource> jsonConverter = new();
+        IonPaginationJsonConverter jsonConverter = new();
         
         Assert.False(jsonConverter.CanConvert(typeToConvert));
     }
@@ -40,23 +41,22 @@ public class IonResourceJsonConverterTests
     public void Read_Valid_ReturnsResource()
     {
         Guid id = Guid.NewGuid();
-        string json = JsonFactory.CreateResource(id);
+        string json = "{" + JsonFactory.CreatePagination() + "}";
             
-        TestResource? resource = JsonSerializer.Deserialize<TestResource>(json, _jsonSerialiserOptions);
+        Pagination? pagination = JsonSerializer.Deserialize<Pagination>(json, _jsonSerialiserOptions);
 
-        Assert.NotNull(resource);
-        ResourceAssertions.Verify(resource!, id);
+        Assert.NotNull(pagination);
+        PaginationAssertions.Verify(pagination!);
     }
 
     [Fact]
     public void Write_Valid_ReturnsJson()
     {
-        Guid id = Guid.NewGuid();
-        TestResource resource = ResourceFactory.Create(id);
+        Pagination pagination = PaginationFactory.Create();
 
-        string json = JsonSerializer.Serialize(resource, _jsonSerialiserOptions);
+        string json = "{" + JsonSerializer.Serialize(pagination, _jsonSerialiserOptions) + "}";
 
         JsonDocument jsonDocument = JsonDocument.Parse(json);
-        ResourceAssertions.Verify(jsonDocument.RootElement, id);
+        PaginationAssertions.Verify(jsonDocument.RootElement);
     }
 }

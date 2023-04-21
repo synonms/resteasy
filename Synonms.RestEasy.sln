@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.RestEasy.Tests.Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synonms.RestEasy.Serialisation.Tests.Unit", "Synonms.RestEasy.Serialisation.Tests.Unit\Synonms.RestEasy.Serialisation.Tests.Unit.csproj", "{1717A750-E6B9-4A10-9502-AC8654A107EA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{5F71A862-4F18-4E6B-926A-407B32865028}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,5 +67,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{EA47AFDF-878E-44FB-BF5D-7F49A7F5F334} = {7CDB6090-C439-4CD4-8726-53FC6BC27AAF}
 		{1717A750-E6B9-4A10-9502-AC8654A107EA} = {7CDB6090-C439-4CD4-8726-53FC6BC27AAF}
+		{AE05EA15-38B8-469A-8DAF-6737FA6ADFD9} = {5F71A862-4F18-4E6B-926A-407B32865028}
 	EndGlobalSection
 EndGlobal
