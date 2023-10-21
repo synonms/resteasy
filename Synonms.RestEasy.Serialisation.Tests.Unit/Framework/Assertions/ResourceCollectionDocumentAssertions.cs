@@ -7,15 +7,15 @@ namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework.Assertions;
 
 public static class ResourceCollectionDocumentAssertions
 {
-    public static void Verify(JsonElement resourceCollectionDocumentElement, Guid expectedId1, Guid expectedId2)
+    public static void Verify(JsonElement resourceCollectionDocumentElement, Guid expectedId1, Guid expectedChildId1, Guid expectedOtherId1, Guid expectedId2, Guid expectedChildId2, Guid expectedOtherId2)
     {
         JsonElement valueArrayElement = resourceCollectionDocumentElement.GetProperty(IonPropertyNames.Value);
 
         Assert.Equal(JsonValueKind.Array, valueArrayElement.ValueKind);
 
         Assert.Collection(valueArrayElement.EnumerateArray(),
-            x => ResourceAssertions.Verify(x, expectedId1),
-            x => ResourceAssertions.Verify(x, expectedId2));
+            x => ResourceAssertions.Verify(x, expectedId1, expectedChildId1, expectedOtherId1),
+            x => ResourceAssertions.Verify(x, expectedId2, expectedChildId2, expectedOtherId2));
 
         JsonElement selfElement = resourceCollectionDocumentElement.GetProperty(IanaLinkRelations.Self);
         Assert.Equal("http://localhost:5000/resources", selfElement.GetProperty(IonPropertyNames.Links.Uri).GetString());
@@ -25,11 +25,11 @@ public static class ResourceCollectionDocumentAssertions
         PaginationAssertions.Verify(resourceCollectionDocumentElement);
     }
 
-    public static void Verify(ResourceCollectionDocument<TestResource> resourceCollectionDocument, Guid expectedId1, Guid expectedId2)
+    public static void Verify(ResourceCollectionDocument<TestResource> resourceCollectionDocument, Guid expectedId1, Guid expectedChildId1, Guid expectedOtherId1, Guid expectedId2, Guid expectedChildId2, Guid expectedOtherId2)
     {
         Assert.Collection(resourceCollectionDocument.Resources,
-            x => ResourceAssertions.Verify(x, expectedId1),
-            x => ResourceAssertions.Verify(x, expectedId2));
+            x => ResourceAssertions.Verify(x, expectedId1, expectedChildId1, expectedOtherId1),
+            x => ResourceAssertions.Verify(x, expectedId2, expectedChildId2, expectedOtherId2));
 
         Assert.True(resourceCollectionDocument.Links.ContainsKey(IanaLinkRelations.Self));
         Assert.Equal("http://localhost:5000/resources", resourceCollectionDocument.Links[IanaLinkRelations.Self].Uri.OriginalString);

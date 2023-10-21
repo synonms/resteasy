@@ -9,6 +9,7 @@ public static class TypeExtensions
     private static readonly Dictionary<Type, string> ResourcePropertyTypes = new ()
     {
         [typeof(string)] = DataTypes.String,
+        [typeof(Guid)] = DataTypes.String,
         [typeof(bool)] = DataTypes.Boolean,
         [typeof(bool?)] = DataTypes.Boolean,
         [typeof(DateOnly)] = DataTypes.DateOnly,

@@ -1,6 +1,7 @@
 ﻿@using Synonms.RestEasy.Abstractions.Schema
 @using Synonms.RestEasy.Abstractions.Schema.Forms
 @using Synonms.RestEasy.Blazor.Validation
+@using Synonms.RestEasy.SharedKernel.Extensions
 @typeparam TModel
 
 <EditForm Model="@Model" OnValidSubmit="@HandleValidSubmit">
@@ -11,8 +12,7 @@
         {
             <fieldset>
                 <label for="@formInputDefinition.HtmlInputId">@formInputDefinition.HtmlLabelText</label>
-                <DynamicComponent Type="@formInputDefinition.GetInputComponentType()" Parameters="@(new Dictionary<string, object>{ ["FormInputDefinition"] = formInputDefinition})" />
-                <span class="input-focus"></span>
+                <RestEasyFormInput FormInputDefinition="@formInputDefinition"></RestEasyFormInput>
                 <ul class="validation-errors">
                     @foreach (string validationError in formInputDefinition.ValidationErrors)
                     {
@@ -23,14 +23,16 @@
         }
     }
 
-    <button type="submit" class="button-update pull-right">
+    <button type="submit" class="button-update pull-right" disabled="@(_isChanged ? null : "disabled")">
         <span class="icon"><i class="bx bx-save"></i></span>
         <span class="text">SAVE</span>
     </button>
 </EditForm>
 
 @code {
-    internal string Id { get; } = Guid.NewGuid().ToString();
+    private bool _isChanged = false;
+    
+    internal string HtmlId { get; } = Guid.NewGuid().ToString();
     private List<RestEasyFormInputDefinition<TModel>>? _formInputDefinitions = null;
 
     [Parameter]
@@ -44,11 +46,7 @@
     [Parameter]
     [EditorRequired]
     public EventCallback<EditContext> FormSubmittedCallback { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public EventCallback<EditContext> ModelChangedCallback { get; set; }
-
+    
     /// CSS class to apply to all field elements
     [Parameter]
     public string? EditorClass { get; set; }
@@ -73,6 +71,28 @@
 
     public async Task HandleValidSubmit()
     {
+        if (_formInputDefinitions is null)
+        {
+            return;
+        }
+
+        foreach (RestEasyFormInputDefinition<TModel> field in _formInputDefinitions)
+        {
+            if (field.TryValidate(out object? validValue))
+            {
+                object? currentValue = field.PropertyInfo.GetValue(Model);
+
+                if (validValue == currentValue)
+                {
+                    continue;
+                }
+
+                field.PropertyInfo.SetValue(Model, validValue);
+            }
+        }
+
+        StateHasChanged();
+
         if (_formInputDefinitions?.SelectMany(x => x.ValidationErrors).Any() is false)
         {
             await FormSubmittedCallback.InvokeAsync();
@@ -81,8 +101,8 @@
 
     private void OnFieldValueChanged(object? sender, EventArgs e)
     {
-        StateHasChanged();
+        _isChanged = true;
         
-        InvokeAsync(() => ModelChangedCallback.InvokeAsync());
+        StateHasChanged();
     }
 }

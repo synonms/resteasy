@@ -16,15 +16,27 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource, new() 
 {
+    private readonly IResourceMapperFactory _resourceMapperFactory;
     private readonly IChildResourceMapperFactory _childResourceMapperFactory;
     private readonly IRouteGenerator _routeGenerator;
     
-    public DefaultResourceMapper(IChildResourceMapperFactory childResourceMapperFactory, IRouteGenerator routeGenerator)
+    public DefaultResourceMapper(IResourceMapperFactory resourceMapperFactory, IChildResourceMapperFactory childResourceMapperFactory, IRouteGenerator routeGenerator)
     {
+        _resourceMapperFactory = resourceMapperFactory;
         _childResourceMapperFactory = childResourceMapperFactory;
         _routeGenerator = routeGenerator;
     }
     
+    public object? Map(HttpContext httpContext, object value)
+    {
+        if (value is TAggregateRoot aggregateRoot)
+        {
+            return Map(httpContext, aggregateRoot);
+        }
+        
+        return null;
+    }
+
     public TResource Map(HttpContext httpContext, TAggregateRoot aggregateRoot)
     {
         Uri selfUri = _routeGenerator.Item(httpContext, aggregateRoot.Id);
@@ -99,6 +111,38 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                     continue;
                 }
 
+                if (aggregateRootPropertyEnumerableElementType.IsAggregateRoot())
+                {
+                    // TAggregateRoot.IEnumerable<TAggregateRoot> = A related resource collection where we present an embedded array.
+                    
+                    if (resourcePropertyEnumerableElementType.IsResource() is false)
+                    {
+                        // TODO: Warn
+                        continue;
+                    }
+
+                    Type embeddedResourceCollectionType = typeof(List<>).MakeGenericType(resourcePropertyEnumerableElementType);
+
+                    IList embeddedResources = (IList)Activator.CreateInstance(embeddedResourceCollectionType)!;
+                
+                    if (propertyValue is IEnumerable enumerablePropertyValue)
+                    {
+                        foreach (object item in enumerablePropertyValue)
+                        {
+                            var embeddedResource = MapAggregateRoot(aggregateRootPropertyEnumerableElementType, resourcePropertyEnumerableElementType, httpContext, item);
+                        
+                            if (embeddedResource is not null)
+                            {
+                                embeddedResources?.Add(embeddedResource);
+                            }
+                        }
+                    }
+
+                    resourcePropertyInfo.SetValue(resource, embeddedResources);
+                    
+                    continue;
+                }
+
                 if (aggregateRootPropertyEnumerableElementType.IsAggregateMember())
                 {
                     // TAggregateRoot.IEnumerable<TAggregateMember> = A member collection where we present a nested child resource array.
@@ -111,7 +155,7 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
 
                     Type childResourceCollectionType = typeof(List<>).MakeGenericType(resourcePropertyEnumerableElementType);
 
-                    IList childResources = (IList)Activator.CreateInstance(childResourceCollectionType);
+                    IList childResources = (IList)Activator.CreateInstance(childResourceCollectionType)!;
                 
                     if (propertyValue is IEnumerable enumerablePropertyValue)
                     {
@@ -144,6 +188,14 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
             if (aggregateRootPropertyInfo.PropertyType.IsEntityId())
             {
                 // TAggregateRoot.EntityId<TEntity> = A related resource where we present a link.
+                
+                string relatedResourceName = resourcePropertyInfo.Name.Replace("Id", string.Empty);
+
+                if (typeof(TResource).GetProperties(BindingFlags.Instance | BindingFlags.Public).Any(_ => _.Name.Equals(relatedResourceName)))
+                {
+                    // Resource is embedded - don't add link
+                    continue;
+                }
 
                 Type relatedEntityIdType = aggregateRootPropertyInfo.PropertyType;
                 Type relatedEntityType = relatedEntityIdType.GetGenericArguments().Single();
@@ -151,9 +203,23 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
                 Uri relationUri = _routeGenerator.Item(relatedEntityType, httpContext, Guid.Parse(propertyValue?.ToString() ?? Guid.Empty.ToString()));
                 Link relationLink = Link.RelationLink(relationUri);
 
-                resource.Links.Add(resourcePropertyInfo.Name.Replace("Id", string.Empty).ToCamelCase(), relationLink);
+                resource.Links.Add(relatedResourceName.ToCamelCase(), relationLink);
             }
 
+            if (aggregateRootPropertyInfo.PropertyType.IsAggregateRoot())
+            {
+                // TAggregateRoot.TAggregateRoot = A related resource where we present an embedded resource.
+                
+                Type embeddedAggregateRootType = aggregateRootPropertyInfo.PropertyType;
+                Type embeddedResourceType = resourcePropertyInfo.PropertyType;
+
+                object? embeddedResource = MapAggregateRoot(embeddedAggregateRootType, embeddedResourceType, httpContext, propertyValue);
+
+                resourcePropertyInfo.SetValue(resource, embeddedResource);
+                
+                continue;
+            }
+            
             if (aggregateRootPropertyInfo.PropertyType.IsAggregateMember())
             {
                 // TAggregateRoot.TAggregateMember = A member where we present a nested child resource.
@@ -209,5 +275,22 @@ public class DefaultResourceMapper<TAggregateRoot, TResource> : IResourceMapper<
         IChildResourceMapper? childResourceMapper = _childResourceMapperFactory.Create(aggregateMemberType, childResourceType);
 
         return childResourceMapper?.Map(httpContext, aggregateMemberValue);
+    }
+    
+    private object? MapAggregateRoot(Type aggregateRootType, Type resourceType, HttpContext httpContext, object? aggregateRootValue)
+    {
+        if (aggregateRootValue is null)
+        {
+            return null;
+        }
+        
+        if (resourceType.IsResource() is false)
+        {
+            return null;
+        }
+
+        IResourceMapper? resourceMapper = _resourceMapperFactory.Create(aggregateRootType, resourceType);
+
+        return resourceMapper?.Map(httpContext, aggregateRootValue);
     }
 }

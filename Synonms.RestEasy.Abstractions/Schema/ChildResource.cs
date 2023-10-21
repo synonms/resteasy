@@ -1,10 +1,12 @@
-﻿namespace Synonms.RestEasy.Abstractions.Schema;
+﻿using Synonms.RestEasy.SharedKernel.Extensions;
+
+namespace Synonms.RestEasy.Abstractions.Schema;
 
 public abstract class ChildResource
 {
     protected ChildResource()
     {
-        Id = Guid.Empty;
+        Id = Guid.NewGuid().ToComb();
     }
     
     protected ChildResource(Guid id)

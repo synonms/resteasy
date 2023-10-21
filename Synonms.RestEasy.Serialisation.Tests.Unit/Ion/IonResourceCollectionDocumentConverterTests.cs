@@ -42,25 +42,33 @@ public class IonResourceCollectionDocumentConverterTests
     public void Read_Valid_ReturnsResource()
     {
         Guid id1 = Guid.NewGuid();
+        Guid childId1 = Guid.NewGuid();
+        Guid otherId1 = Guid.NewGuid();
         Guid id2 = Guid.NewGuid();
-        string json = JsonFactory.CreateResourceCollectionDocument(id1, id2);
+        Guid childId2 = Guid.NewGuid();
+        Guid otherId2 = Guid.NewGuid();
+        string json = JsonFactory.CreateResourceCollectionDocument(id1, childId1, otherId1, id2, childId2, otherId2);
             
         ResourceCollectionDocument<TestResource>? resourceCollectionDocument = JsonSerializer.Deserialize<ResourceCollectionDocument<TestResource>>(json, _jsonSerialiserOptions);
 
         Assert.NotNull(resourceCollectionDocument);
-        ResourceCollectionDocumentAssertions.Verify(resourceCollectionDocument!, id1, id2);
+        ResourceCollectionDocumentAssertions.Verify(resourceCollectionDocument!, id1, childId1, otherId1, id2, childId2, otherId2);
     }
 
     [Fact]
     public void Write_Valid_ReturnsJson()
     {
         Guid id1 = Guid.NewGuid();
+        Guid childId1 = Guid.NewGuid();
+        Guid otherId1 = Guid.NewGuid();
         Guid id2 = Guid.NewGuid();
-        ResourceCollectionDocument<TestResource> resourceCollectionDocument = ResourceCollectionDocumentFactory.Create(id1, id2);
+        Guid childId2 = Guid.NewGuid();
+        Guid otherId2 = Guid.NewGuid();
+        ResourceCollectionDocument<TestResource> resourceCollectionDocument = ResourceCollectionDocumentFactory.Create(id1, childId1, otherId1, id2, childId2, otherId2);
 
         string json = JsonSerializer.Serialize(resourceCollectionDocument, _jsonSerialiserOptions);
 
         JsonDocument jsonDocument = JsonDocument.Parse(json);
-        ResourceCollectionDocumentAssertions.Verify(jsonDocument.RootElement, id1, id2);
+        ResourceCollectionDocumentAssertions.Verify(jsonDocument.RootElement, id1, childId1, otherId1, id2, childId2, otherId2);
     }
 }

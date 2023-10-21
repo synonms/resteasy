@@ -28,6 +28,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Synonms.RestEasy.Abstractions\Synonms.RestEasy.Abstractions.csproj" />
+      <ProjectReference Include="..\Synonms.RestEasy.Serialisation\Synonms.RestEasy.Serialisation.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Views\RestEasyView.razor" />
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,12 @@
+using Synonms.RestEasy.SharedKernel.Extensions;
+
 namespace Synonms.RestEasy.Abstractions.Schema;
 
 public abstract class Resource
 {
     protected Resource()
     {
-        Id = Guid.Empty;
+        Id = Guid.NewGuid().ToComb();
         SelfLink = Link.SelfLink(new Uri("/" + Id, UriKind.Relative));
     }
     

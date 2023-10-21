@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Reflection;
 using MediatR;
 using Synonms.RestEasy.Abstractions.Application;
@@ -24,7 +25,7 @@ public class ReadResourceCollectionRequestProcessor<TAggregateRoot, TResource> :
     public async Task<ReadResourceCollectionResponse<TAggregateRoot, TResource>> Handle(ReadResourceCollectionRequest<TAggregateRoot, TResource> request, CancellationToken cancellationToken)
     {
         PaginatedList<TAggregateRoot> paginatedAggregateRoots = (request.Parameters?.Any() ?? false)
-            ? PaginatedList<TAggregateRoot>.Create(await _readRepository.QueryAsync(x => ParametersPredicate(x, request.Parameters)), request.Offset, request.Limit)
+            ? PaginatedList<TAggregateRoot>.Create(await _readRepository.QueryAsync(ParametersPredicate(request.Parameters)), request.Offset, request.Limit)
             : await _readRepository.ReadAsync(request.Offset, request.Limit);
         
         List<TResource> resources = paginatedAggregateRoots.Select(x => _resourceMapper.Map(request.HttpContext, x)).ToList();
@@ -35,6 +36,60 @@ public class ReadResourceCollectionRequestProcessor<TAggregateRoot, TResource> :
         return response;
     }
 
+    private static Expression<Func<TAggregateRoot, bool>> ParametersPredicate(IReadOnlyDictionary<string, object>? parameters)
+    {
+        if ((parameters?.Any() ?? false) is false)
+        {
+            return _ => true;
+        }
+
+        // (TAggregateRoot x)
+        ParameterExpression xParameter = Expression.Parameter(typeof(TAggregateRoot), "x");
+
+        List<Expression> columnExpressions = new();
+        
+        foreach ((string key, object expectedValue) in parameters)
+        {
+            PropertyInfo? aggregatePropertyInfo = typeof(TAggregateRoot).GetProperty(key, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+            if (aggregatePropertyInfo is null)
+            {
+                continue;
+            }
+
+            // x.{columnName}
+            MemberExpression columnNameExpression = Expression.Property(xParameter, aggregatePropertyInfo.Name);
+
+            // {searchValue}
+            ConstantExpression expectedValueExpression = Expression.Constant(expectedValue);
+
+            // x.{columnName} == {searchValue}
+            BinaryExpression equalExpression = Expression.Equal(columnNameExpression, expectedValueExpression);
+
+            columnExpressions.Add(equalExpression);
+        }
+        
+        if (columnExpressions.Count == 1)
+        {
+            Expression<Func<TAggregateRoot, bool>> lambdaExpression = Expression.Lambda<Func<TAggregateRoot, bool>>(columnExpressions[0], new ParameterExpression[] { xParameter });
+            
+            return lambdaExpression;
+        }
+        else
+        {
+            Expression combinedExpression = columnExpressions[0];
+            
+            for (int i = 1; i < columnExpressions.Count; i++)
+            {
+                combinedExpression = Expression.And(combinedExpression, columnExpressions[i]);
+            }
+            
+            Expression<Func<TAggregateRoot, bool>> lambdaExpression = Expression.Lambda<Func<TAggregateRoot, bool>>(combinedExpression, new ParameterExpression[] { xParameter });
+            
+            return lambdaExpression;
+        }
+    }
+    
     private static bool ParametersPredicate(TAggregateRoot aggregateRoot, IReadOnlyDictionary<string, object>? parameters)
     {
         if ((parameters?.Any() ?? false) is false)

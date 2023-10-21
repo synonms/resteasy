@@ -33,12 +33,12 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton(routeNameProvider);
 
         serviceCollection.AddSingleton<IRouteGenerator, RouteGenerator>();
-        serviceCollection.AddSingleton(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
-        serviceCollection.AddSingleton(typeof(IEditFormDocumentFactory<,>), typeof(EditFormDocumentFactory<,>));
+        serviceCollection.AddScoped(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
+        serviceCollection.AddScoped(typeof(IEditFormDocumentFactory<,>), typeof(EditFormDocumentFactory<,>));
         serviceCollection.AddSingleton<IErrorCollectionDocumentFactory, ErrorCollectionDocumentFactory>();
         serviceCollection.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
-        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddSingleton, aggregateAssemblies);
-        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddSingleton, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateCreator<,>), serviceCollection.AddScoped, aggregateAssemblies);
+        serviceCollection.RegisterAllImplementationsOf(typeof(IAggregateUpdater<,>), serviceCollection.AddScoped, aggregateAssemblies);
 
         foreach ((string _, IResourceDirectory.AggregateRootLayout aggregateRootLayout) in resourceDirectory.GetAllRoots())
         { 
@@ -81,6 +81,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.RegisterAllImplementationsOf(typeof(IResourceMapper<,>), serviceCollection.AddSingleton, aggregateAssemblies);
 
         serviceCollection.AddSingleton<IChildResourceMapperFactory, ChildResourceMapperFactory>();
+        serviceCollection.AddSingleton<IResourceMapperFactory, ResourceMapperFactory>();
         
         return new RestEasyServiceBuilder(serviceCollection);
     }
@@ -131,6 +132,7 @@ public static class ServiceCollectionExtensions
         Type resourceMapperImplementationType = typeof(DefaultResourceMapper<,>).MakeGenericType(aggregateRootLayout.AggregateRootType, aggregateRootLayout.ResourceType);
 
         serviceCollection.AddSingleton(resourceMapperInterfaceType, resourceMapperImplementationType);
+        serviceCollection.AddSingleton(typeof(IResourceMapper), resourceMapperImplementationType);
 
         return serviceCollection;
     }

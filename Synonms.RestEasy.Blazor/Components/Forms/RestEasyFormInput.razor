@@ -1,10 +1,9 @@
-﻿@using Synonms.RestEasy.Abstractions.Schema
-@using Synonms.RestEasy.Abstractions.Schema.Forms
+﻿@using Synonms.RestEasy.Abstractions.Schema.Forms
 @typeparam TModel
 
 @if (FormInputDefinition.HtmlSelectOptions?.Any() ?? false)
 {
-    <select class="form-input">
+    <select class="form-input" disabled="@FormInputDefinition.HtmlInputDisabled" readonly="@FormInputDefinition.HtmlInputReadOnly">
         @foreach (FormFieldOption formFieldOption in FormInputDefinition.HtmlSelectOptions)
         {
             <option value="@formFieldOption.Value" selected="@(formFieldOption.Value.ToString() == FormInputDefinition.Value)">@(formFieldOption.Label ?? formFieldOption.Value)</option>
@@ -13,7 +12,7 @@
 }
 else
 {
-    <input class="form-input" type="@FormInputDefinition.HtmlInputType" id="@FormInputDefinition.HtmlInputId" name="@FormInputDefinition.HtmlInputId" @bind="@FormInputDefinition.Value" @bind:event="oninput" placeholder="@FormInputDefinition.HtmlInputPlaceholder" disabled="@FormInputDefinition.HtmlInputIsDisabled" readonly="@FormInputDefinition.HtmlInputIsReadOnly">
+    <input class="form-input" type="@FormInputDefinition.HtmlInputType" id="@FormInputDefinition.HtmlInputId" name="@FormInputDefinition.HtmlInputId" @bind="@FormInputDefinition.Value" @bind:event="oninput" placeholder="@FormInputDefinition.HtmlInputPlaceholder" disabled="@FormInputDefinition.HtmlInputDisabled" readonly="@FormInputDefinition.HtmlInputReadOnly">
 }
 
 @code {

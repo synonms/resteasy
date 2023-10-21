@@ -4,7 +4,12 @@ using Synonms.RestEasy.Abstractions.Schema;
 
 namespace Synonms.RestEasy.Abstractions.Application;
 
-public interface IResourceMapper<in TAggregateRoot, out TResource>
+public interface IResourceMapper
+{
+    object? Map(HttpContext httpContext, object value);
+}
+
+public interface IResourceMapper<in TAggregateRoot, out TResource> : IResourceMapper
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
     where TResource : Resource
 {

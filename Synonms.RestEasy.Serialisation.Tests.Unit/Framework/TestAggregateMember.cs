@@ -1,8 +1,8 @@
-using Synonms.RestEasy.Abstractions.Domain;
+﻿using Synonms.RestEasy.Abstractions.Domain;
 
 namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework;
 
-public class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
+public class TestAggregateMember : AggregateMember<TestAggregateMember>
 {
     public bool SomeBool { get; set; }
     
@@ -11,8 +11,4 @@ public class TestAggregateRoot : AggregateRoot<TestAggregateRoot>
     public string SomeString { get; set; } = string.Empty;
     
     public string? SomeOptionalString { get; set; }
-
-    public TestAggregateMember SomeChild { get; set; } = new();
-    
-    public Guid SomeOtherId { get; set; }
 }

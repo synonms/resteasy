@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.RestEasy.Abstractions.Constants;
-using Synonms.RestEasy.Abstractions.Domain;
 using Synonms.RestEasy.Abstractions.Schema;
 using Synonms.RestEasy.Serialisation.Ion.Extensions;
 using Synonms.RestEasy.SharedKernel.Extensions;
@@ -45,6 +44,11 @@ public class IonResourceJsonConverter<TResource> : JsonConverter<TResource>
             PropertyInfo? propertyInfo = typeof(TResource).GetProperty(jsonProperty.Name.ToPascalCase(), BindingFlags.Instance | BindingFlags.Public);
 
             if (propertyInfo is null || propertyInfo.CanWrite is false)
+            {
+                continue;
+            }
+
+            if (propertyInfo.PropertyType.IsForRelatedEntityCollectionLink())
             {
                 continue;
             }

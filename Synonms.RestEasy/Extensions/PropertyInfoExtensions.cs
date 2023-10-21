@@ -29,7 +29,7 @@ public static class PropertyInfoExtensions
                 ElementType = propertyInfo.GetFormFieldElementType(),
                 ElementForm = propertyInfo.GetFormFieldElementForm(lookupOptionsProvider),
                 IsEnabled = propertyInfo.GetFormFieldIsEnabled(),
-                IsMutable = propertyInfo.GetFormFieldIsMutable(),
+                IsMutable = propertyInfo.GetFormFieldIsMutable(instance),
                 IsRequired = propertyInfo.IsRequired(),
                 IsVisible = propertyInfo.GetFormFieldIsVisible(),
                 Label = propertyInfo.GetFormFieldLabel(),
@@ -45,7 +45,7 @@ public static class PropertyInfoExtensions
             Description = propertyInfo.GetFormFieldDescription(),
             Form = propertyInfo.GetFormFieldForm(instance, lookupOptionsProvider),
             IsEnabled = propertyInfo.GetFormFieldIsEnabled(),
-            IsMutable = propertyInfo.GetFormFieldIsMutable(),
+            IsMutable = propertyInfo.GetFormFieldIsMutable(instance),
             IsRequired = propertyInfo.IsRequired(),
             IsSecret = propertyInfo.GetFormFieldIsSecret(),
             IsVisible = propertyInfo.GetFormFieldIsVisible(),
@@ -230,8 +230,16 @@ public static class PropertyInfoExtensions
         return disabledAttribute is not null ? false : null;
     }
 
-    private static bool? GetFormFieldIsMutable(this PropertyInfo propertyInfo)
+    private static bool? GetFormFieldIsMutable(this PropertyInfo propertyInfo, object instance)
     {
+        if (propertyInfo.Name == nameof(Resource.Id))
+        {
+            if (propertyInfo.GetValue(instance) is Guid guid)
+            {
+                return guid == Guid.Empty;
+            }
+        }
+        
         RestEasyImmutableAttribute? immutableAttribute = propertyInfo.GetCustomAttribute<RestEasyImmutableAttribute>();
 
         return immutableAttribute is not null ? false : null;

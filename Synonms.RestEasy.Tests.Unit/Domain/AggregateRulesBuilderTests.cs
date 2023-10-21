@@ -21,7 +21,7 @@ public class AggregateRulesBuilderTests
         public static OneOf<Maybe<TestIntValueObject>, IEnumerable<DomainRuleFault>> CreateOptional(int? value) => 
             value is null ? Maybe<TestIntValueObject>.None : new TestIntValueObject(value.Value);
     
-        public int CompareTo(TestIntValueObject? other) => Value.CompareTo(other);
+        public int CompareTo(TestIntValueObject? other) => other is null ? 1 : Value.CompareTo(other);
     
         public int CompareTo(object? obj) => Value.CompareTo(obj);
     }

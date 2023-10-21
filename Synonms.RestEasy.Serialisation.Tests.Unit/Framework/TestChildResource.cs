@@ -1,16 +1,16 @@
-using Synonms.RestEasy.Abstractions.Attributes;
+﻿using Synonms.RestEasy.Abstractions.Attributes;
 using Synonms.RestEasy.Abstractions.Schema;
 
 namespace Synonms.RestEasy.Serialisation.Tests.Unit.Framework;
 
-public class TestResource : Resource
+public class TestChildResource : ChildResource
 {
-    public TestResource()
+    public TestChildResource()
     {
     }
     
-    public TestResource(Guid id, Link selfLink) 
-        : base(id, selfLink)
+    public TestChildResource(Guid id) 
+        : base(id)
     {
     }
 
@@ -28,10 +28,4 @@ public class TestResource : Resource
     
     [RestEasyMaxLength(100)]
     public string? SomeOptionalString { get; set; }
-
-    public TestChildResource SomeChild { get; set; } = new();
-
-    public Guid SomeOtherId { get; set; }
-
-    public OtherTestResource SomeOther { get; set; } = new();
 }

@@ -42,23 +42,27 @@ public class IonResourceDocumentConverterTests
     public void Read_Valid_ReturnsResource()
     {
         Guid id = Guid.NewGuid();
-        string json = JsonFactory.CreateResourceDocument(id);
+        Guid childId = Guid.NewGuid();
+        Guid otherId = Guid.NewGuid();
+        string json = JsonFactory.CreateResourceDocument(id, childId, otherId);
             
         ResourceDocument<TestResource>? resourceDocument = JsonSerializer.Deserialize<ResourceDocument<TestResource>>(json, _jsonSerialiserOptions);
 
         Assert.NotNull(resourceDocument);
-        ResourceDocumentAssertions.Verify(resourceDocument!, id);
+        ResourceDocumentAssertions.Verify(resourceDocument!, id, childId, otherId);
     }
 
     [Fact]
     public void Write_Valid_ReturnsJson()
     {
         Guid id = Guid.NewGuid();
-        ResourceDocument<TestResource> resourceDocument = ResourceDocumentFactory.Create(id);
+        Guid childId = Guid.NewGuid();
+        Guid otherId = Guid.NewGuid();
+        ResourceDocument<TestResource> resourceDocument = ResourceDocumentFactory.Create(id, childId, otherId);
 
         string json = JsonSerializer.Serialize(resourceDocument, _jsonSerialiserOptions);
 
         JsonDocument jsonDocument = JsonDocument.Parse(json);
-        ResourceDocumentAssertions.Verify(jsonDocument.RootElement, id);
+        ResourceDocumentAssertions.Verify(jsonDocument.RootElement, id, childId, otherId);
     }
 }
