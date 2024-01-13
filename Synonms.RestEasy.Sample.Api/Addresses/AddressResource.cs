@@ -1,4 +1,5 @@
-﻿using Synonms.RestEasy.Abstractions.Schema;
+using Synonms.RestEasy.WebApi.Schema;
+using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 

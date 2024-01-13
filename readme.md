@@ -1,471 +1,283 @@
-# RESTEasy
+# RestEasy
 
-*_Work In Progress_*
+RestEasy is primarily to help facilitate the implementation of RESTful CRUD API endpoints for your domain.
+It uses conventions and attributes to automatically generate the boilerplate "plumbing" required for APIs.  
+You focus on your business domain and the framework takes care of the API endpoints, serialisation etc.
 
-RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain.  As a bonus it also provides some experimental client side (Blazor) components to simplify UI development (for automatic forms and the like). 
+- RESTful hypermedia
+- Resource collections with pagination, filtering and sorting
+- MultiTenancy
+- Granular Authorisation
+- Entity Framework integration
+- OpenApi (Swagger) document generation
+- Integration Testing infrastructure
+- CQRS abstraction with MediatR enabling alternate non-HTTP inputs e.g. messaging, CLI apps
+- Correlation
+- Concurrency via ETag related headers
 
-When building a simple API you write a bit of boilerplate stuff and it's no big deal but as you add more capabilities to your API you end up having to write more and more boilerplate stuff and before you know it adding a simple domain model and some associated CRUD endpoints becomes a tedious nightmare. 
+On top of that the library also provides functionality which can be used for general purpose .NET systems:
 
-With RESTEasy you just create a handful of objects:
+- Domain Driven Design objects - Entities, strongly typed Entity Ids, Aggregate Roots/Members, Value Objects etc.
+- Simple bespoke database migration mechanism for Entity Framework allowing handcrafted SQL Scripts to be applied via an API endpoint (removing the need to rely on EF to script your database)
+- JSON and EF Converters for DateOnly/TimeOnly types (missing from .NET Core at the time of writing)
+- Extensions to the Synonms.Functional library for Railway Oriented Programming
+- Paginated Lists, Date Providers, various extension methods...
 
-- An *Aggregate Root* (the internal domain model)
-- A *Resource* (the external presentation of your domain model)
-- An *Aggregate Creator* (given a Resource from the outside world, how do you validate it and create a new Aggregate Root)
-- An *Aggregate Updater* (given a Resource from the outside world, how do you validate it and update an existing Aggregate Root)
+## Web API
 
-You focus on your business domain and the framework takes care of the API endpoints, serialisation, pagination, Hypermedia etc.
+### Basic Structure
+
+There are a few fundamental objects you will need to create at a minimum in order to achieve a functioning API:
+
+- An _Aggregate Root_ (the internal domain model)
+- A _Resource_ (the external presentation of your domain model)
+- An _Aggregate Creator_ (given a new Resource from the outside world, how do you validate it and create a new Aggregate Root)
+- An _Aggregate Updater_ (given an updated Resource from the outside world, how do you validate it and update the corresponding existing Aggregate Root)
+
+Additionally, you will also likely have a _Repository_ per Aggregate (how does the framework retrieve and store the domain models).
+
+### Aggregates
+
+Aggregates are the internal representation of your domain entities.  They are hierarchical groupings of data.  The 'parent' object is the Aggregate Root and all 'child' objects are Aggregate Members.  All actions are performed via the Aggregate Root.  Repositories, for example are only available for Aggregate Roots.  API endpoints are only generated for Aggregate Roots.
+
+Unlike a database schema where all of the tables could be related, Aggregates should be as small as possible.  As a rule of thumb, only that data which is necessary in order to create an Aggregate Root forms the Aggregate. 
+
+As an example, consider Employees, Employment Details and Employment Contracts as per the Sample API.  
+Employees have a 1-1 relationship with Employment Details which are essentially a horizontal partition of an Employee.  You can't create an Employee without knowing their Employment Details and Employment Details have limited value outside the scope of an Employee.  As such, we have an Aggregate with Employee as the Aggregate Root and Employment Details as an Aggregate Member.  
+Although Contracts have a required relationship to an Employee, Employees can be created without entering their Contract details and there is value in being able to manage Contracts independently of the Employee.  As such we have another Aggregate with Contract as the Aggregate Root.  Other entities which are fundamental parts of a Contract would be Aggregate Members of that Aggregate (for example if we had a separate Salary entity). 
+API endpoints (and Repositories etc.) will be available for Employees and Contracts, but not for Employment Details.  They will be updated via the Employee.
+
+### Resources
+
+Resources are the external representation of the entities. For the most part, resources should consist of properties with simple vanilla C# types (string, int, bool etc.).  Where the corresponding type on the Aggregate is a ValueObject then the Resource would present the underlying type. However, there are certain property types in Resources which will trigger special behaviour which allow for related data to be presented either as embedded data or as a link.
+
+The default Resource mapper enumerates each public instance property on the Resource and reacts to the following special types:
+
+| Type                                  | Example                                                                 | Interpretation                                                 | Action                                                                                                                                                                                                         |
+|---------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| EntityId<TAggregateRoot>              | `public EntityId<Address> AddressId { get; set; }`                      | A link to a related resource                                   | Adds a `related` link to the Resource links unless there is a corresponding Navigation Property on the Aggregate with the same property name less the 'Id' suffix (i.e. `AddressId` AND `Address` properties). |    
+| TResource                             | `public AddressResource Address { get; set; }`                          | An embedded resource (from Aggregate Root)                     | Related Aggregate Root mapped and set to property.                                                                                                                                                             |    
+| TChildResource                        | `public EmployeeDetailsResource EmployeeDetails { get; set; }`          | An embedded child resource (from Aggregate Member)             | Related Aggregate Member mapped and set to property.                                                                                                                                                           |    
+| LookupResource                        | `public LookupResource Currency { get; set; }`                          | An embedded lookup                                             | Related Lookup mapped and set to property.                                                                                                                                                                     |    
+| IEnumerable<EntityId<TAggregateRoot>> | `public IEnumerable<EntityId<Contract>> Contracts { get; set; }`        | A link to a related resource collection                        | Adds a `related` link to the Resource links.                                                                                                                                                                   |    
+| IEnumerable<TResource>                | `public IEnumerable<ContractResource> Contracts { get; set; }`          | An embedded resource collection (from Aggregate Roots)         | Related Aggregate Roots mapped to Resources and added to property.                                                                                                                                             |
+| IEnumerable<TChildResource>           | `public IEnumerable<EmailAddressResource> EmailAddresses { get; set; }` | An embedded child resource collection (from Aggregate Members) | Related Aggregate Members mapped to Child Resources and added to property.                                                                                                                                     |
+
+All other types are assumed to be vanilla properties and Reflection is used to set the property using the value from the Aggregate.  This will potentially fail if the types differ.
+
+### Endpoints
+
+By default the full range of CRUD endpoints are available:
+
+| Endpoint       | Purpose                                                                | HTTP Method | Example route                                                |
+|----------------|------------------------------------------------------------------------|-------------|--------------------------------------------------------------|
+| **GetAll**     | The root collection endpoint                                           | GET         | /my-resources                                                |
+| **CreateForm** | Form containing details of how to add a new resource to the collection | GET         | /my-resources/create-form                                    |
+| **Post**       | Add a new resource to the collection                                   | POST        | /my-resources                                                |
+| **GetById**    | Retrieve a specific resource by unique Id                              | GET         | /my-resources/00000000-0000-0000-0000-000000000001           |
+| **EditForm**   | Form containing details of how to update an existing resource          | GET         | /my-resources/00000000-0000-0000-0000-000000000001/edit-form |
+| **Put**        | Update an existing resource                                            | PUT         | /my-resources/00000000-0000-0000-0000-000000000001           |
+| **Delete**     | Delete an existing resource                                            | DELETE      | /my-resources/00000000-0000-0000-0000-000000000001           |
+
+Generation of the endpoints is triggered by the `RestEasyResourceAttribute` decorating a domain model:
 
 ```csharp
-// The internal model.
-// This example goes for a DDD-Lite approach with ValueObjects and factory methods that prevent invalid state but you don't have to.
-// It's a contrived model for demonstration purposes and not necessarily greate aggregate design ;)
-// Oh, it also uses my Synonms.Functional library, but again you don't have to.
-
-[RestEasyResource("people")]
-public class Person : AggregateRoot<Person>
+[RestEasyResource(typeof(EmployeeResource), "employees", requiresAuthentication: false, pageLimit: 5)]
+public class Employee : AggregateRoot<Employee>
 {
-    public const int ForenameMaxLength = 30;
-    public const int SurnameMaxLength = 30;
-    public const int ColourMaxLength = 10;
-    
-    private Person(EntityId<Person> id, Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
-        : this(forename, surname, dateOfBirth, favouriteColour, homeAddressId, greatestAchievement, achievements)
-    {
-        Id = id;
-    }
-    
-    private Person(Moniker forename, Moniker surname, EventDate dateOfBirth, Colour? favouriteColour, EntityId<Address> homeAddressId, PersonalAchievement greatestAchievement, ICollection<PersonalAchievement> achievements)
-    {
-        Forename = forename;
-        Surname = surname;
-        DateOfBirth = dateOfBirth;
-        FavouriteColour = favouriteColour;
-        HomeAddressId = homeAddressId;
-        GreatestAchievement = greatestAchievement;
-        Achievements = achievements;
-    }
-    
-    public Moniker Forename { get; private set; }
-    
-    public Moniker Surname { get; private set; }
-    
-    public EventDate DateOfBirth { get; private set; }
-    
-    public Colour? FavouriteColour { get; private set; }
-
-    // Related resource (presents as a link)
-    public EntityId<Address> HomeAddressId { get; private set; }
-
-    // Nested resource (presents as a populated child resource object)
-    public PersonalAchievement GreatestAchievement { get; private set; }
-
-    // Nested resource collection (presents as a populated array of child resources)
-    public ICollection<PersonalAchievement> Achievements { get; private set; }
-
-    public static Result<Person> Create(PersonResource resource) =>
-        resource.Achievements
-            .Select(PersonalAchievement.Create)
-            .Reduce(achievements => achievements)
-            .Bind(
-                achievements =>
-                    PersonalAchievement.Create(resource.GreatestAchievement)
-                        .Bind(greatestAchievement =>
-                            AggregateRules.CreateBuilder()
-                                .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-                                .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-                                .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-                                .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
-                                .WithDomainRules(
-                                    RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
-                                    )
-                                .Build()
-                                .ToResult(new Person(forenameValueObject, surnameValueObject, dateOfBirthValueObject, favouriteColourValueObject, resource.HomeAddressId, greatestAchievement, achievements.ToList()))));
-
-    public Maybe<Fault> Update(PersonResource resource) =>
-        MergeAchievements(resource)
-            .BiBind(() => 
-                PersonalAchievement.Create(resource.GreatestAchievement)
-                    .Bind(greatestAchievement =>
-                        AggregateRules.CreateBuilder()
-                            .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
-                            .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-                            .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
-                            .WithOptionalValueObject(resource.FavouriteColour, x => Colour.CreateOptional(x, ColourMaxLength), out Colour? favouriteColourValueObject)
-                            .WithDomainRules(
-                                RelatedEntityIdRules<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
-                            )
-                            .Build()
-                            .BiBind(() =>
-                            {
-                                Forename = forenameValueObject;
-                                Surname = surnameValueObject;
-                                DateOfBirth = dateOfBirthValueObject;
-                                FavouriteColour = favouriteColourValueObject;
-                                HomeAddressId = resource.HomeAddressId;
-                                GreatestAchievement = greatestAchievement;
-
-                                return Maybe<Fault>.None;
-                            })));
-    
-    private Maybe<Fault> MergeAchievements(PersonResource resource) =>
-        Achievements
-            .Merge<PersonalAchievement, PersonalAchievementResource>(
-                resource.Achievements,
-                (am, r) => am.Id == r.Id,
-                PersonalAchievement.Create,
-                (am, r) => am.Update(r));
+  ...
 }
 ```
 
+The parameters provided to the attribute influence how the endpoints are generated:
+
+| Parameter               | Default                     | Purpose                                                                                                                                                                                                                                                            |
+|-------------------------|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| resourceType            |                             | The type of the corresponding Resource object to map to, e.g. `Employee` (AggregateRoot) <-> `EmployeeResource` (Resource).                                                                                                                                        |
+| collectionPath          |                             | The path for the collection URL.  This must be unique across all aggregates otherwise there will be a routing collision.  It should generally just be pluralised version of the aggregate root name, e.g. `Employee` -> "employees", `PayPeriod` -> "pay-periods". |
+| requiresAuthentication  |                             | If set to true then an authenticated user is required to access all endpoints for this resource.                                                                                                                                                                   |
+| authorisationPolicyName | null                        | Prefix for policy name to be registered for Authorisation. You should generally use `nameof(MyAggregateRoot)` if authorisation is required, otherwise leave this as null.                                                                                          |
+| pageLimit               | Pagination.DefaultPageLimit | Page limit for GetAll collection endpoint                                                                                                                                                                                                                          |
+| isCreateDisabled        | false                       | If set to true then CreateForm and Post endpoints are not generated                                                                                                                                                                                                |
+| isUpdateDisabled        | false                       | If set to true then EditForm and Put endpoints are not generated                                                                                                                                                                                                   | 
+| isDeleteDisabled        | false                       | If set to true then Delete endpoint is not generated                                                                                                                                                                                                               |
+
+
+### OpenAPI
+
+RestEasy supports OpenApi documentation and documents the paths/operations for all generated endpoints.  No action is required other than enabling Swashbuckle at startup.
+
 ```csharp
-// The external model.
-// This is the thing that gets serialised in and out of the API.
-// Convention based auto-mapping happens out of the box but if your internal and external models are different you can provide your own mappers. 
-public class PersonResource : Resource<Person>
-{
-    public PersonResource()
+builder.Services.AddRestEasyFramework(mvcOptions => mvcOptions.WithDefaultFormatters().WithIonFormatters(), SampleApiProject.Assembly)
+    .WithApplicationDependenciesFrom(SampleApiProject.Assembly)
+    .WithDomainDependenciesFrom(SampleApiProject.Assembly)
+    .WithOpenApi(swaggerGenOptions =>
     {
-    }
-    
-    public PersonResource(EntityId<Person> id, Link selfLink) 
-        : base(id, selfLink)
-    {
-    }
-
-    [RestEasyRequired]
-    [RestEasyMaxLength(Person.ForenameMaxLength)]
-    public string Forename { get; set; } = string.Empty;
-    
-    [RestEasyRequired]
-    [RestEasyMaxLength(Person.SurnameMaxLength)]
-    public string Surname { get; set; } = string.Empty;
-
-    [RestEasyRequired]
-    [RestEasyPattern(RegularExpressions.DateOnly)]
-    [RestEasyDescriptor(placeholder: Placeholders.DateOnly)]
-    public DateOnly DateOfBirth { get; set; } = DateOnly.MinValue;
-
-    [RestEasyLookup("Colour")]
-    public string? FavouriteColour { get; set; }
-    
-    [RestEasyRequired]
-    [RestEasyPattern(RegularExpressions.Guid)]
-    [RestEasyDescriptor(placeholder: Placeholders.Guid)]
-    public EntityId<Address> HomeAddressId { get; set; } = EntityId<Address>.Uninitialised;
-    
-    public PersonalAchievementResource GreatestAchievement { get; set; }
-
-    public IEnumerable<PersonalAchievementResource> Achievements { get; set; } = Enumerable.Empty<PersonalAchievementResource>();
-}
+        swaggerGenOptions.SwaggerDoc("v1.0", new OpenApiInfo { Title = "RestEasy Sample API", Version = "v1.0" });
+    });
 ```
 
-### Hypermedia
+### Media Types
 
-Resources are presented using Ion Hypermedia type (https://ionspec.org/).
+RestEasy initially supports JSON (`application/json`) and ION Hypermedia (`application/ion+json`) content types.
 
-Here is an example GET response for a Person resource as defined above:
+The default JSON format is lightly decorated to accommodate `self` links and pagination data.  Otherwise it is "vanilla" JSON.  It is recommended for clients which do not require RESTful Hypermedia, for example back-end data services.
 
+The ION format is richly decorated with Hypermedia and is recommended for clients who want the self describing capabilities of a RESTful service (for example a dynamic, link driven UI).
+
+Examples follow to help visualise the difference.
+
+Default JSON format:
 ```json
 {
-  "id": "00000000-0000-0000-0000-000000000001",
-  "forename": "Kendrick",
-  "surname": "Lamar",
-  "dateOfBirth": "1994-05-05",
-  "favouriteColour": null,
-  "homeAddressId": "00000000-0000-0000-0001-000000000001",
-  "greatestAchievement": {
-    "id": "cda40291-a83a-4317-aea5-4bd0407d9541",
-    "description": "To Pimp A Butterfly",
-    "dateOfAchievement": "2015-03-16"
-  },
-  "achievements": [
-    {
-      "id": "9b1cc13a-8f26-4200-b1a8-4bd0407d9543",
-      "description": "Section.80",
-      "dateOfAchievement": "2011-07-02"
-    },
-    {
-      "id": "c426e8b4-29ab-4fd3-9d5c-4bd0407d9543",
-      "description": "Good Kid, M.A.A.D City",
-      "dateOfAchievement": "2012-10-22"
-    },
-    {
-      "id": "b03de7dd-d57c-4781-9152-4bd0407d9543",
-      "description": "DAMN",
-      "dateOfAchievement": "2017-04-14"
-    },
-    {
-      "id": "2b625df3-286d-4a69-bcc3-4bd0407d9543",
-      "description": "Mr Morale & the Big Steppers",
-      "dateOfAchievement": "2022-05-13"
-    }
-  ],
-  "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
-    "rel": "self",
-    "method": "GET"
-  },
-  "edit-form": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
-    "rel": "edit-form",
-    "method": "GET"
-  },
-  "delete": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
-    "rel": "self",
-    "method": "DELETE"
-  },
-  "homeAddress": {
-    "href": "https://localhost:7235/addresses/00000000-0000-0000-0001-000000000001",
-    "rel": "related",
-    "method": "GET"
-  }
-}
-```
-
-All of the links in the above example have been automatically constructed by the framework.  One of the advantages of this RESTful approach over "vanilla" JSON over HTTP is that it enables client UIs to be link driven rather than having to hardcode URLs in to the application.
-
-Note also how the aggregate members (achievements) have been presented inline as child resources, whereas the related aggregate root (homeAddress) has been presented as a link.
-
-### Forms
-
-Create and Update requests are facilitated via *Forms*.  Resource collections have an associated `create-form` link, while existing resources have an `edit-form` link.
-
-Forms provide an array of all of the fields available for submission, with information around data types, validation rules etc.  Resource models can be decorated with custom attributes to provide the additional information where required, for example `RestEasyMaxLength` attribute generates the `maxlength` property on the form.  A target URI is also presented so clients know where to POST or PUT the completed form.
-
-```json
-{
-  "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001",
-  "rel": "edit-form",
-  "method": "PUT",
   "value": [
     {
-      "name": "forename",
-      "type": "string",
-      "required": true,
-      "maxlength": 30,
-      "value": "Kendrick"
+      "id": "00000000-0000-0000-0000-000000000001",
+      "title": "Mr",
+      "forename": "Kendrick",
+      "surname": "Lamar",
+      // ...other properties...
     },
-    {
-      "name": "surname",
-      "type": "string",
-      "required": true,
-      "maxlength": 30,
-      "value": "Lamar"
-    },
-    {
-      "name": "dateOfBirth",
-      "type": "date",
-      "required": true,
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-      "placeholder": "yyyy-MM-dd",
-      "value": "1994-05-05"
-    },
-    {
-      "name": "favouriteColour",
-      "type": "string",
-      "required": false,
-      "options": {
-        "value": [
-          {
-            "isEnabled": true,
-            "value": "Black"
-          },
-          {
-            "isEnabled": true,
-            "value": "Blue"
-          },
-          {
-            "isEnabled": true,
-            "value": "Brown"
-          },
-          {
-            "isEnabled": true,
-            "value": "Green"
-          },
-          {
-            "isEnabled": true,
-            "value": "Purple"
-          },
-          {
-            "isEnabled": true,
-            "value": "Orange"
-          },
-          {
-            "isEnabled": true,
-            "value": "Red"
-          },
-          {
-            "isEnabled": true,
-            "value": "White"
-          },
-          {
-            "isEnabled": true,
-            "value": "Yellow"
-          }
-        ]
-      }
-    },
-    {
-      "name": "homeAddressId",
-      "type": "string",
-      "required": true,
-      "pattern": "^[0-9a-fA-F]{8}[-]([0-9a-fA-F]{4}[-]){3}[0-9a-fA-F]{12}$",
-      "placeholder": "00000000-0000-0000-0000-000000000000",
-      "value": "00000000-0000-0000-0001-000000000001"
-    },
-    {
-      "name": "greatestAchievement",
-      "type": "object",
-      "form": {
-        "value": [
-          {
-            "name": "description",
-            "type": "string",
-            "required": true,
-            "maxlength": 250,
-            "value": "To Pimp A Butterfly"
-          },
-          {
-            "name": "dateOfAchievement",
-            "type": "date",
-            "required": true,
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-            "placeholder": "yyyy-MM-dd",
-            "value": "2015-03-16"
-          },
-          {
-            "name": "id",
-            "type": "string",
-            "required": false,
-            "value": "fd5a022b-2b85-4fad-8b20-4bd04080e58c"
-          }
-        ]
-      },
-      "required": false,
-      "value": {
-        "id": "fd5a022b-2b85-4fad-8b20-4bd04080e58c",
-        "description": "To Pimp A Butterfly",
-        "dateOfAchievement": "2015-03-16"
-      }
-    },
-    {
-      "name": "achievements",
-      "type": "array",
-      "etype": "object",
-      "eform": {
-        "value": [
-          {
-            "name": "description",
-            "type": "string",
-            "required": true,
-            "maxlength": 250,
-            "value": ""
-          },
-          {
-            "name": "dateOfAchievement",
-            "type": "date",
-            "required": true,
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-            "placeholder": "yyyy-MM-dd",
-            "value": "0001-01-01"
-          },
-          {
-            "name": "id",
-            "type": "string",
-            "required": false,
-            "value": "00000000-0000-0000-0000-000000000000"
-          }
-        ]
-      },
-      "required": false,
-      "value": [
-        {
-          "id": "2abf46ef-8d9a-4ce8-8d31-4bd04080e58e",
-          "description": "Section.80",
-          "dateOfAchievement": "2011-07-02"
-        },
-        {
-          "id": "ef0b307c-7e2f-4cf7-a270-4bd04080e58e",
-          "description": "Good Kid, M.A.A.D City",
-          "dateOfAchievement": "2012-10-22"
-        },
-        {
-          "id": "8bc4c648-9ac9-4079-adb0-4bd04080e58e",
-          "description": "DAMN",
-          "dateOfAchievement": "2017-04-14"
-        },
-        {
-          "id": "f24fe6fa-8447-4269-a9f3-4bd04080e58e",
-          "description": "Mr Morale & the Big Steppers",
-          "dateOfAchievement": "2022-05-13"
-        }
-      ]
-    },
-    {
-      "name": "id",
-      "type": "string",
-      "required": false,
-      "value": "00000000-0000-0000-0000-000000000001"
-    }
+    // ...other resources...
   ],
   "self": {
-    "href": "https://localhost:7235/people/00000000-0000-0000-0000-000000000001/edit-form",
-    "rel": "edit-form",
-    "method": "GET"
-  }
-}
-```
-
-Nested forms are supported in situations where a resource has child resources, including resource collections (`greatestAchievement` and `achievements` properties in this example).  Lookups are also available where you can provide an array of options for clients to constrain acceptable values and populate dropdown lists etc. (see `favouriteColour`).  Provide an implementation of the `ILookupOptionsProvider` to get the data from your database or wherever you hold it.
-
-## Pagination
-
-Collections are paginated out of the box too:
-
-```csharp
-{
-  "value": [
-    // ...One page of 5 resources...
-  ],
-  "self": {
-    "href": "https://localhost:7235/people",
+    "href": "https://localhost:5001/employees",
     "rel": "self",
     "method": "GET"
   },
-  "create-form": {
-    "href": "https://localhost:7235/people/create-form",
-    "rel": "create-form",
-    "method": "GET"
-  }
   "offset": 0,
   "limit": 5,
-  "size": 9,
-  "first": {
-    "href": "https://localhost:7235/people",
-    "rel": "collection",
-    "method": "GET"
-  },
-  "last": {
-    "href": "https://localhost:7235/people?offset=5",
-    "rel": "collection",
-    "method": "GET"
-  },
-  "next": {
-    "href": "https://localhost:7235/people?offset=5",
-    "rel": "collection",
-    "method": "GET"
+  "size": 9
+}
+```
+
+ION Format:
+```json
+{
+    "value": [
+        {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "title": "Mr",
+            "forename": "Kendrick",
+            "surname": "Lamar",
+            //...other properties...,
+            "self": {
+                "href": "https://localhost:5001/employees/00000000-0000-0000-0000-000000000001",
+                "rel": "self",
+                "method": "GET"
+            },
+            "edit-form": {
+                "href": "https://localhost:5001/employees/00000000-0000-0000-0000-000000000001/edit-form",
+                "rel": "edit-form",
+                "method": "GET"
+            },
+            "delete": {
+                "href": "https://localhost:5001/employees/00000000-0000-0000-0000-000000000001",
+                "rel": "self",
+                "method": "DELETE"
+            },
+            "homeAddress": {
+                "href": "https://localhost:5001/addresses/00000000-0000-0000-0001-000000000001",
+                "rel": "related",
+                "method": "GET"
+            },
+            "contracts": {
+                "href": "https://localhost:5001/contracts?employeeId=00000000-0000-0000-0000-000000000001",
+                "rel": "related",
+                "method": "GET"
+            }
+        },
+        // ...other resources...
+    ],
+    "self": {
+        "href": "https://localhost:5001/employees",
+        "rel": "self",
+        "method": "GET"
+    },
+    "create-form": {
+        "href": "https://localhost:5001/employees/create-form",
+        "rel": "create-form",
+        "method": "GET"
+    },
+    "offset": 0,
+    "limit": 5,
+    "size": 9,
+    "first": {
+        "href": "https://localhost:5001/employees?offset=0",
+        "rel": "collection",
+        "method": "GET"
+    },
+    "last": {
+        "href": "https://localhost:5001/employees?offset=5",
+        "rel": "collection",
+        "method": "GET"
+    },
+    "next": {
+        "href": "https://localhost:5001/employees?offset=5",
+        "rel": "collection",
+        "method": "GET"
+    }
+}
+```
+
+Additional formats can be supported by creating a suite of JsonConverters in `WebApi/Serialisation` and Formatters in `WebApi/Hypermedia`.  The OpenApi operations will also need to be tweaked in the `RestEasyDocumentFilter` class for the new media type to be reflected in the OpenApi documentation. 
+
+### Faults
+
+Client faults handled by the framework are presented back to the client as an array of errors:
+
+```json
+{
+  "errors": [
+    {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "code": "VAL01",
+      "title": "Validation Rule",
+      "detail": "Name must be 20 characters or less.",
+      "source": {
+        "pointer": "Name",
+        "parameter": "Ienteredanunacceptablylongname"
+      }
+    }
+  ],
+  "self": {
+    "href": "https://localhost:5001/employees",
+    "rel": "self",
+    "method": "POST"
   }
 }
 ```
 
-In this example there are 9 resources in total (`size`), of which we are presenting the first 5 (`limit`, or page size), that is with an `offset` (the number of resources to skip) of 0.  Links to the `previous` and `next` page of results are dynamic and only presented if there is another page to navigate to.  This makes paging controls on the UI easier as they can be entirely link driven.
+Client faults resolve to the following HTTP response codes:
 
+| Fault                 | Response Code             |
+|-----------------------|---------------------------|
+| ApplicationRuleFault  | 400 Bad Request           |
+| ApplicationRulesFault | 400 Bad Request           |
+| DomainRuleFault       | 400 Bad Request           |
+| DomainRulesFault      | 400 Bad Request           |
+| EntityNotFoundFault   | 404 Not Found             |
 
-## TODO...
+Any other type of fault is considered a server fault and will present back to the client as a 500 Internal Server Error without a response body.
 
-- Related resource collection example
-- Query parameters in all requests (filtering, sorting...)
-- Entry point endpoint (service discovery - present all top level uris)
-- Entity versioning/conflict detection (support ETag/If-Match)
-- Auth
+Anti-corruption layer validation failures (e.g. `Name` is not filled in) should be surfaced as an `ApplicationRulesFault`.
+Business logic validation failures (e.g. `ContractStartDate` must be on or after the `EmploymentStartDate`) should be surfaced as a `DomainRulesFault`.
+The `AggregateRules` class is designed to simplify the implementation of domain rules and generation of validation failures: 
+
+```csharp
+internal static Result<Legislation> Create(LegislationResource resource) =>
+    AggregateRules.CreateBuilder()
+        .WithMandatoryValueObject(resource.Name, x => Moniker.CreateMandatory(x, NameMaxLength), out Moniker nameValueObject)
+        .WithDomainRules(
+            RelatedEntityIdRuleset<Lookup>.Create(nameof(CurrencyId), resource.CurrencyId)
+            )
+        .Build()
+        .ToResult(() => new Legislation((EntityId<Legislation>)resource.Id, nameValueObject, resource.CurrencyId));
+```
+
+In the above example the `WithMandatoryValueObject` call performs the conversion of plain `string` type to `Moniker` ValueObject (including validating it).
+The `WithDomainRules` call allows you to pass a collection of `IDomainRuleset` implementations.  In this case we're just checking the CurrencyId is not an empty Guid but you can make whatever rulesets you want.
+Any validation failures will be aggregated and passed back to the caller as a `DomainRulesFault`. 
+Only if no faults occur will the `Legislation` be created.
+
+`EntityNotFoundFault` should be used when one of the resources specified in the route is not found.  If some related required entity is not found which does not form part of the route then an alternative Fault type should be used.
