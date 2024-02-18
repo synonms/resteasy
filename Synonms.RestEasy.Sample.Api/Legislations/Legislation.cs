@@ -1,6 +1,6 @@
-using Synonms.RestEasy.WebApi.Attributes;
 using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Domain.Rules;
 using Synonms.RestEasy.Core.Domain.Rules.Rulesets;
@@ -9,7 +9,7 @@ using Synonms.RestEasy.Sample.Api.Lookups;
 
 namespace Synonms.RestEasy.Sample.Api.Legislations;
 
-[RestEasyResource(typeof(LegislationResource), "legislations", requiresAuthentication: false, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true)]
+[RestEasyResource(typeof(LegislationResource), "legislations", allowAnonymous: true, isCreateDisabled: true, isUpdateDisabled: true, isDeleteDisabled: true)]
 public class Legislation : AggregateRoot<Legislation>
 {
     public const int NameMaxLength = 40;

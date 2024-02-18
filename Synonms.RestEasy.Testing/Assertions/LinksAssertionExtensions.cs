@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Synonms.RestEasy.WebApi.Schema;
+using Synonms.RestEasy.Core.Schema;
 using Xunit;
 
 namespace Synonms.RestEasy.Testing.Assertions;

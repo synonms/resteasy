@@ -6,8 +6,9 @@ using Synonms.RestEasy.Core.Extensions;
 using Synonms.RestEasy.Core.Persistence;
 using Synonms.RestEasy.WebApi.Linq;
 using MediatR;
+using Synonms.RestEasy.Core.Application;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Application;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Mediation.Queries;
 

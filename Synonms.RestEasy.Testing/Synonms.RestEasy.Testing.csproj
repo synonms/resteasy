@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
-        <PackageVersion>7.0.0</PackageVersion>
+        <PackageVersion>8.0.0</PackageVersion>
         <Title>Synonms RestEasy (Testing)</Title>
         <Authors>Synonms</Authors>
         <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain. This package adds Integration Testing features.</Description>
@@ -16,8 +16,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.13" />
-        <PackageReference Include="xunit" Version="2.6.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.1" />
+        <PackageReference Include="xunit" Version="2.6.6" />
     </ItemGroup>
 
     <ItemGroup>

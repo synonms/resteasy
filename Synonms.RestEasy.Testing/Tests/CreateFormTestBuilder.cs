@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text.Json;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Schema;
+using Synonms.RestEasy.Core.Schema.Forms;
 using Synonms.RestEasy.Testing.Extensions;
 using Synonms.RestEasy.Testing.Assertions;
-using Synonms.RestEasy.WebApi.Constants;
-using Synonms.RestEasy.WebApi.Schema;
-using Synonms.RestEasy.WebApi.Schema.Forms;
 using Xunit;
 
 namespace Synonms.RestEasy.Testing.Tests;

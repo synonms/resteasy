@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.Core.Persistence;
-using Synonms.RestEasy.WebApi.Constants;
 
 namespace Synonms.RestEasy.Sample.Api.Tests.Integration.Infrastructure;
 

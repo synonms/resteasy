@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.WebApi.Mediation.Commands;
 
 namespace Synonms.RestEasy.WebApi.Endpoints;

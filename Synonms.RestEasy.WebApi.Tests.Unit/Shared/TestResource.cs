@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Synonms.RestEasy.WebApi.Schema.Resources;
+using Synonms.RestEasy.Core.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Tests.Unit.Shared;
 

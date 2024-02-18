@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.RestEasy.Core.Serialisation;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 
 namespace Synonms.RestEasy.WebApi.Tests.Unit.Serialisation.Shared.Ion;
 

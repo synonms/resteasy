@@ -1,6 +1,6 @@
-using Synonms.RestEasy.WebApi.Attributes;
 using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Domain.Rules;
 using Synonms.RestEasy.Core.Domain.ValueObjects;

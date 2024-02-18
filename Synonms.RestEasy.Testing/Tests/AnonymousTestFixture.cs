@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Schema.Resources;
 
 namespace Synonms.RestEasy.Testing.Tests;
 

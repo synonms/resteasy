@@ -3,11 +3,11 @@ using System.Text;
 using Synonms.RestEasy.Core.Extensions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Serialisation.Default;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 using Synonms.RestEasy.WebApi.Routing;
-using Synonms.RestEasy.WebApi.Serialisation.Default;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
 using Synonms.RestEasy.WebApi.Swashbuckle.Default;
 using Synonms.RestEasy.WebApi.Swashbuckle.Ion;
 
@@ -213,7 +213,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             }
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             createFormOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -248,7 +248,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             Description = "Successfully deleted"
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             deleteOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -331,7 +331,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             }
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             editFormOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -425,7 +425,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             }
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             getAllOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -493,7 +493,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             }
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             getByIdOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -552,7 +552,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             Description = "Successfully created"
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             postOperation.Security.Add(new OpenApiSecurityRequirement
             {
@@ -611,7 +611,7 @@ public class RestEasyDocumentFilter : IDocumentFilter
             Description = "Successfully updated"
         });
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             putOperation.Security.Add(new OpenApiSecurityRequirement
             {

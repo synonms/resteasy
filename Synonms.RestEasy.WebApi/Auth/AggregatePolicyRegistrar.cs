@@ -1,7 +1,8 @@
 using System.Reflection;
 using Synonms.RestEasy.Core.Domain;
 using Microsoft.AspNetCore.Authorization;
-using Synonms.RestEasy.WebApi.Attributes;
+using Microsoft.Extensions.Configuration;
+using Synonms.RestEasy.Core.Attributes;
 
 namespace Synonms.RestEasy.WebApi.Auth;
 
@@ -30,7 +31,7 @@ public abstract class AggregatePolicyRegistrar<TAggregateRoot> : IPolicyRegistra
         UpdatePermission = Permissions.UpdatePrefix + PermissionName;
         DeletePermission = Permissions.DeletePrefix + PermissionName;
 
-        AuthPolicyName = resourceAttribute?.AuthorisationPolicyName ?? string.Empty;
+        AuthPolicyName = typeof(TAggregateRoot).Name;
 
         CreatePolicy = Policies.CreatePrefix + AuthPolicyName;
         ReadPolicy = Policies.ReadPrefix + AuthPolicyName;

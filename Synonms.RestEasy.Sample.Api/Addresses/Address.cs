@@ -1,13 +1,13 @@
-using Synonms.RestEasy.WebApi.Attributes;
 using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Domain.Rules;
 using Synonms.RestEasy.Core.Domain.ValueObjects;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 
-[RestEasyResource(typeof(AddressResource), "addresses", requiresAuthentication: false)]
+[RestEasyResource(typeof(AddressResource), "addresses", allowAnonymous: true)]
 public class Address : AggregateRoot<Address>
 {
     public const int AddressLineMaxLength = 40;

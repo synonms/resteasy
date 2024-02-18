@@ -1,6 +1,6 @@
-using Synonms.RestEasy.WebApi.Attributes;
 using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Domain.Rules;
 using Synonms.RestEasy.Core.Domain.Rules.Rulesets;
@@ -9,7 +9,7 @@ using Synonms.RestEasy.Sample.Api.Addresses;
 
 namespace Synonms.RestEasy.Sample.Api.Employees;
 
-[RestEasyResource(typeof(EmployeeResource), "employees", requiresAuthentication: false, pageLimit: 5)]
+[RestEasyResource(typeof(EmployeeResource), "employees", allowAnonymous: true, pageLimit: 5)]
 public class Employee : AggregateRoot<Employee>
 {
     public const int InitialsMaxLength = Initials.DefaultMaxLength;

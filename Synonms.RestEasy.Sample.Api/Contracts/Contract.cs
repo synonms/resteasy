@@ -1,6 +1,6 @@
-using Synonms.RestEasy.WebApi.Attributes;
 using Synonms.Functional;
 using Synonms.Functional.Extensions;
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Domain.Rules;
 using Synonms.RestEasy.Core.Domain.Rules.Rulesets;
@@ -9,7 +9,7 @@ using Synonms.RestEasy.Sample.Api.Employees;
 
 namespace Synonms.RestEasy.Sample.Api.Contracts;
 
-[RestEasyResource(typeof(ContractResource), "contracts", requiresAuthentication: false)]
+[RestEasyResource(typeof(ContractResource), "contracts", allowAnonymous: true)]
 public class Contract : AggregateRoot<Contract>
 {
     private Contract(EntityId<Contract> id, EntityId<Employee> employeeId, EventDate startDate, EventDate? endDate, EmploymentType? employmentType)

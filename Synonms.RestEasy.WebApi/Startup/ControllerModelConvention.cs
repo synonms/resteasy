@@ -2,8 +2,8 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.WebApi.Routing;
 
 namespace Synonms.RestEasy.WebApi.Startup;
@@ -75,18 +75,24 @@ public class ControllerModelConvention : IControllerModelConvention
             {
                 AttributeRouteModel = new AttributeRouteModel(routeAttribute)
             });
-            
-            if (string.IsNullOrWhiteSpace(resourceAttribute.AuthorisationPolicyName) is false)
+
+            if (resourceAttribute.AllowAnonymous)
             {
+                AllowAnonymousFilter anonymousFilter = new();
+                action.Filters.Add(anonymousFilter);
+            }
+            else
+            {
+                string policySuffix = aggregateRootType.Name;
                 AuthorizeFilter authorizeFilter = action.ActionName switch
                 {
-                    "GetById" => new AuthorizeFilter("Read" + resourceAttribute.AuthorisationPolicyName),
-                    "GetAll" => new AuthorizeFilter("Read" + resourceAttribute.AuthorisationPolicyName),
-                    "Post" => new AuthorizeFilter("Create" + resourceAttribute.AuthorisationPolicyName),
-                    "Put" => new AuthorizeFilter("Update" + resourceAttribute.AuthorisationPolicyName),
-                    "Delete" => new AuthorizeFilter("Delete" + resourceAttribute.AuthorisationPolicyName),
-                    "CreateForm" => new AuthorizeFilter("Create" + resourceAttribute.AuthorisationPolicyName),
-                    "EditForm" => new AuthorizeFilter("Update" + resourceAttribute.AuthorisationPolicyName),
+                    "GetById" => new AuthorizeFilter("Read" + policySuffix),
+                    "GetAll" => new AuthorizeFilter("Read" + policySuffix),
+                    "Post" => new AuthorizeFilter("Create" + policySuffix),
+                    "Put" => new AuthorizeFilter("Update" + policySuffix),
+                    "Delete" => new AuthorizeFilter("Delete" + policySuffix),
+                    "CreateForm" => new AuthorizeFilter("Create" + policySuffix),
+                    "EditForm" => new AuthorizeFilter("Update" + policySuffix),
                     _ => throw new InvalidOperationException($"Unexpected controller action '{action.ActionName}'.")
                 };
                 
@@ -101,11 +107,12 @@ public class ControllerModelConvention : IControllerModelConvention
         {
             controllerModel.Selectors.Add(new SelectorModel
             {
+                // TODO: Make base path configurable
                 AttributeRouteModel = new AttributeRouteModel(new RouteAttribute(resourceAttribute.CollectionPath)),
             });
         }
 
-        if (resourceAttribute.RequiresAuthentication)
+        if (resourceAttribute.AllowAnonymous is false)
         {
             controllerModel.Filters.Add(new AuthorizeFilter());
         }

@@ -1,11 +1,15 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 
 namespace Synonms.RestEasy.WebApi.Auth;
 
 public static class AuthorizationOptionsExtensions
 {
-    public static AuthorizationOptions AddRestEasyAuthorisationPolicies(this AuthorizationOptions authorisationOptions, params Assembly[] policyAssemblies)
+    public static AuthorizationOptions AddRestEasyAuthorisationPolicies(this AuthorizationOptions authorisationOptions, params Assembly[] policyAssemblies) =>
+        AddRestEasyAuthorisationPolicies(authorisationOptions, policyAssemblies.AsEnumerable());
+
+    public static AuthorizationOptions AddRestEasyAuthorisationPolicies(this AuthorizationOptions authorisationOptions, IEnumerable<Assembly> policyAssemblies)
     {
         foreach (Assembly policyAssembly in policyAssemblies)
         {

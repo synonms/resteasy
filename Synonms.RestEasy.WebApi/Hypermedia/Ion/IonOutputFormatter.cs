@@ -5,8 +5,8 @@ using Synonms.RestEasy.Core.Serialisation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
-using Synonms.RestEasy.WebApi.Constants;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 
 namespace Synonms.RestEasy.WebApi.Hypermedia.Ion;
 

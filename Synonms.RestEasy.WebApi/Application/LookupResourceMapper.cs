@@ -1,4 +1,5 @@
 using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Application;
 

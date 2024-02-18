@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Extensions;
-using Synonms.RestEasy.WebApi.Runtime;
-using Microsoft.Extensions.Logging;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Runtime;
+using Synonms.RestEasy.Core.Schema;
+using Synonms.RestEasy.Core.Schema.Enumerations;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Pipeline;
 using Synonms.RestEasy.WebApi.Routing;
-using Synonms.RestEasy.WebApi.Schema;
-using Synonms.RestEasy.WebApi.Schema.Enumerations;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Application;
 

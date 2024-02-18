@@ -1,11 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.Testing.Tests;
 using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.Core.Serialisation;
-using Synonms.RestEasy.WebApi.Constants;
-using Synonms.RestEasy.WebApi.Schema.Resources;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 
 namespace Synonms.RestEasy.Sample.Api.Tests.Integration.Infrastructure;
 

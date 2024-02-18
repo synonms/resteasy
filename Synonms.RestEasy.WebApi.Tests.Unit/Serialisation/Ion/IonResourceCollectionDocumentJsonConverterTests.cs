@@ -1,9 +1,9 @@
 using System;
 using System.Text.Json;
-using Synonms.RestEasy.WebApi.Schema.Errors;
-using Synonms.RestEasy.WebApi.Schema.Forms;
-using Synonms.RestEasy.WebApi.Schema.Resources;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
+using Synonms.RestEasy.Core.Schema.Errors;
+using Synonms.RestEasy.Core.Schema.Forms;
+using Synonms.RestEasy.Core.Schema.Resources;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 using Synonms.RestEasy.WebApi.Tests.Unit.Serialisation.Shared.Ion;
 using Synonms.RestEasy.WebApi.Tests.Unit.Serialisation.Shared.Resources;
 using Xunit;

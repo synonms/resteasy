@@ -1,6 +1,6 @@
 using Microsoft.OpenApi.Models;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Serialisation.Default;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Serialisation.Default;
 
 namespace Synonms.RestEasy.WebApi.Swashbuckle.Default;
 

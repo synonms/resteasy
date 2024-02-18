@@ -1,4 +1,3 @@
-using Ardalis.SmartEnum;
 using Synonms.Functional;
 using Synonms.RestEasy.Core.Domain.Faults;
 
@@ -56,27 +55,6 @@ public class AggregateRulesBuilder
     {
         _faults.AddRange(rulesets.SelectMany(x => x.Apply()).ToList());
         
-        return this;
-    }
-
-    public AggregateRulesBuilder WithSmartEnum<TSmartEnum, TValue>(TValue value, out TSmartEnum smartEnum) 
-        where TSmartEnum : SmartEnum<TSmartEnum, TValue>
-        where TValue : IEquatable<TValue>, IComparable<TValue>
-    {
-        TSmartEnum output = default(TSmartEnum)!;
-
-        try
-        {
-            output = SmartEnum<TSmartEnum, TValue>.FromValue(value);
-        }
-        catch (SmartEnumNotFoundException)
-        {
-            DomainRuleFault fault = new("SmartEnum type {0} with value of '{1}' not found.", nameof(TSmartEnum), value);
-            _faults.Add(fault);
-        }
-
-        smartEnum = output;
-
         return this;
     }
     

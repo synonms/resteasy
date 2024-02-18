@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Extensions;
 using Synonms.RestEasy.Core.Persistence;
-using Synonms.RestEasy.WebApi.Schema.Forms;
+using Synonms.RestEasy.Core.Schema.Forms;
 
 namespace Synonms.RestEasy.Sample.Api.Tests.Integration;
 

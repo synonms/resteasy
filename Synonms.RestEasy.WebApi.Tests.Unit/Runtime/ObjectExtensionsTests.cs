@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Synonms.RestEasy.WebApi.Domain;
-using Synonms.RestEasy.WebApi.Runtime;
-using Synonms.RestEasy.WebApi.Schema.Forms;
 using Synonms.RestEasy.WebApi.Tests.Unit.Shared;
 using NSubstitute;
+using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Runtime;
+using Synonms.RestEasy.Core.Schema.Forms;
 using Xunit;
 
 namespace Synonms.RestEasy.WebApi.Tests.Unit.Runtime;

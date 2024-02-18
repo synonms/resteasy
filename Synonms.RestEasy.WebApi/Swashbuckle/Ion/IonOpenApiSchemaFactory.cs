@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.OpenApi.Models;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Serialisation.Ion;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Serialisation.Ion;
 
 namespace Synonms.RestEasy.WebApi.Swashbuckle.Ion;
 

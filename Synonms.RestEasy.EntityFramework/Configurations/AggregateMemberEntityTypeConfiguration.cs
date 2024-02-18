@@ -9,10 +9,11 @@ public abstract class AggregateMemberEntityTypeConfiguration<TAggregateMember> :
 {
     public virtual void Configure(EntityTypeBuilder<TAggregateMember> builder)
     {
-        builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).IsRequired();
-        builder.Property(_ => _.CreatedAt).IsRequired();
-        builder.Ignore(x => x.DomainEvents);
+        builder.HasKey(aggregateMember => aggregateMember.Id);
+        builder.Property(aggregateMember => aggregateMember.Id).IsRequired();
+        builder.Property(aggregateMember => aggregateMember.CreatedAt).IsRequired();
+        builder.Property(aggregateMember => aggregateMember.UpdatedAt);
+        builder.Ignore(aggregateMember => aggregateMember.DomainEvents);
 
         ConfigureAggregateMemberProperties(builder);
     }

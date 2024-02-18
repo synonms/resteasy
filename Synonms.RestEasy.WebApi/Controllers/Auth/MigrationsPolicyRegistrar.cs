@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Synonms.RestEasy.WebApi.Auth;
 
 namespace Synonms.RestEasy.WebApi.Controllers.Auth;

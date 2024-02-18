@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PackageVersion>7.0.0</PackageVersion>
+        <PackageVersion>8.0.0</PackageVersion>
         <Title>Synonms RestEasy (Core)</Title>
         <Authors>Synonms</Authors>
         <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain.</Description>
@@ -15,7 +15,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
       <PackageReference Include="Synonms.Functional" Version="1.0.0" />
     </ItemGroup>
 

@@ -1,5 +1,5 @@
 using Synonms.RestEasy.Core.Collections;
-using Synonms.RestEasy.WebApi.Schema;
+using Synonms.RestEasy.Core.Schema;
 
 namespace Synonms.RestEasy.WebApi.Collections;
 

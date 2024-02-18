@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Synonms.RestEasy.Testing.Extensions;
 using Synonms.RestEasy.Core.Domain;
-using Synonms.RestEasy.WebApi.Schema.Resources;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Xunit;
 
 namespace Synonms.RestEasy.Testing.Tests;

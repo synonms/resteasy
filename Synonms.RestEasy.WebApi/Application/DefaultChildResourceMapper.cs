@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Extensions;
-using Synonms.RestEasy.WebApi.Runtime;
-using Synonms.RestEasy.WebApi.Schema;
-using Microsoft.Extensions.Logging;
+using Synonms.RestEasy.Core.Runtime;
+using Synonms.RestEasy.Core.Schema.Enumerations;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Pipeline;
-using Synonms.RestEasy.WebApi.Schema.Enumerations;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Application;
 

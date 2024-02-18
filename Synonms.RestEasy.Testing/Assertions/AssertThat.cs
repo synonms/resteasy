@@ -1,6 +1,6 @@
-using Synonms.RestEasy.WebApi.Constants;
-using Synonms.RestEasy.WebApi.Schema;
-using Synonms.RestEasy.WebApi.Schema.Resources;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Schema;
+using Synonms.RestEasy.Core.Schema.Resources;
 
 namespace Synonms.RestEasy.Testing.Assertions;
 

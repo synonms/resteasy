@@ -1,8 +1,8 @@
 using System.Reflection;
 using Synonms.RestEasy.Core.Extensions;
-using Synonms.RestEasy.WebApi.Runtime;
 using Microsoft.OpenApi.Models;
-using Synonms.RestEasy.WebApi.Attributes;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Runtime;
 
 namespace Synonms.RestEasy.WebApi.Swashbuckle;
 

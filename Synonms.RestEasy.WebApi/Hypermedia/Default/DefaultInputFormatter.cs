@@ -2,12 +2,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Synonms.RestEasy.Core.Serialisation;
-using Synonms.RestEasy.WebApi.Runtime;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Synonms.RestEasy.WebApi.Constants;
-using Synonms.RestEasy.WebApi.Serialisation.Default;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Runtime;
+using Synonms.RestEasy.Core.Serialisation.Default;
 
 namespace Synonms.RestEasy.WebApi.Hypermedia.Default;
 

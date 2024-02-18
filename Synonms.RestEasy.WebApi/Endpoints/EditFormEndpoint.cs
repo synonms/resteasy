@@ -3,11 +3,11 @@ using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Schema.Forms;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Mediation.Queries;
 using Synonms.RestEasy.WebApi.Routing;
-using Synonms.RestEasy.WebApi.Schema.Forms;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Endpoints;
 

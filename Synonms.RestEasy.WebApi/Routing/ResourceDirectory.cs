@@ -1,6 +1,6 @@
 using System.Reflection;
-using Synonms.RestEasy.WebApi.Runtime;
-using Synonms.RestEasy.WebApi.Attributes;
+using Synonms.RestEasy.Core.Attributes;
+using Synonms.RestEasy.Core.Runtime;
 
 namespace Synonms.RestEasy.WebApi.Routing;
 

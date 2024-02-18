@@ -1,5 +1,5 @@
 using System.Net;
-using Synonms.RestEasy.WebApi.Schema.Forms;
+using Synonms.RestEasy.Core.Schema.Forms;
 using Xunit;
 
 namespace Synonms.RestEasy.Testing.Tests;

@@ -2,8 +2,8 @@ using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.Core.Persistence;
 using MediatR;
 using Synonms.Functional;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Domain;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Mediation.Commands;
 

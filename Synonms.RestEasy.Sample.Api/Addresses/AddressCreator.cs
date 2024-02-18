@@ -1,5 +1,5 @@
-using Synonms.RestEasy.WebApi.Domain;
 using Synonms.Functional;
+using Synonms.RestEasy.Core.Domain;
 
 namespace Synonms.RestEasy.Sample.Api.Addresses;
 

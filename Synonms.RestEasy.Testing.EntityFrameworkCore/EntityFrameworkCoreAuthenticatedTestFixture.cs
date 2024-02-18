@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Synonms.RestEasy.Core.Domain;
-using Synonms.RestEasy.WebApi.Schema.Resources;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Xunit;
 
 namespace Synonms.RestEasy.Testing.EntityFrameworkCore;

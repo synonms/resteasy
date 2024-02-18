@@ -1,6 +1,6 @@
+using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Schema.Forms;
 using Synonms.RestEasy.Sample.Api.Lookups;
-using Synonms.RestEasy.WebApi.Domain;
-using Synonms.RestEasy.WebApi.Schema.Forms;
 
 namespace Synonms.RestEasy.Sample.Api.Infrastructure;
 

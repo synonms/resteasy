@@ -1,5 +1,5 @@
 using System;
-using Synonms.RestEasy.WebApi.Schema;
+using Synonms.RestEasy.Core.Schema;
 
 namespace Synonms.RestEasy.WebApi.Tests.Unit.Serialisation.Shared.Resources;
 

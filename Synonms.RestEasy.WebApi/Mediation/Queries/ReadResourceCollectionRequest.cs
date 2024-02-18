@@ -1,7 +1,7 @@
 using Synonms.RestEasy.Core.Domain;
 using MediatR;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Pipeline;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Mediation.Queries;
 

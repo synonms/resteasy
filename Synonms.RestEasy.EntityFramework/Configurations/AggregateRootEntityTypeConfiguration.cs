@@ -9,11 +9,12 @@ public abstract class AggregateRootEntityTypeConfiguration<TAggregateRoot> : IEn
 {
     public virtual void Configure(EntityTypeBuilder<TAggregateRoot> builder)
     {
-        builder.HasKey(_ => _.Id);
-        builder.Property(_ => _.Id).IsRequired();
-        builder.Property(_ => _.CreatedAt).IsRequired();
-        builder.Property(_ => _.EntityTag).IsRequired().IsConcurrencyToken();
-        builder.Ignore(_ => _.DomainEvents);
+        builder.HasKey(aggregateRoot => aggregateRoot.Id);
+        builder.Property(aggregateRoot => aggregateRoot.Id).IsRequired();
+        builder.Property(aggregateRoot => aggregateRoot.CreatedAt).IsRequired();
+        builder.Property(aggregateRoot => aggregateRoot.UpdatedAt);
+        builder.Property(aggregateRoot => aggregateRoot.EntityTag).IsRequired().IsConcurrencyToken();
+        builder.Ignore(aggregateRoot => aggregateRoot.DomainEvents);
 
         ConfigureAggregateProperties(builder);
     }

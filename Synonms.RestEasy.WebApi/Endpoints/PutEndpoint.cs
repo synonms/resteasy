@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using Synonms.RestEasy.WebApi.Constants;
+using Synonms.RestEasy.Core.Constants;
+using Synonms.RestEasy.Core.Schema;
+using Synonms.RestEasy.Core.Schema.Errors;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.WebApi.Mediation.Commands;
 using Synonms.RestEasy.WebApi.Routing;
-using Synonms.RestEasy.WebApi.Schema;
-using Synonms.RestEasy.WebApi.Schema.Errors;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.WebApi.Endpoints;
 

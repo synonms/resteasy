@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Synonms.RestEasy.Core.Collections;
+using Synonms.RestEasy.Core.Schema;
 using Synonms.RestEasy.WebApi.Collections;
-using Synonms.RestEasy.WebApi.Schema;
 using Synonms.RestEasy.WebApi.Tests.Unit.Shared;
 using Xunit;
 

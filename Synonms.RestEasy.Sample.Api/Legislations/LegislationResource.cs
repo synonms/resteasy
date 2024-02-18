@@ -1,9 +1,8 @@
+using Synonms.RestEasy.Core.Attributes;
 using Synonms.RestEasy.Core.Domain;
+using Synonms.RestEasy.Core.Schema;
+using Synonms.RestEasy.Core.Schema.Resources;
 using Synonms.RestEasy.Sample.Api.Lookups;
-using Synonms.RestEasy.WebApi.Application;
-using Synonms.RestEasy.WebApi.Attributes;
-using Synonms.RestEasy.WebApi.Schema;
-using Synonms.RestEasy.WebApi.Schema.Resources;
 
 namespace Synonms.RestEasy.Sample.Api.Legislations;
 
