@@ -16,8 +16,6 @@ public class RestEasyOptions
     
     public Assembly? AdditionalMultiTenancyResolutionStrategiesAssembly { get; set; }
 
-    public bool AppendPermissions { get; set; } = false;
-    
     public Action<MvcOptions>? MvcOptionsConfigurationAction { get; set; }
     
     public Action<SwaggerGenOptions>? SwaggerGenConfigurationAction { get; set; }

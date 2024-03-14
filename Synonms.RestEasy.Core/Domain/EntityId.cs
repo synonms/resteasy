@@ -14,6 +14,9 @@ public record EntityId<TEntity>(Guid Value) : IComparable, IComparable<EntityId<
     public static explicit operator EntityId<TEntity>(Guid id) => new(id);
     public static explicit operator Guid(EntityId<TEntity> id) => id.Value;
 
+    public static explicit operator EntityId<TEntity>?(Guid? id) => id is null ? null : new EntityId<TEntity>(id.Value);
+    public static explicit operator Guid?(EntityId<TEntity>? id) => id?.Value;
+
     public bool IsEmpty => Value.Equals(Guid.Empty);
 
     public int CompareTo(EntityId<TEntity>? other) => Value.CompareTo(other?.Value);

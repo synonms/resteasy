@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
 using Synonms.RestEasy.Core.Domain.Events;
+using Synonms.RestEasy.Core.Domain.ValueObjects;
 
 namespace Synonms.RestEasy.Core.Domain;
 
@@ -13,6 +14,8 @@ public abstract class Entity<TEntity> : IDomainEventProducer
     private readonly ConcurrentQueue<DomainEvent> _domainEvents = new ();
 
     public EntityId<TEntity> Id { get; protected init; } = EntityId<TEntity>.New();
+
+    public IsA IsActive { get; protected set; } = IsA.Yes;
     
     public DateTime CreatedAt { get; protected init; } = DateTime.UtcNow;
 

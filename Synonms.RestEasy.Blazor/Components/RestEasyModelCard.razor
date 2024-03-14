@@ -1,0 +1,44 @@
+﻿@using Radzen
+@using Radzen.Blazor
+
+<RadzenCard Style="min-width: 100px; max-width: 500px;" class="re-card">
+    <RadzenStack Orientation="Orientation.Vertical" class="re-card-header">
+        <RadzenText Text="@Title" TextStyle="TextStyle.H5"></RadzenText>
+        @if (string.IsNullOrWhiteSpace(SubTitle) is false)
+        {
+            <RadzenText Text="@SubTitle" TextStyle="TextStyle.Subtitle1"></RadzenText>
+        }
+    </RadzenStack>
+    <hr/>
+    <RadzenCard Variant="Variant.Text" class="re-card-content">
+        <RadzenStack Orientation="Orientation.Vertical" Gap="1em">
+            @ChildContent
+        </RadzenStack>
+    </RadzenCard>
+    <hr/>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1em" class="re-card-footer">
+        <RestEasyViewButton Href="@ViewHref"></RestEasyViewButton>
+        <RestEasyEditButton Href="@EditHref"></RestEasyEditButton>
+    </RadzenStack>
+</RadzenCard>
+
+@code 
+{
+    [Parameter]
+    [EditorRequired]
+    public string Title { get; set; } = null!;
+
+    [Parameter]
+    public string? SubTitle { get; set; }
+
+    [Parameter] 
+    [EditorRequired] 
+    public string ViewHref { get; set; } = null!;
+
+    [Parameter] 
+    [EditorRequired] 
+    public string EditHref { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+}

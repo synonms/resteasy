@@ -21,4 +21,6 @@ public interface IRestEasyHttpClient
     Task<Maybe<Fault>> PostAsync<TResource>(string uri, TResource resource, CancellationToken cancellationToken) where TResource : Resource;
     
     Task<Maybe<Fault>> PutAsync<TResource>(string uri, TResource resource, CancellationToken cancellationToken) where TResource : Resource;
+
+    Task<Result<HttpResponseMessage>> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken);
 }

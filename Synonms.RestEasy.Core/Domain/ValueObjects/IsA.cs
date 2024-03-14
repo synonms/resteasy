@@ -11,6 +11,9 @@ public record IsA : ValueObject<bool>, IComparable, IComparable<IsA>
     
     public static implicit operator bool(IsA valueObject) => valueObject.Value;
 
+    public static IsA Yes => new IsA(true); 
+    public static IsA No => new IsA(false);
+    
     public static OneOf<IsA, IEnumerable<DomainRuleFault>> CreateMandatory(bool value) => new IsA(value);
 
     public static OneOf<Maybe<IsA>, IEnumerable<DomainRuleFault>> CreateOptional(bool? value)

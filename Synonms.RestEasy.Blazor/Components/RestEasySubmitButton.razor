@@ -1,0 +1,12 @@
+﻿@using Radzen
+@using Radzen.Blazor
+
+<RadzenButton ButtonType="ButtonType.Submit" Icon="@Icon" Text="@Text"></RadzenButton>
+
+@code {
+    [Parameter]
+    public string Icon { get; set; } = "save";
+    
+    [Parameter]
+    public string Text { get; set; } = "Save";
+}

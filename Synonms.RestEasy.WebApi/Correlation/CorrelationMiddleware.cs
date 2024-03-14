@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Synonms.RestEasy.WebApi.Http;
 
@@ -6,18 +7,37 @@ namespace Synonms.RestEasy.WebApi.Correlation;
 
 public class CorrelationMiddleware : IMiddleware
 {
+    private readonly ILogger<CorrelationMiddleware> _logger;
+
+    public CorrelationMiddleware(ILogger<CorrelationMiddleware> logger)
+    {
+        _logger = logger;
+    }
+    
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
-        if (httpContext.Items.ContainsKey(HttpContextItemKeys.RequestId) is false)
+        _logger.LogDebug("Executing Correlation Middleware...");
+
+        if (httpContext.Items.ContainsKey(HttpContextItemKeys.RequestId))
+        {
+            _logger.LogDebug("Request Id already present - skipping.");
+        }
+        else
         {
             Guid requestId = Guid.NewGuid();
             
             httpContext.Items[HttpContextItemKeys.RequestId] = requestId;
 
             httpContext.Response.Headers[HttpHeaders.RequestId] = new StringValues(requestId.ToString());
+            
+            _logger.LogDebug("Request Id {requestId} set.", requestId);
         }
-        
-        if (httpContext.Items.ContainsKey(HttpContextItemKeys.CorrelationId) is false)
+
+        if (httpContext.Items.ContainsKey(HttpContextItemKeys.CorrelationId))
+        {
+            _logger.LogDebug("Correlation Id already present - skipping.");
+        }
+        else
         {
             Guid correlationId = Guid.NewGuid();
             
@@ -25,6 +45,8 @@ public class CorrelationMiddleware : IMiddleware
             {
                 if (Guid.TryParse(correlationHeader, out Guid incomingCorrelationId))
                 {
+                    _logger.LogDebug("Incoming Correlation Id detected.");
+
                     correlationId = incomingCorrelationId;
                 }
             }
@@ -32,7 +54,11 @@ public class CorrelationMiddleware : IMiddleware
             httpContext.Items[HttpContextItemKeys.CorrelationId] = correlationId;
 
             httpContext.Response.Headers[HttpHeaders.CorrelationId] = new StringValues(correlationId.ToString());
+            
+            _logger.LogDebug("Correlation Id {correlationId} set.", correlationId);
         }
+
+        _logger.LogDebug("Correlation Middleware complete.");
 
         await next(httpContext);    
     }

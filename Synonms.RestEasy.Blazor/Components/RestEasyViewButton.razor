@@ -1,0 +1,12 @@
+﻿@using Radzen.Blazor
+
+<RadzenButton Icon="search" Text="View" Click="@(() => NavigationManager.NavigateTo(Href))"></RadzenButton>
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter] 
+    [EditorRequired] 
+    public string Href { get; set; } = null!;
+}

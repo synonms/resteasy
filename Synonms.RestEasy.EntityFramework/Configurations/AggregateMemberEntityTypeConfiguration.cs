@@ -11,6 +11,7 @@ public abstract class AggregateMemberEntityTypeConfiguration<TAggregateMember> :
     {
         builder.HasKey(aggregateMember => aggregateMember.Id);
         builder.Property(aggregateMember => aggregateMember.Id).IsRequired();
+        builder.Property(aggregateRoot => aggregateRoot.IsActive).IsRequired();
         builder.Property(aggregateMember => aggregateMember.CreatedAt).IsRequired();
         builder.Property(aggregateMember => aggregateMember.UpdatedAt);
         builder.Ignore(aggregateMember => aggregateMember.DomainEvents);

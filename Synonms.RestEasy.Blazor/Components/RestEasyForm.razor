@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using Radzen
+@using Radzen.Blazor
+
+@typeparam TModel
+
+<RadzenTemplateForm Data="@Model" Submit="@Submit">
+    <RadzenPanel AllowCollapse="false" class="ff-body-panel">
+        <HeaderTemplate>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="FlexWrap.NoWrap" Gap="1em" Style="width: 100%; margin-bottom: 1em">
+                @HeaderToolbarContent
+            </RadzenStack>
+        </HeaderTemplate>
+        <ChildContent>
+                <RadzenStack Orientation="Orientation.Vertical" Gap="1em">
+                    @ChildContent
+                </RadzenStack>
+        </ChildContent>
+        <FooterTemplate>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Wrap="FlexWrap.NoWrap" Gap="1em" Style="width: 100%;">
+                <RestEasySubmitButton/>
+                <RestEasyCancelButton Href="@CancelUrl"/>
+            </RadzenStack>
+        </FooterTemplate>
+    </RadzenPanel>
+</RadzenTemplateForm>
+
+@code {
+
+    [Inject] 
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter]
+    [EditorRequired]
+    public TModel Model { get; set; } = default!;
+
+    [Parameter]
+    [EditorRequired]
+    public string CancelUrl { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<TModel> Submit { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+    
+    [Parameter]
+    public RenderFragment? HeaderToolbarContent { get; set; }
+}

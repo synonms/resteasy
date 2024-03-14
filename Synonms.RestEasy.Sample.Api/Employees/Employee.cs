@@ -17,13 +17,13 @@ public class Employee : AggregateRoot<Employee>
     public const int MiddleNamesMaxLength = 50;
     public const int SurnameMaxLength = 50;
     
-    private Employee(EntityId<Employee> id, Title? title, Initials? initials, Moniker forename, Moniker? middleNames, Moniker surname, Moniker? legalForename, Moniker? legalSurname, Sex sex, EventDate dateOfBirth, EmploymentDetails employmentDetails, EntityId<Address> homeAddressId)
-        : this(title, initials, forename, middleNames, surname, legalForename, legalSurname, sex, dateOfBirth, employmentDetails, homeAddressId)
+    private Employee(EntityId<Employee> id, Title? title, Initials? initials, Moniker forename, Moniker? middleNames, Moniker surname, Moniker? legalForename, Moniker? legalSurname, SexAssignedAtBirth sexAssignedAtBirth, EventDate dateOfBirth, EmploymentDetails employmentDetails, EntityId<Address> homeAddressId)
+        : this(title, initials, forename, middleNames, surname, legalForename, legalSurname, sexAssignedAtBirth, dateOfBirth, employmentDetails, homeAddressId)
     {
         Id = id;
     }
     
-    private Employee(Title? title, Initials? initials, Moniker forename, Moniker? middleNames, Moniker surname, Moniker? legalForename, Moniker? legalSurname, Sex sex, EventDate dateOfBirth, EmploymentDetails employmentDetails, EntityId<Address> homeAddressId)
+    private Employee(Title? title, Initials? initials, Moniker forename, Moniker? middleNames, Moniker surname, Moniker? legalForename, Moniker? legalSurname, SexAssignedAtBirth sexAssignedAtBirth, EventDate dateOfBirth, EmploymentDetails employmentDetails, EntityId<Address> homeAddressId)
     {
         Title = title;
         Initials = initials;
@@ -32,7 +32,7 @@ public class Employee : AggregateRoot<Employee>
         Surname = surname;
         LegalForename = legalForename;
         LegalSurname = legalSurname;
-        Sex = sex;
+        SexAssignedAtBirth = sexAssignedAtBirth;
         DateOfBirth = dateOfBirth;
         EmploymentDetails = employmentDetails;
         HomeAddressId = homeAddressId;
@@ -52,7 +52,7 @@ public class Employee : AggregateRoot<Employee>
     
     public Moniker? LegalSurname { get; private set; }
 
-    public Sex Sex { get; private set; }
+    public SexAssignedAtBirth SexAssignedAtBirth { get; private set; }
     
     public EventDate DateOfBirth { get; private set; }
     
@@ -71,7 +71,7 @@ public class Employee : AggregateRoot<Employee>
                     .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
                     .WithOptionalValueObject(resource.LegalForename, x => Moniker.CreateOptional(x, ForenameMaxLength), out Moniker? legalForenameValueObject)
                     .WithOptionalValueObject(resource.LegalSurname, x => Moniker.CreateOptional(x, SurnameMaxLength), out Moniker? legalSurnameValueObject)
-                    .WithMandatoryValueObject(resource.Sex, Sex.CreateMandatory, out Sex sexValueObject)
+                    .WithMandatoryValueObject(resource.SexAssignedAtBirth, SexAssignedAtBirth.CreateMandatory, out SexAssignedAtBirth sexValueObject)
                     .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
                     .WithDomainRules(
                         RelatedEntityIdRuleset<Address>.Create(nameof(HomeAddressId), resource.HomeAddressId)
@@ -87,7 +87,7 @@ public class Employee : AggregateRoot<Employee>
                 AggregateRules.CreateBuilder()
                     .WithMandatoryValueObject(resource.Forename, x => Moniker.CreateMandatory(x, ForenameMaxLength), out Moniker forenameValueObject)
                     .WithMandatoryValueObject(resource.Surname, x => Moniker.CreateMandatory(x, SurnameMaxLength), out Moniker surnameValueObject)
-                    .WithMandatoryValueObject(resource.Sex, Sex.CreateMandatory, out Sex sexValueObject)
+                    .WithMandatoryValueObject(resource.SexAssignedAtBirth, SexAssignedAtBirth.CreateMandatory, out SexAssignedAtBirth sexValueObject)
                     .WithMandatoryValueObject(resource.DateOfBirth, EventDate.CreateMandatory, out EventDate dateOfBirthValueObject)
                     .WithOptionalValueObject(resource.Title, Title.CreateOptional, out Title? titleValueObject)
                     .WithOptionalValueObject(resource.Initials, Initials.CreateOptional, out Initials? initialsValueObject)
@@ -102,7 +102,7 @@ public class Employee : AggregateRoot<Employee>
                     {
                         UpdateMandatoryValue(_ => _.Forename, forenameValueObject);
                         UpdateMandatoryValue(_ => _.Surname, surnameValueObject);
-                        UpdateMandatoryValue(_ => _.Sex, sexValueObject);
+                        UpdateMandatoryValue(_ => _.SexAssignedAtBirth, sexValueObject);
                         UpdateMandatoryValue(_ => _.DateOfBirth, dateOfBirthValueObject);
                         UpdateMandatoryValue(_ => _.HomeAddressId, resource.HomeAddressId);
                         UpdateOptionalValue(_ => _.Title, titleValueObject);

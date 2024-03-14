@@ -27,7 +27,7 @@ public class PaginatedList<T> : List<T>
         List<T> items = source.Skip(offset).Take(limit).ToList();
         return new PaginatedList<T>(items, offset, limit, size);
     }
-    
+
     public static PaginatedList<T> Create(IEnumerable<T> source, int offset, int limit, int size)
     {
         List<T> items = source.ToList();

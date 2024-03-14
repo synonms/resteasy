@@ -4,25 +4,18 @@ using Synonms.RestEasy.Core.Constants;
 using Synonms.RestEasy.WebApi.Auth;
 using Synonms.RestEasy.WebApi.Correlation;
 using Synonms.RestEasy.WebApi.Http;
-using Synonms.RestEasy.WebApi.MultiTenancy;
+using Synonms.RestEasy.WebApi.Pipeline.Products;
+using Synonms.RestEasy.WebApi.Pipeline.Tenants;
+using Synonms.RestEasy.WebApi.Pipeline.Users;
 
 namespace Synonms.RestEasy.WebApi.Startup;
 
 public static class WebApplicationExtensions
 {
-    public static WebApplication UseMultiTenantRestEasyFramework<TTenant>(this WebApplication webApplication, RestEasyOptions options)
-        where TTenant : Tenant =>
-        webApplication
-            .PreMultiTenancy(options)
-            .UseMultiTenancy<TTenant>()
-            .PostMultiTenancy(options);
-
-    public static WebApplication UseRestEasyFramework(this WebApplication webApplication, RestEasyOptions options) =>
-        webApplication
-            .PreMultiTenancy(options)
-            .PostMultiTenancy(options);
-    
-    private static WebApplication PreMultiTenancy(this WebApplication webApplication, RestEasyOptions options)
+    public static WebApplication UseRestEasyFramework<TUser, TProduct, TTenant>(this WebApplication webApplication, RestEasyOptions options)
+        where TUser : RestEasyUser
+        where TProduct : RestEasyProduct
+        where TTenant : RestEasyTenant
     {
         webApplication.UseHttpsRedirection();
 
@@ -41,24 +34,13 @@ public static class WebApplicationExtensions
         webApplication.UseRouting();
         webApplication.UseCors(Cors.PolicyName);
 
-        return webApplication;
-    }
-
-    private static WebApplication UseMultiTenancy<TTenant>(this WebApplication webApplication)
-        where TTenant : Tenant
-    {
-        webApplication.UseMiddleware<MultiTenancyMiddleware<TTenant>>();
-
-        return webApplication;
-    }
-
-    private static WebApplication PostMultiTenancy(this WebApplication webApplication, RestEasyOptions options)
-    {
         webApplication.UseAuthentication();
-        if (options.AppendPermissions)
-        {
-            webApplication.UseMiddleware<PermissionsMiddleware>();
-        }
+        
+        webApplication.UseMiddleware<UserMiddleware<TUser>>();
+        webApplication.UseMiddleware<TenantMiddleware<TUser, TTenant>>();
+        webApplication.UseMiddleware<ProductMiddleware<TUser, TProduct>>();
+        webApplication.UseMiddleware<PermissionsMiddleware<TUser, TProduct, TTenant>>();
+
         webApplication.UseAuthorization();
         
         webApplication.MapControllers();

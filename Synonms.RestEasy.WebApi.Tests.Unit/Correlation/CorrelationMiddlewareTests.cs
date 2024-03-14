@@ -4,12 +4,16 @@ using Synonms.RestEasy.WebApi.Correlation;
 using Synonms.RestEasy.WebApi.Http;
 using Synonms.RestEasy.WebApi.Tests.Unit.Shared;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Xunit;
 
 namespace Synonms.RestEasy.WebApi.Tests.Unit.Correlation;
 
 public class CorrelationMiddlewareTests
 {
+    private readonly ILogger<CorrelationMiddleware> _mockLogger = Substitute.For<ILogger<CorrelationMiddleware>>();
+    
     [Fact]
     public async Task InvokeAsync_CallsNextDelegate()
     {
@@ -17,7 +21,7 @@ public class CorrelationMiddlewareTests
         
         bool isDelegateCalled = false;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new(_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -38,7 +42,7 @@ public class CorrelationMiddlewareTests
         HttpContext httpContext = TestHttpContextFactory.CreateWithHeader(HttpHeaders.CorrelationId, expectedCorrelationId.ToString());
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new(_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -54,7 +58,7 @@ public class CorrelationMiddlewareTests
         HttpContext httpContext = TestHttpContextFactory.CreateWithHeader(HttpHeaders.RequestId, incomingRequestId.ToString());
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new(_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -70,7 +74,7 @@ public class CorrelationMiddlewareTests
         DefaultHttpContext httpContext = new ();
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new(_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -85,7 +89,7 @@ public class CorrelationMiddlewareTests
         DefaultHttpContext httpContext = new ();
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new (_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -101,7 +105,7 @@ public class CorrelationMiddlewareTests
         HttpContext httpContext = TestHttpContextFactory.CreateWithHeader(HttpHeaders.CorrelationId, expectedCorrelationId.ToString());
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new (_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -117,7 +121,7 @@ public class CorrelationMiddlewareTests
         HttpContext httpContext = TestHttpContextFactory.CreateWithHeader(HttpHeaders.RequestId, incomingRequestId.ToString());
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new (_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -133,7 +137,7 @@ public class CorrelationMiddlewareTests
         DefaultHttpContext httpContext = new ();
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new (_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 
@@ -148,7 +152,7 @@ public class CorrelationMiddlewareTests
         DefaultHttpContext httpContext = new ();
         Task Next(HttpContext _) => Task.CompletedTask;
 
-        CorrelationMiddleware middleware = new ();
+        CorrelationMiddleware middleware = new (_mockLogger);
 
         await middleware.InvokeAsync(httpContext, Next);
 

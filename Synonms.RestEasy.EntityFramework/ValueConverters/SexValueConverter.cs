@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Synonms.RestEasy.EntityFramework.ValueConverters;
 
-public class SexValueConverter : ValueConverter<Sex, string>
+public class SexValueConverter : ValueConverter<SexAssignedAtBirth, string>
 {
     public SexValueConverter()
         : base(valueObject => valueObject.Value,
-            value => Sex.Convert(value))
+            value => SexAssignedAtBirth.Convert(value))
     {
     }
 }

@@ -47,7 +47,7 @@ public class EmployeesAuthorisedTestFixture : SampleApiAuthorisedTestFixture<Emp
             Id = existingEmployee?.Id.Value ?? Guid.NewGuid(),
             Forename = RandomDataGenerator.GenerateAlphaNumeric(40),
             Surname = RandomDataGenerator.GenerateAlphaNumeric(40),
-            Sex = "Male",
+            SexAssignedAtBirth = "Male",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20)),
             EmploymentDetails = new EmploymentDetailsResource()
             {

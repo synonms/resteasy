@@ -7,10 +7,12 @@ using Synonms.RestEasy.WebApi.Startup;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Synonms.RestEasy.Core.Domain;
-using Synonms.RestEasy.Core.Environment;
 using Synonms.RestEasy.Core.Persistence;
 using Synonms.RestEasy.WebApi.Hypermedia.Default;
 using Synonms.RestEasy.WebApi.Hypermedia.Ion;
+using Synonms.RestEasy.WebApi.Pipeline.Products.Persistence;
+using Synonms.RestEasy.WebApi.Pipeline.Tenants.Persistence;
+using Synonms.RestEasy.WebApi.Pipeline.Users.Persistence;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +28,13 @@ RestEasyOptions options = new()
     SwaggerUiConfigurationAction = swaggerUiOptions => swaggerUiOptions.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1.0")
 };
 
-builder.Services.AddRestEasyFramework<UtcDateProvider>(options);
+builder.Services.AddRestEasyFramework<SampleUser, SampleProduct, SampleTenant>(options);
 
 builder.Services.AddSingleton<ILookupOptionsProvider, LookupOptionsProvider>();
+
+builder.Services.AddScoped<IProductRepository<SampleProduct>, SampleProductRepository>();
+builder.Services.AddScoped<ITenantRepository<SampleTenant>, SampleTenantRepository>();
+builder.Services.AddScoped<IUserRepository<SampleUser>, SampleUserRepository>();
 
 // Hack to persist in-memory data between HTTP requests
 builder.Services.Replace(new ServiceDescriptor(typeof(IAggregateRepository<Address>), typeof(AddressesRepository), ServiceLifetime.Singleton));
@@ -37,7 +43,7 @@ builder.Services.Replace(new ServiceDescriptor(typeof(IAggregateRepository<Emplo
 
 WebApplication app = builder.Build();
 
-app.UseRestEasyFramework(options);
+app.UseRestEasyFramework<SampleUser, SampleProduct, SampleTenant>(options);
 
 app.Run();
 

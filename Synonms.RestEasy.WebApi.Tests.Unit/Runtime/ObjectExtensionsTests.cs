@@ -27,6 +27,6 @@ public class ObjectExtensionsTests
         
         List<FormField> formFields = resource.GetFormFields(_mockLookupOptionsProvider).ToList();
 
-        Assert.Equal(10, formFields.Count());
+        Assert.Equal(11, formFields.Count());
     }
 }

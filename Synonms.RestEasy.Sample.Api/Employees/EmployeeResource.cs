@@ -45,7 +45,7 @@ public class EmployeeResource : Resource
 
     [RestEasyRequired]
     [RestEasyLookup("Sex")]
-    public string Sex { get; set; } = string.Empty;
+    public string SexAssignedAtBirth { get; set; } = string.Empty;
 
     [RestEasyRequired]
     [RestEasyPattern(RegularExpressions.DateOnly)]

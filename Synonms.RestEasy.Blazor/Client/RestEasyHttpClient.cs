@@ -165,6 +165,15 @@ public abstract class RestEasyHttpClient : IRestEasyHttpClient
 
                 return Maybe<Fault>.None;
             });
+
+    public virtual async Task<Result<HttpResponseMessage>> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken) =>
+        await _authorizationFunc.Invoke(HttpClient)
+            .BindAsync(async authorisedHttpClient =>
+            {
+                HttpResponseMessage httpResponseMessage = await authorisedHttpClient.SendAsync(httpRequestMessage, cancellationToken);
+                
+                return Result<HttpResponseMessage>.Success(httpResponseMessage);
+            });
     
     protected static async Task<Result<HttpClient>> RequestAuthToken(IAccessTokenProvider accessTokenProvider, HttpClient httpClient)
     {

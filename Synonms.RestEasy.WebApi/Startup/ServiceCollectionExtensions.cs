@@ -24,9 +24,15 @@ using Synonms.RestEasy.WebApi.Domain.Events;
 using Synonms.RestEasy.WebApi.Http;
 using Synonms.RestEasy.WebApi.Mediation.Commands;
 using Synonms.RestEasy.WebApi.Mediation.Queries;
-using Synonms.RestEasy.WebApi.MultiTenancy;
-using Synonms.RestEasy.WebApi.MultiTenancy.Context;
-using Synonms.RestEasy.WebApi.MultiTenancy.Resolution;
+using Synonms.RestEasy.WebApi.Pipeline.Products;
+using Synonms.RestEasy.WebApi.Pipeline.Products.Context;
+using Synonms.RestEasy.WebApi.Pipeline.Products.Resolution;
+using Synonms.RestEasy.WebApi.Pipeline.Tenants;
+using Synonms.RestEasy.WebApi.Pipeline.Tenants.Context;
+using Synonms.RestEasy.WebApi.Pipeline.Tenants.Resolution;
+using Synonms.RestEasy.WebApi.Pipeline.Users;
+using Synonms.RestEasy.WebApi.Pipeline.Users.Context;
+using Synonms.RestEasy.WebApi.Pipeline.Users.Resolution;
 using Synonms.RestEasy.WebApi.Routing;
 using Synonms.RestEasy.WebApi.Swashbuckle;
 
@@ -34,19 +40,10 @@ namespace Synonms.RestEasy.WebApi.Startup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMultiTenantRestEasyFramework<TDateProvider, TTenant>(this IServiceCollection serviceCollection, RestEasyOptions options)
-        where TDateProvider : class, IDateProvider
-        where TTenant : Tenant
-    {
-        serviceCollection.AddRestEasyFramework<TDateProvider>(options);
-
-        serviceCollection.RegisterMultiTenancy<TTenant>(options.AdditionalMultiTenancyResolutionStrategiesAssembly);
-
-        return serviceCollection;
-    }
-
-    public static IServiceCollection AddRestEasyFramework<TDateProvider>(this IServiceCollection serviceCollection, RestEasyOptions options)
-        where TDateProvider : class, IDateProvider
+    public static IServiceCollection AddRestEasyFramework<TUser, TProduct, TTenant>(this IServiceCollection serviceCollection, RestEasyOptions options)
+        where TUser : RestEasyUser
+        where TProduct : RestEasyProduct
+        where TTenant : RestEasyTenant
     {
         serviceCollection.AddHttpContextAccessor();
 
@@ -61,6 +58,8 @@ public static class ServiceCollectionExtensions
         
         serviceCollection.AddScoped<OptionsMiddleware>();
         serviceCollection.AddScoped<CorrelationMiddleware>();
+        serviceCollection.AddScoped<RestEasyBearerTokenRelayHandler>();
+        serviceCollection.AddScoped<RestEasyCorrelationRelayHandler>();
 
         serviceCollection.AddScoped<IRouteGenerator, HttpRouteGenerator>();
         serviceCollection.AddScoped(typeof(ICreateFormDocumentFactory<,>), typeof(CreateFormDocumentFactory<,>));
@@ -97,13 +96,13 @@ public static class ServiceCollectionExtensions
             serviceCollection.WithCorsPolicy(options.CorsConfiguration);
         }
 
-        if (options.AppendPermissions)
-        {
-            serviceCollection.AddScoped<PermissionsMiddleware>();
-        }
-        
-        serviceCollection.AddSingleton<IDateProvider, TDateProvider>();
+        serviceCollection.AddSingleton<IDateProvider, UtcDateProvider>();
 
+        serviceCollection.WithUsers<TUser>();
+        serviceCollection.WithTenants<TUser, TTenant>();
+        serviceCollection.WithProducts<TUser, TProduct>();
+        serviceCollection.AddScoped<PermissionsMiddleware<TUser, TProduct, TTenant>>();
+        
         serviceCollection.WithOpenApi(options.SwaggerGenConfigurationAction);
         
         AuthenticationBuilder authenticationBuilder = serviceCollection.AddAuthentication(options.DefaultAuthenticationScheme);
@@ -263,32 +262,50 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
 
-    public static IServiceCollection RegisterMultiTenancy<TTenant>(this IServiceCollection serviceCollection, Assembly? additionalResolutionStrategiesAssembly = null, ServiceLifetime lifetime = ServiceLifetime.Transient) 
-        where TTenant : Tenant
+    private static IServiceCollection WithUsers<TUser>(this IServiceCollection serviceCollection)
+        where TUser : RestEasyUser
     {
-        serviceCollection.AddScoped<MultiTenancyMiddleware<TTenant>>();
-        serviceCollection.AddScoped<IMultiTenancyContextAccessor<TTenant>, MultiTenancyContextAccessor<TTenant>>();
-        serviceCollection.AddScoped<IMultiTenancyContextFactory<TTenant>, MultiTenancyContextFactory<TTenant>>();
+        serviceCollection.AddScoped<UserMiddleware<TUser>>();
+        serviceCollection.AddScoped<IUserContextAccessor<TUser>, UserContextAccessor<TUser>>();
+        serviceCollection.AddScoped<IUserContextFactory<TUser>, UserContextFactory<TUser>>();
+        serviceCollection.AddScoped<IUserIdResolver, UserIdResolver>();
+
+        serviceCollection.AddScoped<IUserIdResolutionStrategy, ClaimsPrincipalUserIdResolutionStrategy>();
+
+        return serviceCollection;
+    }
+
+    private static IServiceCollection WithTenants<TUser, TTenant>(this IServiceCollection serviceCollection)
+        where TUser : RestEasyUser
+        where TTenant : RestEasyTenant
+    {
+        serviceCollection.AddScoped<TenantMiddleware<TUser, TTenant>>();
+        serviceCollection.AddScoped<ITenantContextAccessor<TTenant>, TenantContextAccessor<TTenant>>();
+        serviceCollection.AddScoped<ITenantContextFactory<TTenant>, TenantContextFactory<TTenant>>();
         serviceCollection.AddScoped<ITenantIdResolver, TenantIdResolver>();
 
         serviceCollection.AddScoped<ITenantIdResolutionStrategy, HeaderTenantIdResolutionStrategy>();
         serviceCollection.AddScoped<ITenantIdResolutionStrategy, QueryStringTenantIdResolutionStrategy>();
 
-        if (additionalResolutionStrategiesAssembly is not null)
-        {
-            IEnumerable<Type> resolutionStrategyTypes = additionalResolutionStrategiesAssembly.GetTypes()
-                .Where(x => !x.IsInterface && !x.IsAbstract && x.GetInterfaces().Contains(typeof(ITenantIdResolutionStrategy)));
-            
-            foreach (Type type in resolutionStrategyTypes)
-            {
-                serviceCollection.Add(ServiceDescriptor.Describe(typeof(ITenantIdResolutionStrategy), type, lifetime));
-            }
-        }
+        return serviceCollection;
+    }
+
+    private static IServiceCollection WithProducts<TUser, TProduct>(this IServiceCollection serviceCollection)
+        where TUser : RestEasyUser
+        where TProduct : RestEasyProduct
+    {
+        serviceCollection.AddScoped<ProductMiddleware<TUser, TProduct>>();
+        serviceCollection.AddScoped<IProductContextAccessor<TProduct>, ProductContextAccessor<TProduct>>();
+        serviceCollection.AddScoped<IProductContextFactory<TProduct>, ProductContextFactory<TProduct>>();
+        serviceCollection.AddScoped<IProductIdResolver, ProductIdResolver>();
+
+        serviceCollection.AddScoped<IProductIdResolutionStrategy, HeaderProductIdResolutionStrategy>();
+        serviceCollection.AddScoped<IProductIdResolutionStrategy, QueryStringProductIdResolutionStrategy>();
 
         return serviceCollection;
     }
     
-    public static IServiceCollection WithControllers(this IServiceCollection serviceCollection, Action<MvcOptions>? mvcOptionsConfiguration, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
+    private static IServiceCollection WithControllers(this IServiceCollection serviceCollection, Action<MvcOptions>? mvcOptionsConfiguration, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
     {
         serviceCollection.AddControllers(mvcOptions =>
             {

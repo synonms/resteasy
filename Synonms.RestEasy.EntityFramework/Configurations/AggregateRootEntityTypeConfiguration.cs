@@ -11,6 +11,7 @@ public abstract class AggregateRootEntityTypeConfiguration<TAggregateRoot> : IEn
     {
         builder.HasKey(aggregateRoot => aggregateRoot.Id);
         builder.Property(aggregateRoot => aggregateRoot.Id).IsRequired();
+        builder.Property(aggregateRoot => aggregateRoot.IsActive).IsRequired();
         builder.Property(aggregateRoot => aggregateRoot.CreatedAt).IsRequired();
         builder.Property(aggregateRoot => aggregateRoot.UpdatedAt);
         builder.Property(aggregateRoot => aggregateRoot.EntityTag).IsRequired().IsConcurrencyToken();

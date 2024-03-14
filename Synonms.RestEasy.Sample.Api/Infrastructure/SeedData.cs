@@ -18,7 +18,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Kendrick", 
                     Surname = "Lamar", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1994, 5, 5), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000001"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -40,7 +40,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Michael", 
                     Surname = "Archer", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1984, 6, 6), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000002"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -61,7 +61,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "LeBron",
                     Surname = "James", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1994, 7, 7), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000003"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -82,7 +82,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Heung-min",
                     Surname = "Son", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1994, 8, 8), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000003"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -103,7 +103,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Jeff",
                     Surname = "Buckley", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1994, 7, 7), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000004"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -126,7 +126,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "David",
                     Surname = "Bowie", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1944, 7, 7), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000004"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -147,7 +147,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Kobe",
                     Surname = "Bryant", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1984, 7, 7), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000004"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -168,7 +168,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Michael",
                     Surname = "Jordan", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1964, 7, 7), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000004"),
                     EmploymentDetails = new EmploymentDetailsResource
@@ -189,7 +189,7 @@ public static class SeedData
                     Title = "Mr",
                     Forename = "Jimmy",
                     Surname = "Greaves", 
-                    Sex = "Male",
+                    SexAssignedAtBirth = "Male",
                     DateOfBirth = new DateOnly(1940, 2, 20), 
                     HomeAddressId = EntityId<Address>.Parse("00000000-0000-0000-0001-000000000004"),
                     EmploymentDetails = new EmploymentDetailsResource
