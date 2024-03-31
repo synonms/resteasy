@@ -151,7 +151,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
                 return;
             }
 
-            TAggregateRoot? retrievedAggregateRoot = _retrieveAggregateFunc.Invoke((EntityId<TAggregateRoot>)newResourceId).Result;
+            TAggregateRoot? retrievedAggregateRoot = _retrieveAggregateFunc.Invoke((EntityId<TAggregateRoot>)newResourceId!).Result;
 
             if (retrievedAggregateRoot is null)
             {
@@ -161,7 +161,7 @@ public class PostTestBuilder<TAggregateRoot, TResource>
 
             _validateAggregateAction.Invoke(retrievedAggregateRoot, _resource);
 
-            _removeAggregateFunc.Invoke((EntityId<TAggregateRoot>)newResourceId).Wait();
+            _removeAggregateFunc.Invoke((EntityId<TAggregateRoot>)newResourceId!).Wait();
         }
         
         public void FailsWith(HttpStatusCode httpStatusCode)

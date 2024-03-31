@@ -27,7 +27,7 @@ public class ResourceExtensionsTests
         
         Form createForm = resource.GenerateCreateForm<TestAggregateRoot, TestResource>(targetUri, _mockLookupOptionsProvider);
 
-        Assert.Equal(10, createForm.Fields.Count());
+        Assert.Equal(11, createForm.Fields.Count());
 
         Assert.Equal(targetUri, createForm.Target.Uri);
         Assert.Equal(IanaLinkRelations.Forms.Create, createForm.Target.Relation);
@@ -42,7 +42,7 @@ public class ResourceExtensionsTests
         
         Form editForm = resource.GenerateEditForm<TestAggregateRoot, TestResource>(targetUri, _mockLookupOptionsProvider);
 
-        Assert.Equal(10, editForm.Fields.Count());
+        Assert.Equal(11, editForm.Fields.Count());
 
         Assert.Equal(targetUri, editForm.Target.Uri);
         Assert.Equal(IanaLinkRelations.Forms.Edit, editForm.Target.Relation);

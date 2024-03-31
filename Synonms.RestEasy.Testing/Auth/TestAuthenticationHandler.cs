@@ -15,8 +15,8 @@ public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSch
     public const string SubjectClaimType = "sub";
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public TestAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IHttpContextAccessor httpContextAccessor) 
-        : base(options, logger, encoder, clock)
+    public TestAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, IHttpContextAccessor httpContextAccessor) 
+        : base(options, logger, encoder)
     {
         _httpContextAccessor = httpContextAccessor;
     }
