@@ -3,8 +3,8 @@ namespace Synonms.RestEasy.WebApi.Auth;
 public static class Permissions
 {
     public const string ClaimType = "permissions";
-    public const string CreatePrefix = "create:";
-    public const string ReadPrefix = "read:";
-    public const string UpdatePrefix = "update:";
-    public const string DeletePrefix = "delete:";
+    public const string Create = "create";
+    public const string Read = "read";
+    public const string Update = "update";
+    public const string Delete = "delete";
 }

@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PackageVersion>8.0.0</PackageVersion>
+        <PackageVersion>8.0.1</PackageVersion>
         <Title>Synonms RestEasy (Entity Framework)</Title>
         <Authors>Synonms</Authors>
         <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain. This package provides EntityFramework integration.</Description>

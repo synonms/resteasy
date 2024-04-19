@@ -1,35 +1,31 @@
-using System.Reflection;
 using Synonms.RestEasy.Core.Domain;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
-using Synonms.RestEasy.Core.Attributes;
 
 namespace Synonms.RestEasy.WebApi.Auth;
 
 public abstract class AggregatePolicyRegistrar<TAggregateRoot> : IPolicyRegistrar
     where TAggregateRoot : AggregateRoot<TAggregateRoot>
 {
-    protected string PermissionName;
-    protected string CreatePermission;
-    protected string ReadPermission;
-    protected string UpdatePermission;
-    protected string DeletePermission;
-    protected string AuthPolicyName;
-    protected string CreatePolicy;
-    protected string ReadPolicy;
-    protected string UpdatePolicy;
-    protected string DeletePolicy;
+    protected const string Separator = ".";
+    protected readonly string ResourceName;
+    protected readonly string CreatePermission;
+    protected readonly string ReadPermission;
+    protected readonly string UpdatePermission;
+    protected readonly string DeletePermission;
+    protected readonly string AuthPolicyName;
+    protected readonly string CreatePolicy;
+    protected readonly string ReadPolicy;
+    protected readonly string UpdatePolicy;
+    protected readonly string DeletePolicy;
 
     protected AggregatePolicyRegistrar()
     {
-        RestEasyResourceAttribute? resourceAttribute = typeof(TAggregateRoot).GetCustomAttribute<RestEasyResourceAttribute>();
+        ResourceName = typeof(TAggregateRoot).Name.ToLowerInvariant();
 
-        PermissionName = resourceAttribute?.CollectionPath ?? string.Empty;
-
-        CreatePermission = Permissions.CreatePrefix + PermissionName;
-        ReadPermission = Permissions.ReadPrefix + PermissionName;
-        UpdatePermission = Permissions.UpdatePrefix + PermissionName;
-        DeletePermission = Permissions.DeletePrefix + PermissionName;
+        CreatePermission = ResourceName + Separator + Permissions.Create;
+        ReadPermission = ResourceName + Separator + Permissions.Read;
+        UpdatePermission = ResourceName + Separator + Permissions.Update;
+        DeletePermission = ResourceName + Separator + Permissions.Delete;
 
         AuthPolicyName = typeof(TAggregateRoot).Name;
 

@@ -9,8 +9,8 @@ public class MigrationsPolicyRegistrar : IPolicyRegistrar
     public const string PermissionName = MigrationsController.CollectionName;
     public const string PolicyName = "Migrations";
 
-    public const string ReadPermission = Permissions.ReadPrefix + PermissionName;
-    public const string CreatePermission = Permissions.CreatePrefix + PermissionName;
+    public const string ReadPermission = Permissions.Read + PermissionName;
+    public const string CreatePermission = Permissions.Create + PermissionName;
     
     public const string CreatePolicy = Policies.CreatePrefix + PolicyName;
     public const string ReadPolicy = Policies.ReadPrefix + PolicyName;
