@@ -24,7 +24,11 @@ public class PaginatedList<T> : List<T>
     public static PaginatedList<T> Create(IQueryable<T> source, int offset, int limit)
     {
         int size = source.Count();
-        List<T> items = source.Skip(offset).Take(limit).ToList();
+        
+        List<T> items = limit > 0
+            ? source.Skip(offset).Take(limit).ToList()
+            : source.Skip(offset).ToList();
+        
         return new PaginatedList<T>(items, offset, limit, size);
     }
 

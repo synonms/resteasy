@@ -1,16 +1,14 @@
-using Synonms.RestEasy.Core.Schema;
-
 namespace Synonms.RestEasy.Core.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class RestEasyResourceAttribute : Attribute
 {
-    public RestEasyResourceAttribute(Type resourceType, string collectionPath, bool allowAnonymous = false, int pageLimit = Pagination.DefaultPageLimit, bool isCreateDisabled = false, bool isUpdateDisabled = false, bool isDeleteDisabled = false)
+    public RestEasyResourceAttribute(Type resourceType, string collectionPath, bool allowAnonymous = false, int pageLimit = 0, bool isCreateDisabled = false, bool isUpdateDisabled = false, bool isDeleteDisabled = false)
     {
         ResourceType = resourceType;
         CollectionPath = collectionPath;
         AllowAnonymous = allowAnonymous;
-        PageLimit = pageLimit < 1 ? Pagination.DefaultPageLimit : pageLimit;
+        PageLimit = Math.Clamp(pageLimit, 0, int.MaxValue);
         IsCreateDisabled = isCreateDisabled;
         IsUpdateDisabled = isUpdateDisabled;
         IsDeleteDisabled = isDeleteDisabled;

@@ -23,7 +23,29 @@ On top of that the library also provides functionality which can be used for gen
 - Extensions to the Synonms.Functional library for Railway Oriented Programming
 - Paginated Lists, Date Providers, various extension methods...
 
-## Web API
+## Projects/NuGet Packages
+
+[![NuGet version (Synonms.RestEasy.Core)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.Core)](https://www.nuget.org/packages/Synonms.RestEasy.Core/)
+
+Shared functionality not specific to web APIs, including DDD objects, the resource schema and serialisation.
+
+[![NuGet version (Synonms.RestEasy.EntityFramework)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.EntityFramework)](https://www.nuget.org/packages/Synonms.RestEasy.EntityFramework/)
+
+Persistence implementations for Entity Framework including a base DbContext with all of the DDD objects and domain event plumbing configured.
+
+[![NuGet version (Synonms.RestEasy.WebApi)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.WebApi)](https://www.nuget.org/packages/Synonms.RestEasy.WebApi/)
+
+Web API related functionality including endpoint generation, middleware, Hypermedia and MediatR/Swashbuckle integrations.
+
+[![NuGet version (Synonms.RestEasy.Testing)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.Testing)](https://www.nuget.org/packages/Synonms.RestEasy.Testing/)
+
+Infrastructure to simplify Integration testing for RestEasy endpoints with test fixture base classes.
+
+[![NuGet version (Synonms.RestEasy.Testing.EntityFrameworkCore)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.Testing.EntityFrameworkCore)](https://www.nuget.org/packages/Synonms.RestEasy.Testing.EntityFrameworkCore/)
+
+Additional test fixtures for Entity Framework integrations.
+
+## Usage
 
 ### Basic Structure
 

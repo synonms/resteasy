@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Synonms.RestEasy.Core.Domain;
 using Synonms.RestEasy.WebApi.Collections;
 using Synonms.RestEasy.WebApi.Pipeline;
@@ -34,11 +35,12 @@ public class GetAllEndpoint<TAggregateRoot, TResource> : ControllerBase
 
     [HttpGet]
     [Route("")]
-    public async Task<IActionResult> GetAllAsync([FromQuery] int offset = 0)
+    public async Task<IActionResult> GetAllAsync([FromQuery] int offset = 0, [FromQuery] int limit = Pagination.DefaultPageLimit)
     {
         RestEasyResourceAttribute? resourceAttribute = typeof(TAggregateRoot).GetCustomAttribute<RestEasyResourceAttribute>();
 
-        int pageLimit = resourceAttribute?.PageLimit ?? Pagination.DefaultPageLimit;
+        int configuredPageLimit = resourceAttribute?.PageLimit ?? 0;
+        int pageLimit = configuredPageLimit > 0 ? configuredPageLimit : Math.Clamp(limit, 0, int.MaxValue);
         
         ReadResourceCollectionRequest<TAggregateRoot, TResource> request = new(pageLimit)
         {
