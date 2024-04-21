@@ -19,7 +19,7 @@ public class PaginatedList<T> : List<T>
 
     public bool HasPrevious => Offset > 1;
 
-    public bool HasNext => (Offset + Limit) < Size;
+    public bool HasNext => Limit > 0 && (Offset + Limit) < Size;
 
     public static PaginatedList<T> Create(IQueryable<T> source, int offset, int limit)
     {

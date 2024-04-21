@@ -21,14 +21,16 @@ public static class PaginatedListExtensions
     
     private static Link GenerateFirstLink<T>(this PaginatedList<T> paginatedList, Func<int, Uri> resourceCollectionUriFunc)
     {
-        Uri firstUri = resourceCollectionUriFunc(0);
+        const int offset = 0;
+        Uri firstUri = resourceCollectionUriFunc(offset);
         
         return Link.PageLink(firstUri);
     }
 
     private static Link GenerateLastLink<T>(this PaginatedList<T> paginatedList, Func<int, Uri> resourceCollectionUriFunc)
     {
-        Uri lastUri = resourceCollectionUriFunc(paginatedList.Size - (paginatedList.Size % paginatedList.Limit));
+        int offset = paginatedList.Limit <= 0 ? 0 : paginatedList.Size - (paginatedList.Size % paginatedList.Limit);
+        Uri lastUri = resourceCollectionUriFunc(offset);
         
         return Link.PageLink(lastUri);
     }
@@ -39,8 +41,9 @@ public static class PaginatedListExtensions
         {
             return null;
         }
-        
-        Uri previousUri = resourceCollectionUriFunc(Math.Max(paginatedList.Offset - paginatedList.Limit, 0));
+
+        int offset = Math.Max(paginatedList.Offset - paginatedList.Limit, 0);
+        Uri previousUri = resourceCollectionUriFunc(offset);
         
         return Link.PageLink(previousUri);
     }
@@ -51,8 +54,9 @@ public static class PaginatedListExtensions
         {
             return null;
         }
-        
-        Uri nextUri = resourceCollectionUriFunc(paginatedList.Offset + paginatedList.Limit);
+
+        int offset = paginatedList.Offset + paginatedList.Limit;
+        Uri nextUri = resourceCollectionUriFunc(offset);
         
         return Link.PageLink(nextUri);
     }

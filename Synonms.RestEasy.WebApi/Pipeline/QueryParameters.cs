@@ -8,9 +8,10 @@ public class QueryParameters
     {
         public const string Offset = "offset";
         public const string Sort = "sort";
+        public const string Limit = "limit";
     }
 
-    public static string[] ReservedKeys = new[] { Names.Offset, Names.Sort };
+    public static string[] ReservedKeys = new[] { Names.Offset, Names.Sort, Names.Limit };
 
     private readonly IDictionary<string, object> _parameters = new Dictionary<string, object>();
 
