@@ -116,7 +116,7 @@ public static class ServiceCollectionExtensions
             options.AuthorizationConfiguration?.Invoke(authorizationOptions);
         });
 
-        serviceCollection.WithControllers(options.MvcOptionsConfigurationAction, routeNameProvider, resourceDirectory);
+        serviceCollection.WithControllers(options, routeNameProvider, resourceDirectory);
         
         return serviceCollection;
     }
@@ -305,23 +305,30 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
     
-    private static IServiceCollection WithControllers(this IServiceCollection serviceCollection, Action<MvcOptions>? mvcOptionsConfiguration, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
+    private static IServiceCollection WithControllers(this IServiceCollection serviceCollection, RestEasyOptions restEasyOptions, IRouteNameProvider routeNameProvider, IResourceDirectory resourceDirectory)
     {
-        serviceCollection.AddControllers(mvcOptions =>
+        IMvcBuilder mvcBuilder = serviceCollection.AddControllers(mvcOptions =>
             {
                 mvcOptions.Conventions.Add(new ControllerModelConvention(routeNameProvider));
 
                 mvcOptions.ConfigureForRestEasy();
                 
-                mvcOptionsConfiguration?.Invoke(mvcOptions);
+                restEasyOptions.MvcOptionsConfigurationAction?.Invoke(mvcOptions);
             })
             .ConfigureApplicationPartManager(applicationPartManager =>
             {
                 applicationPartManager.FeatureProviders.Add(new ControllerFeatureProvider(resourceDirectory));
+                
+                restEasyOptions.ApplicationPartManagerConfigurationAction?.Invoke(applicationPartManager);
             })
-            .AddJsonOptions(jsonOptions => jsonOptions.JsonSerializerOptions.ConfigureForRestEasyFramework());
+            .AddJsonOptions(jsonOptions =>
+            {
+                jsonOptions.JsonSerializerOptions.ConfigureForRestEasyFramework();
+                
+                restEasyOptions.JsonOptionsConfigurationAction?.Invoke(jsonOptions);
+            });
 
-//        serviceCollection.AddRazorPages();
+        restEasyOptions.MvcBuilderConfigurationAction?.Invoke(mvcBuilder);
         
         return serviceCollection;
     }

@@ -23,7 +23,7 @@ ILoggerFactory loggerFactory = new LoggerFactory();
 RestEasyOptions options = new()
 {
     Assemblies = [SampleApiProject.Assembly],
-    MvcOptionsConfigurationAction = mvcOptions => mvcOptions.WithDefaultFormatters(loggerFactory).WithIonFormatters(loggerFactory),
+    MvcOptionsConfigurationAction = mvcOptions => mvcOptions.ClearFormatters().WithDefaultFormatters(loggerFactory).WithIonFormatters(loggerFactory),
     SwaggerGenConfigurationAction = swaggerGenOptions => swaggerGenOptions.SwaggerDoc("v1.0", new OpenApiInfo { Title = "RestEasy Sample API", Version = "v1.0" }),
     SwaggerUiConfigurationAction = swaggerUiOptions => swaggerUiOptions.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1.0")
 };

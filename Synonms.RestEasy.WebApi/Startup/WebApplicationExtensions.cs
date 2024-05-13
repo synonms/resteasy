@@ -31,20 +31,30 @@ public static class WebApplicationExtensions
         }
 
         webApplication.UseMiddleware<CorrelationMiddleware>();
+        
+        options.PreRoutingPipelineConfigurationAction?.Invoke(webApplication);
         webApplication.UseRouting();
+        options.PostRoutingPipelineConfigurationAction?.Invoke(webApplication);
+        
         webApplication.UseCors(Cors.PolicyName);
 
+        options.PreAuthenticationPipelineConfigurationAction?.Invoke(webApplication);
         webApplication.UseAuthentication();
+        options.PostAuthenticationPipelineConfigurationAction?.Invoke(webApplication);
         
         webApplication.UseMiddleware<UserMiddleware<TUser>>();
         webApplication.UseMiddleware<TenantMiddleware<TUser, TTenant>>();
         webApplication.UseMiddleware<ProductMiddleware<TUser, TProduct>>();
         webApplication.UseMiddleware<PermissionsMiddleware<TUser, TProduct, TTenant>>();
 
+        options.PreAuthorizationPipelineConfigurationAction?.Invoke(webApplication);
         webApplication.UseAuthorization();
+        options.PostAuthorizationPipelineConfigurationAction?.Invoke(webApplication);
         
-        webApplication.MapControllers();
+        ControllerActionEndpointConventionBuilder controllerActionEndpointConventionBuilder = webApplication.MapControllers();
 
+        options.ControllerActionConfigurationAction?.Invoke(controllerActionEndpointConventionBuilder);
+        
         return webApplication;
     }
 }

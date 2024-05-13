@@ -4,13 +4,18 @@ namespace Synonms.RestEasy.WebApi.Startup;
 
 public static class MvcOptionsExtensions
 {
-    public static MvcOptionsBuilder ConfigureForRestEasy(this MvcOptions mvcOptions)
+    public static MvcOptions ConfigureForRestEasy(this MvcOptions mvcOptions)
+    {
+        mvcOptions.RespectBrowserAcceptHeader = true;
+
+        return mvcOptions;
+    }
+    
+    public static MvcOptions ClearFormatters(this MvcOptions mvcOptions)
     {
         mvcOptions.InputFormatters.Clear();
         mvcOptions.OutputFormatters.Clear();
-        
-        mvcOptions.RespectBrowserAcceptHeader = true;
 
-        return new MvcOptionsBuilder(mvcOptions);
+        return mvcOptions;
     }
 }

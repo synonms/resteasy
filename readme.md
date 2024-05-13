@@ -23,7 +23,9 @@ On top of that the library also provides functionality which can be used for gen
 - Extensions to the Synonms.Functional library for Railway Oriented Programming
 - Paginated Lists, Date Providers, various extension methods...
 
-## Projects/NuGet Packages
+## Get Started
+
+### Projects/NuGet Packages
 
 [![NuGet version (Synonms.RestEasy.Core)](https://img.shields.io/nuget/v/Synonms.RestEasy.Core?label=Synonms.RestEasy.Core)](https://www.nuget.org/packages/Synonms.RestEasy.Core/)
 
@@ -45,7 +47,90 @@ Infrastructure to simplify Integration testing for RestEasy endpoints with test 
 
 Additional test fixtures for Entity Framework integrations.
 
-## Usage
+### ASP.NET Web API
+
+Add a reference to the `Synonms.RestEasy.WebApi` NuGet package.
+
+RESTEasy requires implementations of `Product`, `Tenant` and `User` models. There is Middleware plumbed into the pipeline which will try to resolve each of these entities if available. They can be empty implementations as demonstrated below if you have no need for them, or you can add whatever properties you want:
+
+```csharp
+public class SampleProduct : RestEasyProduct
+{
+}
+
+public class SampleTenant : RestEasyTenant
+{
+}
+
+public class SampleUser : RestEasyUser
+{
+}
+```
+
+RESTEasy also requires corresponding repositories for these models. Again, they can be empty implementations if you do not have any need for these items, otherwise grab them from your tenants database or call another service or whatever you want:
+
+```csharp
+public class SampleProductRepository : IProductRepository<SampleProduct>
+{
+    public Task<IEnumerable<SampleProduct>> FindAvailableProductsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Enumerable.Empty<SampleProduct>());
+
+    public Task<Maybe<SampleProduct>> FindSelectedProductAsync(Guid id, CancellationToken cancellationToken) =>
+        Task.FromResult(Maybe<SampleProduct>.None);
+}
+
+public class SampleTenantRepository : ITenantRepository<SampleTenant>
+{
+    public Task<IEnumerable<SampleTenant>> FindAvailableTenantsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Enumerable.Empty<SampleTenant>());
+
+    public Task<Maybe<SampleTenant>> FindSelectedTenantAsync(Guid id, CancellationToken cancellationToken) =>
+        Task.FromResult(Maybe<SampleTenant>.None);
+}
+
+public class SampleUserRepository : IUserRepository<SampleUser>
+{
+    public Task<Maybe<SampleUser>> FindAuthenticatedUserAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Maybe<SampleUser>.Some(new SampleUser()));
+}
+```
+
+Finally, if you want to use lookups you need an implementation of `ILookupIOptionsProvider` to get lookup values (for example from a database):
+
+```csharp
+public class LookupOptionsProvider : ILookupOptionsProvider
+{
+    public IEnumerable<FormFieldOption> Get(string discriminator) =>
+        Enumerable<FormFieldOption>.Empty();
+}
+```
+
+In `Program.cs` (or wherever you manage your startup code) wire up RestEasy with the classes you created:
+
+```csharp
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+ILoggerFactory loggerFactory = new LoggerFactory();
+
+RestEasyOptions options = new()
+{
+    Assemblies = typeof(Program).Assembly,
+    MvcOptionsConfigurationAction = mvcOptions => mvcOptions.ClearFormatters().WithDefaultFormatters(loggerFactory).WithIonFormatters(loggerFactory),
+    SwaggerGenConfigurationAction = swaggerGenOptions => swaggerGenOptions.SwaggerDoc("v1.0", new OpenApiInfo { Title = "RestEasy Sample API", Version = "v1.0" }),
+    SwaggerUiConfigurationAction = swaggerUiOptions => swaggerUiOptions.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1.0")
+};
+
+builder.Services.AddRestEasyFramework<SampleUser, SampleProduct, SampleTenant>(options);
+builder.Services.AddSingleton<ILookupOptionsProvider, LookupOptionsProvider>();
+
+WebApplication app = builder.Build();
+
+app.UseRestEasyFramework<SampleUser, SampleProduct, SampleTenant>(options);
+
+app.Run();
+```
+
+`RestEasyOptions` is the place to look if you want to customise the behaviour.
 
 ### Basic Structure
 
@@ -58,7 +143,7 @@ There are a few fundamental objects you will need to create at a minimum in orde
 
 Additionally, you will also likely have a _Repository_ per Aggregate (how does the framework retrieve and store the domain models).
 
-### Aggregates
+## Aggregates
 
 Aggregates are the internal representation of your domain entities.  They are hierarchical groupings of data.  The 'parent' object is the Aggregate Root and all 'child' objects are Aggregate Members.  All actions are performed via the Aggregate Root.  Repositories, for example are only available for Aggregate Roots.  API endpoints are only generated for Aggregate Roots.
 
@@ -69,7 +154,7 @@ Employees have a 1-1 relationship with Employment Details which are essentially 
 Although Contracts have a required relationship to an Employee, Employees can be created without entering their Contract details and there is value in being able to manage Contracts independently of the Employee.  As such we have another Aggregate with Contract as the Aggregate Root.  Other entities which are fundamental parts of a Contract would be Aggregate Members of that Aggregate (for example if we had a separate Salary entity). 
 API endpoints (and Repositories etc.) will be available for Employees and Contracts, but not for Employment Details.  They will be updated via the Employee.
 
-### Resources
+## Resources
 
 Resources are the external representation of the entities. For the most part, resources should consist of properties with simple vanilla C# types (string, int, bool etc.).  Where the corresponding type on the Aggregate is a ValueObject then the Resource would present the underlying type. However, there are certain property types in Resources which will trigger special behaviour which allow for related data to be presented either as embedded data or as a link.
 
@@ -86,6 +171,159 @@ The default Resource mapper enumerates each public instance property on the Reso
 | IEnumerable<TChildResource>           | `public IEnumerable<EmailAddressResource> EmailAddresses { get; set; }` | An embedded child resource collection (from Aggregate Members) | Related Aggregate Members mapped to Child Resources and added to property.                                                                                                                                     |
 
 All other types are assumed to be vanilla properties and Reflection is used to set the property using the value from the Aggregate.  This will potentially fail if the types differ.
+
+## Aggregate Creators
+
+POST methods are used to create new Aggregates and accept the corresponding Resource in the request body. The AggregateCreator is responsible for taking the incoming Resource, validating it and creating the new Aggregate.
+
+Use the related `IAggregateRepository` to check for duplicates etc. Note that the framework will automatically perform the insert and save via the implementation of the repository.
+
+```csharp
+public class PermissionCreator : IAggregateCreator<Permission, PermissionResource>
+{
+    private readonly IAggregateRepository<Permission> _aggregateRepository;
+
+    public PermissionCreator(IAggregateRepository<Permission> aggregateRepository)
+    {
+        _aggregateRepository = aggregateRepository;
+    }
+
+    public async Task<Result<Permission>> CreateAsync(PermissionResource resource, CancellationToken cancellationToken)
+    {
+        Maybe<Permission> existingPermissionOutcome = await _aggregateRepository.FindAsync((EntityId<Permission>)resource.Id, cancellationToken);
+
+        return existingPermissionOutcome.Match(
+        existingPermission => new DomainRuleFault("{entityType} Id '{id}' already exists.", nameof(Permission), resource.Id),
+            () => Permission.Create(resource));
+    }
+}
+```
+
+## Aggregate Updaters
+
+PUT methods are used to update existing Aggregates and accept the corresponding Resource in the request body (the Id is obtained from the route). The AggregateUpdater is responsible for retrieving the existing Aggregate, validating the incoming Resource and updating the Aggregate.
+
+Note that the framework will automatically find the existing aggregate and do the update and save via the implementation of the repository.
+
+```csharp
+public class PermissionUpdater : IAggregateUpdater<Permission, PermissionResource>
+{
+    public Task<Maybe<Fault>> UpdateAsync(Permission aggregateRoot, PermissionResource resource, CancellationToken cancellationToken) =>
+        Task.FromResult(aggregateRoot.Update(resource));
+}
+```
+
+## Repositories
+
+Aggregates require a Repository in order for RESTEasy to be able to store and retrieve them. The `Synonms.RestEasy.EntityFramework` package provides a default implementation which will do all of the work for you in most cases. Simply create a Repository class for your Aggregate and inherit from `AggregateRepository`:
+
+```csharp
+public class PermissionRepository : AggregateRepository<Permission>
+{
+    public PermissionRepository(MyDbContext dbContext) : base(dbContext)
+    {
+    }
+}
+```
+
+There will be cases when you need to specify `Include` clauses when surfacing your resources to pull in aggregate members etc. To do that, simply override the virtual members:
+
+```csharp
+public class RoleRepository : AggregateRepository<Role>
+{
+    public RoleRepository(MyDbContext dbContext) : base(dbContext)
+    {
+    }
+
+    public override async Task<Maybe<Role>> FindAsync(EntityId<Role> id, CancellationToken cancellationToken)
+    {
+        Role? aggregateRoot = await DbContext.Set<Role>()
+            .Include(role => role.Product)
+            .Include(role => role.RolePermissions).ThenInclude(rolePermission => rolePermission.Permission)
+            .FirstOrDefaultAsync(role => role.Id == id, cancellationToken);
+
+        return aggregateRoot ?? Maybe<Role>.None;
+    }
+
+    public override IQueryable<Role> Query(Expression<Func<Role, bool>> predicate) =>
+        DbContext.Set<Role>()
+            .Include(role => role.Product)
+            .Include(role => role.RolePermissions).ThenInclude(rolePermission => rolePermission.Permission)
+            .Where(predicate);
+
+    public override Task<PaginatedList<Role>> ReadAllAsync(int offset, int limit, Func<IQueryable<Role>, IQueryable<Role>> sortFunc, CancellationToken cancellationToken)
+    {
+        IIncludableQueryable<Role, Permission> queryable = DbContext.Set<Role>()
+            .Include(role => role.Product)
+            .Include(role => role.RolePermissions).ThenInclude(rolePermission => rolePermission.Permission);
+
+        return Task.FromResult(PaginatedList<Role>.Create(sortFunc.Invoke(queryable), offset, limit));
+    }
+}
+```
+
+For all of this to work you will of course need a `DbContext`. There is a base class for that too which wires in all the value converters you need and adds Domain Event capabilities too.
+
+```csharp
+public class MyDbContext : RestEasyDbContext
+{
+    public MyDbContext(DbContextOptions<MyDbContext> options, IDomainEventDispatcher domainEventDispatcher)
+        : base(options, domainEventDispatcher)
+    {
+    }
+
+    protected MyDbContext(DbContextOptions options, IDomainEventDispatcher domainEventDispatcher)
+        : base(options, domainEventDispatcher)
+    {
+    }
+
+    // Add whatever DbSets you want as normal
+    public DbSet<Permission> PermissionDbSet { get; set; } = null!;
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        RegisterValueTypeValueConverters(configurationBuilder, MyWebApiProject.Assembly);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(EntityFrameworkCoreProject.Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(MyWebApiProject.Assembly);
+
+        RegisterEntityIdValueConverters(modelBuilder);
+    }
+}
+```
+
+Add it to your DI container:
+
+```csharp
+serviceCollection.AddScoped(serviceProvider =>
+{
+    IDomainEventDispatcher domainEventDispatcher = serviceProvider.GetRequiredService<IDomainEventDispatcher>();
+
+    string? connectionString = configuration.GetConnectionString("MyConnectionString");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new ApplicationException("Unable to determine valid connection string from configuration.");
+    }
+
+    DbContextOptions<MyDbContext> options = new DbContextOptionsBuilder<MyDbContext>()
+        .UseSqlServer(connectionString, options => options.EnableRetryOnFailure())
+        .Options;
+    MyDbContext myDbContext = new(options, domainEventDispatcher);
+
+    return myDbContext;
+});
+
+// RestEasyDbContext is used by the framework for Migrations
+serviceCollection.AddScoped<RestEasyDbContext>(serviceProvider => serviceProvider.GetRequiredService<MyDbContext>());
+```
+
+If you are averse to Entity Framework you can by all means provide your own implementations of `IAggregateRepository`, it's just obviously more work.
 
 ### Endpoints
 

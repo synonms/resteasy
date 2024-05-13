@@ -1,8 +1,11 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -17,6 +20,12 @@ public class RestEasyOptions
     public Assembly? AdditionalMultiTenancyResolutionStrategiesAssembly { get; set; }
 
     public Action<MvcOptions>? MvcOptionsConfigurationAction { get; set; }
+
+    public Action<ApplicationPartManager>? ApplicationPartManagerConfigurationAction { get; set; }
+
+    public Action<JsonOptions>? JsonOptionsConfigurationAction { get; set; }
+
+    public Action<IMvcBuilder>? MvcBuilderConfigurationAction { get; set; }
     
     public Action<SwaggerGenOptions>? SwaggerGenConfigurationAction { get; set; }
 
@@ -27,4 +36,18 @@ public class RestEasyOptions
     public Action<AuthorizationOptions>? AuthorizationConfiguration { get; set; }
     
     public Action<SwaggerUIOptions>? SwaggerUiConfigurationAction { get; set; }
+
+    public Action<WebApplication>? PreRoutingPipelineConfigurationAction { get; set; }
+    
+    public Action<WebApplication>? PostRoutingPipelineConfigurationAction { get; set; }
+
+    public Action<WebApplication>? PreAuthenticationPipelineConfigurationAction { get; set; }
+    
+    public Action<WebApplication>? PostAuthenticationPipelineConfigurationAction { get; set; }
+    
+    public Action<WebApplication>? PreAuthorizationPipelineConfigurationAction { get; set; }
+    
+    public Action<WebApplication>? PostAuthorizationPipelineConfigurationAction { get; set; } 
+    
+    public Action<ControllerActionEndpointConventionBuilder>? ControllerActionConfigurationAction { get; set; } 
 }
