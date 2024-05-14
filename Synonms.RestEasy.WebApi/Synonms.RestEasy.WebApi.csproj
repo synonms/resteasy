@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <PackageVersion>8.0.5</PackageVersion>
+        <PackageVersion>8.0.6</PackageVersion>
         <Title>Synonms RestEasy (Web API)</Title>
         <Authors>Synonms</Authors>
         <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain. This package adds Web API features.</Description>
@@ -18,12 +18,12 @@
     <ItemGroup>
       <PackageReference Include="MediatR" Version="12.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-      <PackageReference Include="Microsoft.Identity.Abstractions" Version="5.0.0" />
-      <PackageReference Include="Microsoft.Identity.Web.TokenAcquisition" Version="2.15.2" />
-      <PackageReference Include="Microsoft.OpenApi" Version="1.6.13" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
+      <PackageReference Include="Microsoft.Identity.Abstractions" Version="5.3.0" />
+      <PackageReference Include="Microsoft.Identity.Web.TokenAcquisition" Version="2.18.1" />
+      <PackageReference Include="Microsoft.OpenApi" Version="1.6.14" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.1" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.1" />
     </ItemGroup>
 
     <ItemGroup>
