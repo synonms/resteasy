@@ -23,6 +23,8 @@ On top of that the library also provides functionality which can be used for gen
 - Extensions to the Synonms.Functional library for Railway Oriented Programming
 - Paginated Lists, Date Providers, various extension methods...
 
+Documentation is available on my [Portfolio](https://victorious-river-03dbada03.5.azurestaticapps.net/rest-easy).
+
 ## Get Started
 
 ### Projects/NuGet Packages

@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <PackageVersion>8.0.6</PackageVersion>
+        <PackageVersion>8.0.7</PackageVersion>
         <Title>Synonms RestEasy (Web API)</Title>
         <Authors>Synonms</Authors>
         <Description>Synonms RESTEasy is a framework to help facilitate the implementation of RESTful CRUD API endpoints for your domain. This package adds Web API features.</Description>
